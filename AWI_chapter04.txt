@@ -1,0 +1,811 @@
+Managing the Database Instance
+
+AWI, P. 4-4
+Starting and Stoping Database Control
+1. Database control是一個獨立的Database management console。
+2. 並且也未連接Grid Infrastructure framework。
+3. 任何一個Database console只能管理一個Database。
+4. 開始使用Database contol之前，需要先啟動Database console。
+   To start the dbconsole process
+   $ emctl start dbconsole
+   To stop the dbconsole process
+   $ emctl stop dbconsole
+   To view the status of dbconsole process
+   $ emctl status dbconsole
+
+   $ emctl start dbconsole
+   $ cd $ORACLE_HOME
+   $ hostname
+   $ echo $ORACLE_SID
+   $ cd oracledb.example.com_orcl
+        ^^^^^^^^^^^^^^^^^^^^ ^^^^
+            hostnam           SID
+   $ cat emctl.pid
+     若是有emctl.pid存在，代表有啟動
+   $ ps -ef | grep 1276
+                   ^^^^emctl.pid
+   $ emctl stop dbconsole
+     關閉後並不會自動開啟
+   $ emctl start dbconsole
+   $ cd sysman
+   $ pwd
+   /u01/app/oracle/product/11.2.0/dbhome_1/oracledb.example.com_orcl/sysman/config
+   $ ls emd.priority  <== 配置檔
+
+5. 在有安裝Grid Infrastructure framework的情況下，Database software 及 
+   Grid Infrastructure中，均存在環境變數＄ORACLE_HOME，並且
+   $ORACLE_HOME/bin 目錄下也都會存在emctl這個工具；但通常是在Database software底
+   下$ORACLE_HOME/bin/emctl會被啟動。
+6. Database control會使用server-side agent process，所以，當dbconsole被啟動或關閉
+   時，server-side agent process都會自動被啟動或關閉。
+7. dbconsole不會於伺服器重開之後被自動啟動，所以，每次都要手動將dbconsole啟動。
+
+AWI, P. 4-5
+Oracle Enterprise Manager
+1. EM， Oracle Enterprise Manager
+2. EM是一個Web-base Database Control， 提供了圖形化界面讓DBA進行Database的管理工作。
+3. EM使用HTTPS，網址為
+   https://machine_name:port/em/
+   預設的EM Database Control 是使用1158 port
+   
+   # cat $ORACLE_HOME/install/readme.txt
+   Enterprise Manager Database Control URL - (orcl) :
+   https://oracledb.example.com:1158/em
+
+4. 若需要調整port，配置檔位於
+   # cat $ORACLE_HOME/install/portlist.ini
+   Enterprise Manager Console HTTP Port (orcl) = 1158
+   Enterprise Manager Agent Port (orcl) = 3938
+5. 預設只有sys，system，sysman可以登入database control， 並且若使用sys登入則必須
+   使用sysdba角色，其餘ID則使用normal即可。
+6. sysman，dbsmp兩個ID於設定組態時使用，例如，啟動dbconsole。
+7. dbconsole會自動一直使用dbsmp去access db 狀態，然後save在sysman表格中。
+
+AWI, P. 4-9
+Using SQL*Plus
+1. To start SQL*Plus
+   # sqlplus <user_ID>/<pwd> or </nolog>
+2. 若使用NOLOG option，必須再用CONNECT輸入<user name>，然後再於提示字元後輸入
+   Password，這樣才能連接到default database。
+3. 當使用as sysdba 或as sysoper時，oracle server將會先使用OS的驗證（即目前的
+   OS user是否屬於osdba或osoper群組）。若屬於這些群組（對應關係於安裝oracle 
+   software時已經指定），則直接取得sysdba/sysoper權限。若不屬於osdba或osoper，
+   才會比對所使用的username/password是否與password file所記錄的相同。
+   Case I: 只要username為sys，表示此session已經取得sysdba身分
+     [oracle@oracledb ~]$ sqlplus sys/oracle as sysdba
+     SQL> show user;
+     USER is "SYS"  <== 已經取得sysdba身份
+     SQL> exit
+
+   Case II: 
+     [oracle@oracledb ~]$ sqlplus sys/oracle123 as sysdba
+     SQL> show user;
+     USER is "SYS"  <== 使用錯誤的密碼，仍然取得sysdba身份
+     SQL> exit
+
+   Case III:
+     [oracle@oracledb ~]$ sqlplus / as sysdba
+     SQL> show user;
+     USER is "SYS"  <== 不給ID/Password，仍然可以取得sysdba身份
+     SQL> exit
+
+[補充]
+一個SQL Statement的執行順序
+SQL --> Connection --> Session --> parser --> execute --> redo log
+                                                          undo log
+                                                      --> ........
+                                                      
+AWI, P. 4-10
+Calling SQL*Plus from a Shell Script
+例如：
+   # vim batch_sqlplus.sh
+   sqlplus hr/hr << EOF
+   SELECT count(*) FROM employees;
+   update employees set salary=salary * 1.10;
+   commit;
+   quit
+   EOF
+
+AWI, P. 4-11
+Calling a SQL Script from SQL*Plus
+[oracle@oracledb ~]$ cat count_emp.sql 
+SELECT count(*) FROM hr.employees;
+SELECT count(*) FROM hr.departments;
+例如：
+    # sqlplus hr/hr @script.sql
+                   ^此處若沒有空白會變成連線的IP
+    或
+    SQL> @script.sql
+    或
+    SQL> @script
+          ^^^^^^若副檔名為 .sql
+
+AWI, P. 4-12 && Oracle Database Concept, E40540-02, P. 13-14
+Overview of Parameter Files
+1. 當啟動Oracle Instance時，Oracle database 會從Server parameter file 或 
+   text initialization paramter file中讀取特定的配置參數訊息。
+2. 當手動建立database時，必須使用參數文件來啟動一個Instance，然後再使用
+   CREATE DATABASE命令。因此，當database不存在時，參數文件及Instance是可以存在的
+   。
+
+Initialization Parameter，初始化參數。
+  1. Initialization parameter，初始化參數是配置參數，會影響一個Instance的基本操作
+     。於database啟動時，Instance會從一個文件中讀取初始化參數。
+  2. Oracle database於不同的平台上，提供了很多的初始化參數來優化資料庫的操作。
+  3. 參數值的分類
+     3.1. Derived parameter vaules，可推導的參數。
+          例如：
+          SESSION參數會依據PROCESSES參數的計算獲得，SESSION＝1.1 * PROCESSES + 15。
+          若是直接設定了SESSION的值也會被推導出來的值給覆蓋掉。
+     3.2. Operating System-Dependent parameter values，OS相關的參數。
+          某些參數的有效值或有效範圍是依賴於OS。
+          例如：
+          DB＿BLOCK＿BUFFERS參數的最大值就和OS有關。
+     3.3. Setting Parameter values
+          這部分的參數有很大程度會影響資料庫的效能。
+  4. Functional Groups of Initializations
+     大部分的初始化參數都會屬於以下功能化群組的其中一個
+     4.1. Parameters that name entities such as files or directories.
+          -- 命名實體
+     4.2. Parameters that set limits for a process, database resource, or the 
+          database itself.
+          -- 限制範圍
+     4.3. Parameters that affect capacity, such as the size of the SGA (these 
+          parameters are called variable parameters).
+          -- 容量/負載量的影響
+          variable parameters是DBA會感興趣的一部分，因為DBA可以利用這些參數來改善
+          資料庫效能。
+  5. Simplified Initialization Parameters
+     初始化參數被分成2個群組：basic 和 advanced。
+     5.1. Basic parameters 
+       在大多數的情況下，經由設定30個basic parameters即能獲得合理的資料庫效能。
+       例如：database name, locations of the control files, database blok size, 
+       and undo tablespace。
+     5.2. Advanced parameters
+       在極少數的情況下，才需要去調整advanced parameters(314個)。
+
+Server Parameter Files and Text Initialization Parameter Files
+  Parameter file的存放路徑及命名規則
+    ╔═══════════╗
+    ║ DBConsole ║
+    ╚═══════════╝
+       │ 
+       │       ┌─────────────────────┐
+       │       │                     │=====          =====
+       └─────＞│ 位置/名字格式       │  S   ───────＞  U
+               │                     │=====          =====
+               │                     │
+               │                     │
+               └─────────────────────┘
+    ======================================================
+               ┌─────────────────────┐
+               │                     │
+               │ Database            │
+               │                     │
+               │                     │
+               └─────────────────────┘
+      $ORACLE_HOME/dbs/spfile<SID>.ora
+      ^^^^^^^^^^^^^^^^ ------=====
+         位置          前綴字 $ORACLE_SID
+      
+      例如：
+      $ORACLE_HOME/dbs/spfile<SID>.ora  <== 某個instance專用的spfile
+      或
+      $ORACLE_HOME/dbs/spfile.ora       <== 多個instance共用的spfile
+      或
+      $ORACLE_HOME/dbs/init<SID>.ora    <== 文字格式的pfile
+    
+    在沒有明確指定所要使用的pfile下，則會使用下列順序尋找parameter file
+      1. $ORACLE_HOME/dbs/spfile<SID>.ora  
+      2. $ORACLE_HOME/dbs/spfile.ora       
+      3. $ORACLE_HOME/dbs/init<SID>.ora    
+
+    於11gR2之後，parameter file(spfile)會放到ASM中，因此在$ORACLE_HOME/dbs中會找
+    不到，檢查$ORACLE_HOME/dbs/initorcl.ora會發現
+    include=+DATA/orcl/spfileorcl.ora
+
+  Text Initialization Parameter Files
+    1. pfile，是一個文字格式的參數文件，舊版的參數文件，只存在於Oracle 8i 或更之
+       前的版本，只存在這種格式。
+    2. 可以使用任何文字編輯器來建立或編輯。
+    3. pfile修改後Oracle Instance需要重新啟動才會生效。
+    4. pfile不一定位於Database server上，若有一台Client host 安裝了SQL＊Plus，
+       DBA就能使用SQL＊Plus透過網路連接Database server，此時Client host上就必須存
+       在一個pfile才能對Database server進行啟動或關閉Database等的管理動作。
+       如下圖，若要在Client A這個host上啟動或關閉Database時，必須存在pfile文件。
+    5. 使用"ALTER SYSTEM"命令只會影響當前執行的Instance，必須手動更新pfile後，
+       再重新啟動Instance，讓新的參數生效。
+    6. pfile文件中，其內容是以KEY=VALUE pairs的格式呈現。
+       例如：
+         db_name=orcl
+         control_files=+DATA/oradata/orcl.dbf
+         db_block=8192
+         open_cursors=52
+         undo_management=auto
+         shared_pool_size=280M
+         pga_aggregate_target=29M
+    7. 若有2台或多台的Client host能夠用SQL＊Plus透過網路來管理資料庫，在這種情況
+       下，每一台Client host上都必須存在相同的一份pfile。如下圖所示。此時，pfile
+       就會大量的被產生，就會造成管理上的問題。
+
+          ┌──────────┐-------------                    ┌────────────┐
+          │          │ Application    ──┐              │ ╔════════╗ │
+          │          │    ======        │              │ ║        ║ │
+          │          │    pfile         │              │ ╚════════╝ │
+       ╔══╧══════════╧══╗ ======        │              │ ╔════════╗ │
+       ║                ║ ---------     ├───────────➔  │ ║        ║ │
+       ╚═══╣Client A╠═══╝               │              │ ╚════════╝ │
+                                        │              │            │
+          ┌──────────┐-------------     │              │ ══════════ │
+          │          │ Application    ──┘              │ ══════════ │
+          │          │    ======                       │ ══════════ │
+          │          │    pfile         ┌──┤Database├──│            │
+       ╔══╧══════════╧══╗ ======        │              └─┤Database├─┘
+       ║                ║ ----------    │                 Server            
+       ╚═══╣Client B╠═══╝               │           ========= │
+                                        │            spfile   │
+                                        │           ========= │
+                                        └─────────────────────┘
+
+  Server Parameter Files
+    1. spfile，一個database只有一個spfile，且這個文件必須是存在於database主機上。
+    2. 是一個二進位文件，從Oracle 9i開始導入這種格式。
+    3. 不能使用文字編輯器修改內容，會破壞其內容，只能被database讀寫，透過指令：
+       "ALTER SYSTEM SET" 或 "ALTER SESSION SET" 來進行內容的修改，
+       例如：alter system set parameter=value
+    4. 使用spfile，Initialization parameter value是可以線上動態修改，並且部分參數
+       修改後無需重新啟動Instance直接生效。
+    5. 使用spfile可以避免pfile在管理上的兩個嚴重的問題
+       5.1. 可以避免pfile文件的大量產生。
+            因為spfile是存在於Database server上，不能放在client host上。
+       5.2. 不需要再使用資料庫以外的工具來維護參數文件。
+            DBA可以不需要再手動的維護參數文件，可以利用"ALTER SYSTEM"命令來將參數
+            值維護到spfile中。
+  
+  SPFILE和PFILE的比較
+  ==============================================================================
+              SPFILE                                           PFILE
+  ------------------------------------------------------------------------------
+   RMAN備份   能備份                                           不能備份
+  ------------------------------------------------------------------------------
+   存放位置   存放在Server端，只能在Server端利用命令修改，     可以任意修改
+              減少人為錯誤
+  ------------------------------------------------------------------------------
+   管理問題   減少配置問題，啟動遠端資料庫，不需要本地PFILE    配置大量PFILE
+  ==============================================================================
+
+Changing Initialization Parameter Values
+  1. Initialization parameter可以被分為2種，靜態參數(static parameter)及
+     動態參數(dynamic parameter)。
+  2. Static and Dynamic initialization Parameters
+     ===========================================================================
+      Characteristic                                            Static   Dynamic
+     ---------------------------------------------------------------------------
+      Requires modification of the parameter file(text or        YES       NO
+      server).
+     ---------------------------------------------------------------------------
+      Requires database instance restart before setting takes    YES       NO
+      affect.
+     ---------------------------------------------------------------------------
+      Described as "Modifiable" in Oracle Database Reference     NO        YES
+      initializaiton parameter entry.
+     ---------------------------------------------------------------------------
+      Modifiable only for the database or instance.              YES       NO
+     ===========================================================================
+  3. Static parameter
+     3.1. 靜態參數約110個。
+     3.2. 包括了，DB_BLOCK_SIZE，DB_NAME，COMPATIBLE。
+  4. Dynamic parameter
+     4.1. 動態參數又分成SESSION-LEVEL parameter和SYSTEM-LEVEL parameter
+     4.2. SESSION-LEVEL：只影響當前的USER SESSION，例如：
+          NLS(National Language Support)，NLS_DATE_FORMAT
+     4.3. SYSTEM-LEVEL：影響整個資料庫及所有的SESSIONS，例如：
+          SGA＿TARGET，MEMORY＿TARGET，設定archive log destinations。
+  5. SCOPE=MEMORY|SPFILE|BOTH
+     5.1. 用來指定參數作用的範圍，其範圍分成以下三種 --
+          SCOPE=MEMORY，只在當前的Instance有效，資料庫重新啟動後即失效。
+          SCOPE=SPFILE，只修改SPFILE中的值，在資料庫重新啟動前，修改不會生效。某
+                        一些參數只能使用這個選項來修改，例如：PROCESSES參數，使用
+                        者無法於Active狀態的Instance中修改PROCESS的值。
+          SCOPE=BOTH，修改記憶體中的值也修改SPFILE中的值。
+     5.2. SCOPE=SPFILE|BOTH 是使用spfile啟動的Instance可以使用的參數作用範圍。
+                            可以使用"ALTER SESSION"或"ALTER SYSTEM"命令來修改參數
+                            值。
+     5.3. SCOPE=MEMORY 是使用pfile啟動的Instance可以使用的參數作用範圍，若於
+                       pfile啟動的Instance中，設定SCOPE=SPFILE|MEMORY，則會發生錯
+                       誤。只能使用使用"ALTER SYSTEM"命令來修改參數值。
+  6. You can view parameter settings in several ways, as shown in the following 
+     table.
+     ===========================================================================
+      Method            Description
+     ---------------------------------------------------------------------------
+      SHOW PARAMETERS   This SQL*Plus command displays the values of 
+                        initialization parameters in effect for the current 
+                        session.
+    ---------------------------------------------------------------------------
+      SHOW SPPARAMETERS This SQL*Plus command displays the values of 
+                        initialization parameters in the server parameter file 
+                        (SPFILE).
+    ---------------------------------------------------------------------------
+      CREATE PFILE      This SQL statement creates a text initialization 
+                        parameter file (PFILE) from the SPFILE or from the 
+                        current in-memory settings. You can then view the PFILE 
+                        with any text editor.
+     ---------------------------------------------------------------------------
+      V$PARAMETER       This view displays the values of initialization 
+                        parameters in effect for the current session.
+     ---------------------------------------------------------------------------
+      V$PARAMETER2      This view displays the values of initialization 
+                        parameters in effect for the current session. It is 
+                        easier to distinguish list parameter values in this view
+                        because each list parameter value appears in a separate 
+                        row.
+     ---------------------------------------------------------------------------
+      V$SYSTEM_PARAMETER    This view displays the values of initialization 
+                            parameters in effect for the instance. A new session 
+                            inherits parameter values from the instance-wide 
+                            values.
+                            EX:
+                            SQL> SELECT value FROM v$system_parameter
+                              2> WHERE name='spfile';
+     ---------------------------------------------------------------------------
+      V$SYSTEM_PARAMETER2   This view displays the values of initialization 
+                            parameters in effect for the instance. A new session
+                            inherits parameter values from the instance-wide 
+                            values. It is easier to distinguish list parameter 
+                            values in this view because each list parameter 
+                            value appears in a separate row.
+     ---------------------------------------------------------------------------
+      V$SPPARAMETER     This view displays the current contents of the SPFILE. 
+                        The view returns FALSE values in the ISSPECIFIED column 
+                        if an SPFILE is not being used by the instance.
+     ---------------------------------------------------------------------------
+     Ex:
+       SELECT value
+       FROM v$parameter
+       WHERE name='pga_aggregate_target'
+       或者
+       SHOW PARAMETER pga;
+  7. SPFILE配置語法
+     ALTER SYSTEM SET parameter=value <COMMENT='text'> <DEFERRED> 
+                                      <SCOPE=MEMORY|SPFILE|BOTH> <SID='sid|*'>;
+     ALTER SESSION SET parameter=value <COMMENT='text'> <DEFERRED> 
+                                       <SCOPE=MEMORY|SPFILE|BOTH> <SID='sid|*'>;
+     7.1. SYSTEM和SESSION的差别在於SESSION只針對當前的SESSION有效，
+          其餘的SESSION無效。
+     7.2. <DEFERRED>指定參數的修改是否只針對往後的SESSION有效，即對當前的SESSION
+          無效。ALTER SYSTEM或ALTER SESSION 預設是立刻生效，但有一些參數卻不能直
+          接生效，因此可以利用<deferred>來延遲生效。
+          查看有哪些參數要求必須要使用<deferred>
+          SQL> SELECT name
+               FROM v$parameter
+               WHERE issys_modifiable='DEFERRED';
+          NAME
+          ----------------------------------------------------------------------
+          backup_tape_io_slaves
+          recyclebin
+          audit_file_dest
+          object_cache_optimal_size
+          object_cache_max_size_percent
+          sort_area_size
+          sort_area_retained_size
+          olap_page_pool_size
+           
+          8 rows selected
+          
+          SQL> ALTER SYSTEM SET sort_area_size=65536;
+          alter system set sort_area_size=65536
+ 
+          ORA-02096: 此选项的指定初始化参数不可修改
+ 
+          SQL> ALTER SYSTEM SET sort_area_size=65536 deferred;
+          System altered
+     7.3. <SID='sid|*'> 主要是在Cluster環境中使用，預設為SID='*'，若沒有在RAC環境
+          中，則不需要指定<SID='sid|*'>
+
+             [1]啟動              [2]建立
+   參數文件───────────＞Instance───────────＞Session
+
+   ┌──┤Instance├─────────┐            [2]建立
+   │                     │      ╔═╗   session   ╔═╗
+   │ v$system_parameter  │＜==＞║S║＜=========＞║U║
+   │ P=100               │      ╚═╝ v$parameter ╚═╝
+   │                     │                      SQLPlus
+   │                     │                      SQL> show parameter P
+   └─────────────────────┘                      P=100
+            ^
+            │
+            │ [1]啟動Instance
+            │
+   Parameter file(spfile)
+     v$spparameter
+     P=100
+
+                 ③                                  ③ 
+            push成P＝150                       push成P＝150
+        ╔══════════════════╗               ╔════════════════════╗ 　　  
+        ║                  ║               ║                    ║      ④ 
+        ║                  ║               ║                    ﹀     SQL> show parameter P
+        ║                 ┌╨──┤Instance├───╨────┐            [2]建立   P＝100-->150
+        ║                 │                     │      ╔═╗   session   ╔═╗
+        ║                 │ v$system_parameter  │＜==＞║S║＜=========＞║U║
+        ﹀                │ P=100 --> 150       │      ╚═╝ v$parameter ╚═╝
+  ╔═╗  session  ╔═╗       │           ②         │                      SQLPlus
+  ║U║＜=======＞║S║＜==＞ │                     │                      SQL> show parameter P
+  ╚═╝           ╚═╝       └─────────────────────┘                      P=100
+  SQLPlus
+  SQL> show parameter P
+  P=100
+  ----------------------
+  ① 
+  SQL> ALTER SYSTEM SET
+    2> P=150
+    3> SCOPE=BOTH;
+  ----------------------
+  ④ 
+  SQL> show parameter P
+  P=100-->150
+
+
+
+Lab
+1. 找出當前SESSION中，所有的參數名字有spfile這個字串的參數與參數值
+   SQL> show parameter spfile
+   
+   NAME				                 TYPE	     VALUE
+   ------------------------------------ ----------- ------------------------------
+   spfile				                 string	     +DATA/orcl/spfileorcl.ora
+
+   [oracle@oracledb ~]$ cat $ORACLE_HOME/dbs/initorcl.ora
+   SPFILE='+DATA/orcl/spfileorcl.ora' 
+
+2. 找出spfile中，所有的參數名字中有sessions這個字串的參數與參數值
+   SQL> show spparameter sessions
+
+   SID	 NAME			       TYPE	   VALUE
+   -------- ----------------------------- ----------- ----------------------------
+   *	 java_max_sessionspace_size    integer
+   *	 java_soft_sessionspace_limit  integer
+   *	 license_max_sessions	       integer
+   *	 license_sessions_warning      integer
+   *	 sessions		       integer
+   *	 shared_server_sessions        integer
+
+3. 確認是否使用SPFILE啟動Instance
+   SQL> SELECT value 
+     2  FROM v$system_parameter
+     3  WHERE name='spfile';
+   
+   VALUE
+   --------------------------------------------------------------------------------
+   +DATA/orcl/spfileorcl.ora
+
+   3.1. 若VALUE為空值，則代表此Instance是使用pfile啟動。
+
+4. v$system_parameter這個VIEW會顯示當前Insance中，所有的參數值。
+   SQL> SELECT name, value 
+     2  FROM v$system_parameter
+     3  WHERE name like '%file%';
+   
+   NAME                                     VALUE
+   ---------------------------------------- ------------------------------------------------------------
+   spfile                                   +DATA/orcl/spfileorcl.ora
+   fileio_network_adapters
+   filesystemio_options                     none
+   file_mapping                             FALSE
+   control_files                            +DATA/orcl/controlfile/current.260.717353911, +FRA/orcl/cont
+                                            rolfile/current.256.717353913
+   
+   db_file_name_convert
+   log_file_name_convert
+   control_file_record_keep_time            7
+   db_flash_cache_file
+   db_files                                 200
+   db_file_multiblock_read_count            96
+   db_create_file_dest                      +DATA
+   db_recovery_file_dest                    +FRA
+   db_recovery_file_dest_size               4039114752
+   standby_file_management                  MANUAL
+   db_securefile                            PERMITTED
+   remote_login_passwordfile                EXCLUSIVE
+   utl_file_dir
+   audit_file_dest                          /u01/app/oracle/admin/orcl/adump
+   session_max_open_files                   10
+   ifile
+   dg_broker_config_file1                   /u01/app/oracle/product/11.2.0/dbhome_1/dbs/dr1orcl.dat
+   dg_broker_config_file2                   /u01/app/oracle/product/11.2.0/dbhome_1/dbs/dr2orcl.dat
+   tracefile_identifier
+   max_dump_file_size                       unlimited
+   
+   25 rows selected.
+
+5. v$parameter VIEW 會顯示當前的SESSION的參數與參數值。
+   當session剛新建立時，會由v$system_parameter繼承而來，但，因之後可能因為使用
+   ALTER SESSION SET parameter=value，而造成與v$system_parameter內容不一致。
+   SQL> desc v$parameter
+
+   Name                                      Null?    Type
+   ----------------------------------------- -------- ----------------------------
+   NUM                                                NUMBER
+   NAME                                               VARCHAR2(80)
+   TYPE                                               NUMBER
+   VALUE                                              VARCHAR2(4000)
+   DISPLAY_VALUE                                      VARCHAR2(4000)
+   ISDEFAULT                                          VARCHAR2(9)
+   ISSES_MODIFIABLE                                   VARCHAR2(5)
+   ISSYS_MODIFIABLE                                   VARCHAR2(9)
+   ISINSTANCE_MODIFIABLE                              VARCHAR2(5)
+   ISMODIFIED                                         VARCHAR2(10)
+   ISADJUSTED                                         VARCHAR2(5)
+   ISDEPRECATED                                       VARCHAR2(5)
+   ISBASIC                                            VARCHAR2(5)
+   DESCRIPTION                                        VARCHAR2(255)
+   UPDATE_COMMENT                                     VARCHAR2(255)
+   HASH                                               NUMBER
+
+6. v$system_parameter VIEW會顯示當前Instance的參數與參數值。
+   SQL> desc v$system_parameter
+   
+   Name                        Null?    Type
+   --------------------------- -------- ----------------------------------------
+   NUM                                  NUMBER
+   NAME                                 VARCHAR2(80)
+   TYPE                                 NUMBER
+   VALUE                                VARCHAR2(4000)
+   DISPLAY_VALUE                        VARCHAR2(4000)
+   ISDEFAULT                            VARCHAR2(9)     --是否為預設值
+   ISSES_MODIFIABLE                     VARCHAR2(5)     --可否使用alter session修改此參數值
+   ISSYS_MODIFIABLE                     VARCHAR2(9)     --可否使用alter system修改此參數值
+   ISINSTANCE_MODIFIABLE                VARCHAR2(5)
+   ISMODIFIED                           VARCHAR2(8)
+   ISADJUSTED                           VARCHAR2(5)
+   ISDEPRECATED                         VARCHAR2(5)
+   ISBASIC                              VARCHAR2(5)     --是否為基本參數 
+   DESCRIPTION                          VARCHAR2(255)
+   UPDATE_COMMENT                       VARCHAR2(255)
+   HASH                                 NUMBER
+
+7. ORACLE 11gR2 將參數分成basic parameter(30個) 與advanced parameter(322個)二個群
+   組，共352個參數。每個參數都有其預設值，所以，parameter file中只儲存那些不是使
+   用預設值的參數。
+   SQL> SELECT count(*)
+     2  FROM v$system_parameter;
+
+     COUNT(*)
+   ----------
+          352
+   
+   SQL> SELECT count(*)
+     2  FROM v$system_parameter
+     3  WHERE isbasic='TRUE';
+   
+     COUNT(*)
+   ----------
+           30        ＜=== basic parameters
+
+
+      2. 使用EM管理Initialization Parameter
+         2.1. https://oracledb:1158/em/
+         2.2. SERVER(伺服器) --> Database Configuration(資料庫組態) --> 
+              Initialization Parameters(初始化參數)
+              CURRENT(目前)：目前Instance所使用及生效的參數值
+              SPFILE：目前spfile中所有設定的參數值
+      
+AWI, P. 4-27
+Starting Up an Oracle Database Instance
+Oracle database instance的啟動分成三個階段，在不同的階段的啟動過程中，DBA都可
+以依其需要進行不同的操作或系統修復動作。
+   
+     〇─────＞NOMOUNT─────＞MOUNT─────＞OPEN
+   Shutdown
+
+1. Oracle Database Instance 的啟動
+   1.1. 啟動過程
+     〇─────＞NOMOUNT─────＞MOUNT─────＞OPEN
+     Shutdown
+   1.2. NOMOUNT階段
+     1.2.1. 需要開啟在NOMOUNT Mode的場景
+            1.2.1.1. Creating new database.
+            1.2.1.2. Re-creation of control files.
+            1.2.1.3. 某些特定備份或回覆的情況。
+     1.2.2. Instance啟動時需要完成以下動作
+            1.2.2.1. 於$ORACLE_HOME/dbs目錄下，依序尋找下列參數文件
+                     A. spfile<SID>.ora
+                     B. spfile.ora       <== 若spfile<SID>文件找不到
+                     C. init<SID>.ora    <== 若連spfile文件也找不到
+            1.2.2.2. 分配SGA
+            1.2.2.3. 啟動Background processes
+            1.2.2.4. 開啟alter_<SID>.log 文件
+
+                                                  ┌────────────────────
+                                                  │
+               NOMOUNT                            │
+            ┌─────────────────────────────────────┘
+            │ Parameter file 
+            │ Password file
+          │   -- sysdba
+            │   -- sysopen
+            │   -- sysasm(asm interface)
+            │ $ORACLE_HOME/dbs/orapworcl
+            │ $ORACLE_HOME/dbs/spfileorcl.ora
+   ┌────────┘
+   ─────────────────────────────────────────────────────────────────────────────
+   ==========
+   Parameter
+   file
+   ==========
+    │             ┌──┤Instance├─────────┐              ┌──┤Database├─────────┐
+    │             │                     │              │                     │
+    └─────────────│                     │              │                     │
+      NOMOUNT     │                     │              │                     │
+                  │                     │              │                     │
+                  │                     │              │                     │
+                  └─────────────────────┘              └─────────────────────┘
+                   把Instance帶起來，但，
+                   Instance還跟Database
+                   沒有關聯起來
+
+    1.3. MOUNT階段
+      1.3.1. 需要開啟在MOUNT Mode的場景
+             1.3.1.1. Rename/Moving data file.
+             1.3.1.2. Enabling/Disabling online redo log file archiving option.
+             1.3.1.3. 執行full database recovery.
+      1.3.2. MOUNT階段會進行資料庫的掛載，於此階段需要完成以下的動作
+             1.3.2.1. 將Instance與Database關聯上。
+             1.3.2.2. 從參數文件中取得及打開control files.
+             1.3.2.3. 從control file取得data file和redo log file的名字及狀態。
+
+                                                                            OPEN
+                                                                           ┌──────────
+                                        ┌ rename(可能control file被搬移)   │ Log file
+                         ┌ file missing─┤                                  │ data file
+                         │              └ recovery                         │   ^
+                   MOUNT─┤                                                 │   │
+                         └ change log mode(Archivelog＜───＞NoArchivelog)  │   │
+                 ┌─────────────────────────────────────────────────────────┘   │
+                 │ Control file ───────────────────────────────────────────────┘
+                 │  ^                      位置
+       NOMOUNT   │  │ 位置 
+     ┌───────────┘  │
+     │ Parameter ───┘
+     │ file
+ ────┘
+──────────────────────────────────────────────────────────────────────────────────────────
+==============
+  Parameter
+  file
+==============
+   │             ┌────┤Instance├─────────┐ 
+   │             │                       │ 
+   └─────────────│                       │ 
+     NOMOUNT     │                       │ 
+                 │                       │ 
+                 │                       │ 
+                 └──┼────────────────────┘ 
+                    │ 
+                 ┌──┼────┤Database├──────────────┐ 
+                 │  │     ==============         │
+                 │  ╟───＞ control file          │
+                 │  ║     ==============         │
+                 │  ║                            │
+                 │  ║     取得data file及        │
+                 │  ║     log file的名稱及狀態   │  
+                 │  ║     ==============         │
+                 │  ╠═══＞ data file             │
+                 │  ║     ==============         │
+                 │  ║                            │
+                 │  ║     ==============         │
+                 │  ╚═══＞ log file              │
+                 │        ==============         │
+                 └───────────────────────────────┘
+
+    1.4. OPEN階段
+      1.4.1. OPEN階段需要完成以下動作
+             1.4.1.1. 開啟data file
+             1.4.1.2. 開啟online redo log file
+      1.4.2. 異常狀態
+             1.4.2.1. 若data file或online redo log file，任一個文件有找不到的情況
+                      發生，Oracle server將會回傳錯誤訊息。
+             1.4.2.2. 此階段，Oracle server會確認所有的data files及
+                      online redo log file是否能被開啟
+             1.4.2.3. 並且確認data file及control file的一致性是否正確。
+             1.4.2.4. 若有出現一致性的錯誤，SMON會進行Instance recovery。
+                                                                            
+                                                                                    ┌────
+                            OPEN                                                    │
+                          ┌─────────────────────────────────────────────────────────┘
+                          │ log file  ─┐
+                          │            ├ checkpoint info on data file header with
+                          │ data file ─┘ control file
+                          │  ^           若一致則完成OPEN
+                MOUNT     │  │ 位置      不一致則 SMON 進行Instance recovery
+              ┌───────────┘  │             ① roll forward(救回所有dirty buffer)         
+              │ control──────┘             ② roll back(退回所有未commit transactions) 
+    NOMOUNT   │ file
+  ┌───────────┘
+  │
+──┘
+
+    1.5. Instance的啟動命令
+      1.5.1. SQLPlus語法
+             startup [force][restrict][pfile=...][nomount][mount][open]
+      1.5.2. 若startup命令不帶任何參數，將會逐步一一完成。
+      1.5.3. 將Instance開啟在NOMOUNT階段
+             startup nomount
+      1.5.4. 從NOMOUNT階段掛載資料庫
+             alter database mount;
+      1.5.5. 從MOUNT階段到OPEN階段
+             alter database open;
+      1.5.6. 使用srvctl utility with Oracle Restart
+             $srvctl start database -d orcl -o mount
+             使用srvctl命令來開啟database instance有一個好處，即srvctl會把相關的
+             resources都一併帶起來，例如：ASM Instance，ASM disk group及listener。
+
+    1.6. 特殊的Instance啟動方式
+      1.6.1. Read Only Mode
+             startup open read only;
+             1.6.1.1. 若當前狀態處於MOUNT階段
+                      startup database open read only;
+      1.6.2. Restricted Mode，當進行資料庫維護時，不希望一般用戶登入，則可以使用
+             此模式來限制只有擁有restricted session權限的用戶才能登入資料庫。
+             startup restrict;
+      1.6.3. 取消限制
+             alter system disable restricted session;
+
+Shutting Down an Oracle Database Instance
+  1. 關閉Oracle Instance有4種選項
+     Normal(正常) --
+       不允許新的連線，等候目前連線的所有使用者中斷與資料庫的連線。
+     Transactional(交易式)
+       不允許新的連線，交易完成後，系統會中斷使用者的連線。
+     Immediate(立即)
+       不允許新的連線，退回作用中的交易並中斷所有連線使用者的連線。
+     Abort(中止)
+       不允許新的連線，以中止資料庫執行的處理方式立即關閉。
+
+  2. EM的shutdown按鈕，預設的關機選項為Immediate
+     SQLPlus的shutdown指令，預設的關機選項為Normal
+  3. Instance的關閉命令
+     SQLPlus語法
+     shutdown abort | immediate | transactional | normal
+     shutdown 不帶參數預設為NORMAL
+     Ex:
+       SQL> shutdown
+       SQL> shutdown transactional | immediate | abort
+  4. 或是使用srvctl工具
+     $srvctl stop database -d orcl -o abort
+
+AWI, P. 4-38, 40, 42
+診斷文件
+  包括了重要意義時間的具體訊息，用於解決問題，使日常更方便的管理資料庫。
+1. Alert Log
+   1.1. 命名方式
+        alter_<SID>.log 並且位於$ORACLE_BASE/diag/rdbms/<db_name>/<SID>/trace
+   1.2. Alert Log記錄的內容
+        1.2.1. Instance 所使用的非預設參數
+        1.2.2. Instance 的狀態(instance startup/shutdown)
+        1.2.3. database的操作資訊
+               create, drop, table space, create logfile, drop logfile
+        1.2.4. background process所產生的trace file
+        1.2.5. 錯誤訊息ORA-
+        1.2.6. Materialized view refresh時發生錯誤
+   1.3. XML formate alert log
+        位於$ORACLE_BASE/diag/rdbms/<db_name>/<SID>/alert
+   1.4. SQLPlus查詢
+        v$diag_info VIEW
+   1.5. v$diag查詢結果描述了text-only(alert_<SID>.log)及XML formate(log.xml)的
+        log位置。i
+2. Trace Files
+   2.1. Automatic diagnostic repositroy(ADR)
+        2.1.1. System-wide central tracing and logging repository.
+        2.1.2. 儲存資料庫的diagnostic data，例如：
+               Traces
+               Alert log
+               Health monitor reports
+        2.1.3. ADR的位置
+               2.1.3.1. 若有設定Diagnostic_dest，則由此參數決定，
+                        diagnostic_dest/diag
+               2.1.3.2. 未設定Diagnostic_dest，則按以下順序
+                        $ORACLE_BASE/diag --> $ORACLE_HOME/log/diag
+               2.1.3.3. ADR HOME
+                        ./diag/product_type/db_id/instance_id

@@ -1,0 +1,542 @@
+Exploring the Oracle Database Architecture
+
+AWI, P. 1-6
+Oracle Database Server Architecture:
+1. There are three major structures in Oracle Database server architecture:
+   Memory structures, Process structures, and storage structures.
+
+2. An Oracle database system consists of two entities: the instance and the 
+   database.
+   The instance is memory structures and processes; the database is files on 
+   disk.
+
+3. The database consists of both physical structures and logical structures.
+
+4. The instance consists of memory structures and background processes 
+   associated with that instance.
+   4.1. Every time an instance is started, a shared memory area called the 
+        System Global Area (SGA) is associated and the background processes are 
+        started.
+   4.2. A process is defined as a “thread of control” or a mechanism in an 
+        operating system that can run a series of steps.
+   4.3. After starting a database instance, the Oracle software associates the 
+        instance with a specific database. This is called mounting the database.
+
+                       ┌────────────┐    ┌───┤Instance├────────────────────────┐
+                       │ ╔════════╗ │    │                                     │
+                       │ ║        ║ ───＞│ ╔══╣Memory Structures╠═══════════╗  │
+                       │ ╚════════╝ │    │ ║                                ║  │
+               ┌─────┐ │ ╔════════╗ │    │ ║  System Global Area            ║  │
+      ═════════│ PGA │ │ ║        ║ ──┐  │ ║  (SGA)                         ║  │
+        Server └─────┘ │ ╚════════╝ │ │  │ ║                                ║  │
+        process        │            │ │  │ ╚════════════════════════════════╝  │
+      ═════════════    │ ══════════ │ │  │                                     │
+            ↑          │ ══════════ │ │  │  Process Structures                 │
+            │          │ ══════════ │ │  │  ═══════ ═══════ ═══════ ═══════    │
+            │          │            │ │  │  process process process process    │
+            │          └─┤Server├───┘ │  │  ═══════ ═══════ ═══════ ═══════    │
+            │                         │  │                                     │
+            ↓                         │  └─────────────────────────────────────┘
+      ═════════════ ┌──────────┐ 	  │				  
+       User process │          │      │	 ┌───┤Database (Storage Structure)├────┐
+      ═════════════ │          │      │	 │                                     │
+                    │          │      │	 │ ───── ─────── ────────              │
+                 ╔══╧══════════╧══╗   └＞│ Data  control redo log              │
+                 ║                ║ 	 │ file  file    file                  │
+                 ╚═══╣Client ╠════╝      │ ───── ─────── ────────              │
+							             │                                     │
+							             └─────────────────────────────────────┘
+<補充>
+Oracle Server = Instance(SGA:Shared Memory+Background Processes) + 
+		        存取速度快			                              
+				Database(Datafile:table+controlfile+logfile)
+				保存性佳
+
+Instance(執行處理)與database(資料庫)的關係分成: 
+nomount(未掛載),mount(掛載), open(開啟)
+nomount -> Instance已經啟動, 但是尚未與database有任何關係
+mount -> Instance已經掛載database的controlfile
+open -> Instance除掛載controlfile外,還開啟database的datafile與logfile
+
+AWI, P. 1-7							
+Instance: Database Configurations
+1. Each database instance is associated with one and only one database.
+2. A database instance cannot be shared.
+3. A Real Application Cluster (RAC) database usually has multiple instances on 
+   separate server for the same shared database.
+
+AWI, P. 1-8
+Connecting to Database Instance
+1. A connection is a communication pathway between a user process and an 
+   instance.
+2. A session represents the state of a current user login to the database 
+   instance.
+3. Multiple sessions can be created an exist concurrently for a single Oracle
+   database user using the same username.    
+                                                                 ┌─────────────┐
+              ┌─┤SQL Plus├──────┐      ═══════      ═══════      │ ╔═════════╗ │
+║ User ║＜──＞│ SQL> SELECT ... │＜──＞User   ＜──＞Server ＜──＞│ ║ Session ║ │
+    │         └─────────────────┘      process      process      │ ╚═════════╝ │
+	│			                       ═══════      ═══════      │             │
+    │                                        │              │    └─────────────┘
+	│										 └─┤Connection├─┘	         │
+    └─────────────────────────────┤Session├──────────────────────────────┘
+
+<補充>
+1. user process  -> 產生sql statement的前端ap(自行撰寫的ap透過jdbc,ado,odbc連線到
+                    oracle server)
+2. server process-> 代表user process執行sql statement, 如果必要將會回傳結果給 
+                    user process(select only)
+3. 1對1(user process<->server process)或
+   多對多(user processes<->dispatcher<->server processes)
+4. server process一定位在與oracle server相同的機器之上
+5. User的連線都是建立在Server process上, 並不會直接連線到DB上; 因此, 若User的SQL
+   沒有寫好, 會在Server process上反應出來
+6. 一般來說 Background process ORACLE都會做最佳化, 所以不會有速度的問題, 所以, 
+   一般SQL效能不好會反應在Server process上, 也因此, 所謂SQL效能調校主要也是調整
+   Server process.
+
+Connection(連線建立方式)
+1. IPC(InterProcess Communication)行程間通訊 -> user process與server process在同
+   一台機器
+2. Client/Server主從架構 -> user process與server process不在同一台機器(也可以在
+   同一台),需要透過監聽器建立connection.
+3. 3-tier -> Browser-http-Ap Server-oracle net-Database Server
+                            user process	   server process
+4. Session(階段作業) - 當connection建立後, user process提供database username與
+                    password,通過驗證與確認user擁有create sesesion權限,便可以建立
+                    一個階段作業
+5. 同一個username可以同時建立多個session,因為每個session都是獨立的階段作業
+
+AWI, P. 1-9
+Oracle Database Memory Structures
+Two basic memory structures are associated with an instance:
+1. System Global Area (SGA):
+   1.1. Group of shared memory structures, known as SGA components, that contain 
+        data and control information for one Oracle Database instance.
+   1.2. The SGA is shared by all server and background processes.
+2. Program Global Area (PGA):
+   2.1. Memroy regions that contain data and control information for a server or 
+        background process.
+   2.2. A PGA in nonshared memory created by Oracle Database when a server or 
+        background process is started.		
+   2.3. Each server process and background process has its own PGA.
+   
+               Program Global Area (PGA)           PGA
+              ┌─────────────────────┐             ┌─────────────────────┐ 
+			  │ ╔═══════╗ ╔═══════╗ │   		  │ ╔═══════╗ ╔═══════╗ │
+			  │ ║ Stack ║ ║ User  ║ │   		  │ ║ Stack ║ ║ User  ║ │
+			  │ ║ Space ║ ║ Global║ │   		  │ ║ Space ║ ║ Global║ │
+			  │ ║       ║ ║ Area  ║ │   		  │ ║       ║ ║ Area  ║ │
+	 ═════════│ ╚═══════╝ ╚═══════╝ │    ═════════│ ╚═══════╝ ╚═══════╝ │
+	   Server └─────────────────────┘	   Server └─────────────────────┘
+       process 1                           process 2       
+     ═════════════                       ═════════════   
+	      ↑                                   ↑
+          │                                   │
+          ↓	                                  ↓
+	 ┌──────────────────────────────────────────────────────┐
+	 │ ╔════════╗ ╔══════════╗ ╔══════════╗ ╔═════════════╗ │
+     │ ║ Shared ║ ║ Database ║ ║ Redo log ║ ║ KEEP        ║ │             
+     │ ║ Pool   ║ ║ buffer   ║ ║ buffer   ║ ║ buffer pool ║ │             
+     │ ║        ║ ║ cache    ║ ║          ║ ╚═════════════╝ │             
+     │ ╚════════╝ ╚══════════╝ ╚══════════╝ ╔═════════════╗ │             
+	 │ ╔════════╗ ╔══════════╗ ╔══════════╗ ║ RECYCLE     ║ │
+	 │ ║ Large  ║ ║ JAVA     ║ ║ Streams  ║ ║ buffer pool ║ │
+	 │ ║ Pool   ║ ║ Pool     ║ ║ Pool     ║ ╚═════════════╝ │
+	 │ ║        ║ ║          ║ ║          ║ ╔═════════════╗ │
+	 │ ╚════════╝ ╚══════════╝ ╚══════════╝ ║ nK buffer   ║ │
+	 │                                      ║ cache       ║ │
+     │                                      ╚═════════════╝ │
+	 └──────────────────────────────────────────────────────┘
+                   System Global Area (SGA)
+				   
+AWI, P. 1-10
+The SGA includes the following data structures:
+Shared pool --
+  Caches various constructs that can be shared among users.
+Database buffer cache --
+  Caches blocks of data retrieved from the database.
+KEEP buffer pool --
+  A specialized type of database buffer cache that is tuned to retain blocks of
+  data in memory for long periods of time.  
+RECYCLE buffer pool -- 
+  A specialized type of database buffer cache that is tuned to recycle or remove 
+  block from memory quickly.
+nK buffer cache --
+  One of serval specialized database buffer cached designed to hold block sizes 
+  differenct thant the default database block size.
+Redo log buffer --
+  Cached redo information (used for instance recovery) until it can be written 
+  to the physical redo log files stored on the disk.
+Large pool --
+  Optional area that provides large memory allocations for certain large 
+  processes, such as Oracle backup and recovery operations, and I/O server 
+  process.
+JAVA pool --
+  Used for all session-specific JAVA code and data in the JAVA Virtual 
+  Machine(JVM).
+Streams pool --
+  Used by Oracle Stream to store information required by capture and apply.
+   
+<補充>
+1. 一個instance只能有一個SGA
+2. 每個server process與background process都有自己的PGA
+3. SGA(System Global Area)->可以被所有的server processes,background processes共同
+                            使用
+4. PGA(Program Global Area)->只能被自己的server process或background process使用
+5. PGA=Stack Space(process執行某個工作時,用來存放變數之用)+UGA(User Global Area:
+       Session的相關資訊)
+
+Oracle 11g可以使用memory_target參數直接設定SGA+PGA的總大小,memory_max_target設定
+SGA+PGA的總大小的最大值,所以oracle server可以隨著整體狀態動態調整sga與pga的個別大
+小
+一般來說, memory_target=500MB, 所有的SGA和PGA加起來共500MB, 由ORACLE來監控調整, 
+每30秒調整一次.
+
+Oracle 10g開始使用sga_target,只需要設定sga總大小,則Oracle Server將自動隨系統狀態
+動態調整sga內的個別子元件大小,但是pga則由pga_aggregate_target設定其大小
+
+SGA裡3個必要存在的memory structure->shared pool,buffer cache,redo log buffer
+
+SQL(Structure Query Language)用來描述使用者所要資料的特徵(What You Want)
+Execution Plan用來告訴Oracle Server該如何執行,才能使用最少成本得到SQL所要求的資料
+(How To Do)
+
+Server process收到user process所傳送的sql指令後
+1.parse:首先必須將sql statement轉成execution plan,此步驟稱作parse
+2.execute:當parse完成後,使用parse階段所得的execution plan執行該sql(execute)
+3.fetch:只有執行select指令才需要將執行結果回傳給user process
+
+parse分成兩種方式:soft parse,hard parse
+soft parse=>server process先使用hash(sql statement)方式得出hash value,再使用
+            hash value對應到shared pool的某個位置,如過該位置有相關的
+            sql statement,execution plan,parsed code存在,則稱為soft parse
+hard parse=>如果無法在shared pool找到之前使用過的execution plan或execution plan失
+            效,則需要重新產生新的execution plan,並將sql text,execution plan,
+            parsed code儲存在該位置
+
+SQL> select count(*) from hr.employees;
+SQL> SELECT count(*) FROM hr.employees;
+--以上兩個sql statement的hash value將不會相同,因此將個別執行一次hard parse
+SQL> SELECT count(*)     --有一個不可見字元\n
+  2  FROM hr.employees;
+   
+AWI, P. 1-11
+Share Pool
+Share pool contains:
+  - Library cache
+    - Share SQL area
+  - Data dictionary cache
+  - Control structures  
+  ┌───┤Share Pool├───────────────────┐
+  │ ╔══════════════╗ ╔═════════════╗ │  
+  │ ║ ┌──────────┐ ║ ║ Data        ║ │  
+  │ ║ │Shared    │ ║ ║ dictionary  ║ │  
+  │ ║ │SQL area  │ ║ ║ cache       ║ │  
+  │ ║ └──────────┘ ║ ╚═════════════╝ │  
+  │ ║              ║ ╔═════════════╗ │  
+  │ ║              ║ ║ Fixed Area  ║ │  
+  │ ║              ║ ╚═════════════╝ │  
+  │ ║ Lirary       ║ ╔═════════════╗ │  
+  │ ║ cache        ║ ║ Other       ║ │  
+  │ ╚══════════════╝ ╚═════════════╝ │  
+  └──────────────────────────────────┘  
+
+1. The data dictionary is a collection of database tables and views containing
+   reference information about the database, its structures, and its users. 
+2. There are two special locations in memory are designed to hold dictionary data.
+   - data dictionary cache
+   - library cache
+   All Oracle database user processes share these two caches for access to data
+   dictionary information.
+3. Oracle Database represents each SQL statement that it runs with a 
+   shared SQL area.
+4. A shared SQL area contains the parse tree and execution plan for a given 
+   SQL statement.
+5. When a new SQL statement is pared, Oracle Database allocates memory from the
+   shared pool to store in the shared SQL area.   
+
+<補充>
+shared pool -> 存放最近用過的sql text,execution plan,parse code及最近用到的
+               data dictionary資料,在11g時, 還有result cache
+			   (結果集快取:sql/plsql function)
+               library cache,
+			   data dictionary cache(hard parse時,需要一些物件定義資料)
+               sql text->parse code->execution plan
+
+shared pool的內容其實非常雜亂
+
+SQL> select count(*) from v$sgastat where pool='shared pool' -->11g至少有800以上
+
+AWI, P. 1-13
+Database Buffer Cached
+The database buffer cache 
+  - is part of the SGA
+  - holds copies of data blocks that are read from data files
+  - is shared by all concurrent users
+
+<補充>
+buffer cache->最近用過的data blocks(一個block可能容納一筆以上的rows)
+              physical I/O=>由server process從datafile讀取所需要的block,
+                            放到buffer cache
+              logical I/O=>直接在buffer cache讀取所需要的block
+  置換buffer cache的blocks採用Touch Count LRU(least recently used)+ 
+  touch count(讀取次數)
+  每個buffer cache都有一組working set(lru list+checkpoint list),因此如果分成越多
+  的buffer,則可以減少競爭.最佳化block管理
+  default pool=>db_cache_size決定大小,每個buffer的大小與standard block一致.
+                每個block如果沒有明確指定不放在此buffer
+  keep pool=>db_keep_cache_size決定大小,每個buffer的大小與standard block一致.
+  recycle pool=>db_recycle_cache_size決定大小,每個buffer的大小與standard block
+                一致.
+  non-standard block buffer=>db_2K_cache_size,db_4K_cache_size,db_8K_cache_size,
+                             db_16K_cache_size,db_32K_cache_size
+  oracle block size>=os block size
+  
+AWI, P. 1-14
+Redo Log Buffer
+The redo log buffer 
+  - is a circular buffer in the SGA
+  - Holds information about changes made to the database
+  - Contains redo entries that have the information to redo changes made by 
+    operations as DMS and DDL.
+							  
+As the server process makes changes to the buffer cache, redo entries are 
+generated and written to the redo log buffer in the SGA. The redo entries take
+up continuous, sequential space in the buffer. The log writer background process
+writes the redo log buffer to the active redo log file (or group of files) on 
+disk.							  
+
+<補充>							  
+資料異動前必須先產生
+1.undo data(未改變前資料內容) -> 產生undo data時,也將產生redo data
+                                 (重新產生undo data的步驟),但undo data不需要紀錄
+                                 自己的undo data.
+2.redo data(重新產生異動的步驟)
+
+一個redo entry由兩個redo vector組成(undo data的redo+changed data的redo)
+
+redo log buffer-> 放redo entry(which block,which row,new value)
+                  當server process進行dml/ddl操作前,必須先將redo entry(先在
+                  server process的PGA產生)複製到log buffer後,才能真正進行操作
+                  (write-ahead log) --memory to memory
+                  當commit時,才由lgwr將redo entry由redo log buffer寫到logfile中 
+                  -- memory to disk
+                  -- 但是除了redo entry必須在異動前產生外,undo data也必須在異動前
+                     產生
+
+AWI, P. 1-15
+Large Pool
+The database administrator can configure an optional memory area called the 
+large pool to provide large memory allocations for
+  - Session memory for shared server
+  - Oracle XA interface
+  - I/O server procsses
+  - Parallel Query operation
+  - Advanced Queuing memory table storage
+  - Oracle Database backup and restore operations
+  
+<補充>
+--large不表示此空間大小很大,而是其中的配置單元大小較shared pool來得大
+large pool-> 用來減輕shared pool負擔,因為如果沒有設定large pool,若發生需要
+             large pool的操作,則會轉向shared pool要求空間
+ --session memory for shared server
+ --oracle xa interface
+ --parallel query message
+ --io slave process
+ --rman backup/restore operation
+
+AWI, P. 1-17
+Program Global Area (PGA)
+1. The Program Global Area (PGA) is a private memory region containing data and 
+   control information for a server or background process.
+2. Each server/background process has a distinct PGA.
+3. Every PGA contains stack space.
+4. In a dedicated server environment
+   - each user connecting to the database instance  has a separate server 
+     process.
+   - for this type connection, the PGA contains a subdivision of memory known as 
+     the user global area (UGA).
+   - UGA=cursor state,user session data+workarea( sort area,hash area,
+                                                  create bitmap index area, 
+                                                  merge bitmap index area )
+5. In a shared server environment
+   - multiple client users share the server process.
+   - in this model, the UGA is moved into the SGA leaving the PGA with only 
+     stack space.
+
+<補充>
+PGA=stack space+UGA(User Global Area:sesesion related info)
+UGA=cursor state,user session data+workarea(sort area,hash area,
+                                            create bitmap index area,
+                                            merge bitmap index area)
+cursor state=>此session正在執行的sql與執行過的sql紀錄
+user session data=>建立此session的username與role及相關權限資訊
+workarea=>此session進行下列操作所需的空間:sort area(排序),hash area(hash join),
+                                          create bitmap index,
+                                          合併兩個bitmap index.
+
+dedicated server架構下,uga放在server process的PGA
+shared server架構下,uga放在sga的large pool (或shared pool:large pool
+                                            不存在或不夠大))
+ 
+AWI, P. 1-20
+Process Architecture
+1. The processes in an Oracle database system can be divided into three major
+   groups:
+   - User processes, run the application or Oracle tool code
+   - Oracle Database processes, run the Oracle database server code (including
+                                server processes and background processes)
+	 -- Server process, connects to the Oracle instance and is started when a 
+	                    user establishes a session
+	 -- Background processes, are started when an Oracle instance is started
+	 
+   - Oracle Daemons and Application processes not specific to a single database
+     -- Networking listeners
+     -- Grid infrastructure daemons	 
+2. Dedicated server
+   - For each session, the database application is run by a user process that is
+     served by a dedicatd server process that executes Oracle database server 
+	 code.	 
+3. Shared server
+   - A dispatcher directs multiple incoming network session requests to a pool 
+     of shared server processes.
+	 
+AWI, P. 1-21
+Process Structures
+                  ┌───┤Instance (ASM and Database separate)├───────────────────┐
+                  │                                                            │
+                  │ ╔════════════════════════════════╗                         │
+                  │ ║                                ║                         │
+         ┌─────┐  │ ║  System Global Area (SGA)      ║                         │ 
+  ═══════│ PGA │  │ ║                                ║                         │
+  Server └─────┘  │ ╚════════════════════════════════╝                         │ 
+  process         │                                                            │
+  ═════════════   │            Backgroud processes                             │
+    ↑│       ↑    │            ═══════ ═══════ ═══════ ═══════ ═══════ ═══════ │
+    ││       ║    │  Required: DBWn    CKPT    LGWR    SMON    PMON    RECO    │
+    ││       ║    │            ═══════ ═══════ ═══════ ═══════ ═══════ ═══════ │
+ --------    ║    │            ═══════ ═══════ ═══════ ═══════                 │
+ Listener    ║    │  Optional: ARCn    ASMB    RBAL    Others                  │
+ --------    ║    │            ═══════ ═══════ ═══════ ═══════                 │
+    ││       ║    │                                                            │
+    ││       ║    └────────────────────────────────────────────────────────────┘
+    │↓       ↓     
+  ═════════════   ┌───┤Grid Infrastructure Processes├────┐
+  User process    │    (ASM and Oracle Restart)          │
+  ═════════════   │ ────── ─────── ────────              │
+                  │ ohasd  ocssd   diskmon               │
+                  │ ────── ─────── ────────              │
+                  │ ──────────── ──────── ─────────      │
+                  │ orarootagent oraagent cssdagent      │
+                  │ ──────────── ──────── ─────────      │
+                  └──────────────────────────────────────┘
+Server Processes
+1. Oracle database creates server processes to handle the requests of user 
+   processes connected to the instance.
+2. The user process first communicates with a listener process that creates
+   a server process in a dedicated environment.
+3. Server processes created on behalf of each user's application can perform
+   one or more of the following:
+   - Parse and run SQL statements issued through the application
+   - Read necessary data blocks from data files on disk into the shared 
+     database buffers of the SGA 
+	 (if the blocks are not already present in the SGA)
+   - Return results in such a way that the application can process the 
+     information
+
+Backgroud Processes
+1. To maximize performance and accommodate many users, a multiprocess Oracle
+   database system uses some additional Oracle database processes called
+   background processes.
+2. An Oracle database instance can have many background processes.
+3. See the V$BGPROCESS view for more information on the background processes.
+
+<補充>
+background process->當instance啟動後,自動帶起的processes,每個process都事先設定完成,不需dba介入
+--必要bg processes:smon,pmon,dbwr,lgwr,ckpt,reco
+
+只有當client/server方式建立的connect,需要listener
+
+server process將datafile的block內容複製到buffer cache,此時為clean buffer(此buffer的內容與datafile's block一致),
+但是若server process進行dml異動buffer內容.則此buffer就變成dirty buffer(此buffer的內容與datafile's block不一致)
+dbwr->將buffer cache的dirty buffer寫到datafile,因此buffer就變成clean buffer	
+ 1.當server process發現buffer cache的clean buffers太少或dirty buffers太多
+ 2.每3秒,dbwr將部分的dirty buffers寫到datafile
+
+SQL> select name from v$bgprocess where paddr != '00';
+
+NAME
+-----
+PMON
+VKTM
+GEN0
+DIAG
+DBRM
+PSP0
+DIA0
+MMAN
+DBW0
+ARC0
+ARC1
+ARC2
+ARC3
+LGWR
+CKPT
+SMON
+SMCO
+RECO
+CJQ0
+QMNC
+MMON
+MMNL
+
+已選取 22 個資料列.   
+
+AWI, P. 1-23
+Database Writer Process (DBWn)
+1. The Database Writer process(DBWn) writes the contents of buffers to data 
+   files.
+2. The DBWn processes are reponsibile for writing modified (dirty) buffers in
+   the database buffer ache to disk.	 
+3. The DBW0 process is adequate for most systems.
+4. You also can configure additional processes (DBW1 ~ DBW9 and DBWa ~ DBWz)
+   to improve write performance if your system modifies data heavily.	 
+
+AWI, P. 1-25
+Log Writer Process (LGWR)
+1. The Log Writer process (LGWR) is responsible fro redo log buffer management
+   by writing the redo log buffer entries to a redo log file on disk.   
+<補充>
+lgwr->將新產生的redo entries:log Buffer(上次lgwr寫入操作後,新產生的redo entries)寫到online logfile
+ 1.transaction commit
+ 2.每3秒
+ 3.redo entry佔log buffer 1/3以上或佔1M空間
+ 4.當dbwr想要將某個dirty buffer寫到datafile,會先要求lgwr將redo entry寫到logfile,然後才會將dirty 
+   buffer寫到datafile
+
+AWI, P. 1-27
+Checkpoint Process (CKPT)
+1. A checkpoint is a data structure that defines a system change number (SCN) in
+   the redo thread of a database.
+2. Checkpoints are recorded in the control file and in each data file header.
+3. When a checkpoint occurs, Oracle Database must update the headers of all data
+   files to record the detail of the checkpoint.
+4. The SCNs recorded in the file headers guarantee that all changes made to
+   database blocks prior to that SCN have been written to disk.
+<補充>
+ckpt->要求dbwr將某些dirty buffers寫到datafile(incremental checkpoint),當dbwr作業完成後.ckpt將相
+關的checkpoint information(current system change number,current log sequence number等)紀錄到
+datafile' header與controlfile內
+checkpoint-> full(將同時更新controlfile/datafile's header的checkpoint information),incremental
+(僅更新datafile's header)
+
+AWI, P. 1-28
+System Monitor Process (SMON)
+1. The System Mointor process (SMON) performs recovery at instance startup if necessary.
+2. SMON is also responsible fro cleaning up templorary segments that are no longer in use.
+	 
+	 
+	 
+	 
