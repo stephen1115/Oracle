@@ -1,0 +1,375 @@
+Using DDL Statements to Create and Manage Tables
+
+Database Objects
+===============================================================================
+Object       Description
+-------------------------------------------------------------------------------
+Table        Basic unit of storage; composed of rows; Stores data
+-------------------------------------------------------------------------------
+View         Logically represents subsets of data from one or more tables;
+             Subset of data from one or more tables
+-------------------------------------------------------------------------------
+Sequence     Generates numeric values
+------------------------------------------------------------------------------- 
+Index        Improves the performance of some queries
+-------------------------------------------------------------------------------
+Synonym      Gives alternative name to an object
+===============================================================================
+
+<補充>
+SQL> SELECT DISTINCT object_type FROM dba_objects;
+
+OBJECT_TYPE
+-------------------
+CONSUMER GROUP
+INDEX PARTITION
+SEQUENCE
+QUEUE
+SCHEDULE
+TABLE PARTITION
+RULE
+JAVA DATA
+PROCEDURE
+OPERATOR
+LOB PARTITION
+WINDOW
+CHAIN
+LOB
+PACKAGE
+PACKAGE BODY
+LIBRARY
+RULE SET
+PROGRAM
+TYPE BODY
+CONTEXT
+JAVA RESOURCE
+XML SCHEMA
+TRIGGER
+JOB CLASS
+UNDEFINED
+DIRECTORY
+DIMENSION
+MATERIALIZED VIEW
+TABLE
+INDEX
+SYNONYM
+VIEW
+FUNCTION
+WINDOW GROUP
+JAVA CLASS
+INDEXTYPE
+CLUSTER
+TYPE
+RESOURCE PLAN
+EVALUATION CONTEXT
+JOB
+
+已選取 42 個資料列.
+
+SQL> SELECT DISTINCT segment_type FROM dba_segments;
+
+SEGMENT_TYPE
+------------------
+LOBINDEX
+INDEX PARTITION
+TABLE PARTITION
+NESTED TABLE
+ROLLBACK
+LOB PARTITION
+LOBSEGMENT
+INDEX
+TABLE
+CLUSTER
+TYPE2 UNDO
+
+已選取 11 個資料列.
+
+SQL> SELECT DISTINCT object_type FROM dba_objects
+  2  INTERSECT
+  3  SELECT DISTINCT segment_type FROM dba_segments;
+
+OBJECT_TYPE
+-------------------
+CLUSTER
+INDEX
+INDEX PARTITION
+LOB PARTITION
+TABLE
+TABLE PARTITION
+
+已選取 6 個資料列.
+
+User為Database User，可以用來登入資料庫.
+Schema是一個邏輯的容器，用來放與schema相同名字的User所擁有的物件
+當建立一個新的User時，Oracle自動建立一個相同名字的schema，用來放屬於這個user的
+物件
+
+命名規則
+1. 名字不能超過30 bytes(DB_NAME只能8 bytes，但Database Link可以使用到128 bytes)
+2. 不能使用SQL語言的關鍵字或Oracle Server的保留字
+3. 必須以英文字母開頭
+4. 名字沒有大小寫區分，但存放在Data Dictionary都是以大寫型態存放. 所以查詢
+   data dictionary時，如果在where條件輸入相關名字時，請記得使用大寫格式.
+5. 只能使用英文字母，數字與特殊符號:_，$，#(Database Link可以還可以使用@與.)
+6. 如果一定要使用保留字或不支援的特殊符號或保留所設定的大小寫型態，則必須將名字以
+   "包括起來. 例如: "123ABC"
+7. 不建議使用雙引號
+
+SQL> CREATE TABLE lower (c1 NUMBER);  --目前所設定的table name為小寫的lower
+
+已建立表格.
+
+SQL> SELECT table_name FROM dba_tables WHERE table_name='lower';
+
+沒有任何資料列被選取
+
+SQL> DESC DBA_TABLES
+ 名稱                  空值?    類型
+ --------------------- -------- ------------ ------------------------------------
+ OWNER                 NOT NULL VARCHAR2(30)
+ TABLE_NAME            NOT NULL VARCHAR2(30) -- 在Data Dictionary Table裡，文字型
+                                                態的欄位值都是儲存大寫字元
+ TABLESPACE_NAME                VARCHAR2(30) -- 除非DDL指令裡使用雙引號將相關名字
+                                                (小寫)包括起來.但強烈不建議使用.
+ CLUSTER_NAME                   VARCHAR2(30) -- 因為未來使用到此名字時，都必須使
+                                                用雙引號將小寫字元包括起來.
+ IOT_NAME                       VARCHAR2(30)
+ STATUS                         VARCHAR2(8)
+ --省略
+ 
+SQL> SELECT table_name FROM dba_tables WHERE table_name='LOWER';  
+     -- 但是建立table時，將自動變成大寫儲存在Data Dictionary中
+
+TABLE_NAME
+------------------------------
+LOWER
+
+SQL> CREATE TABLE LOWER (c1 NUMBER);
+CREATE TABLE LOWER (c1 NUMBER)
+             *
+ ERROR 在行 1:
+ORA-00955: 此一名稱已被一個現有物件使用
+
+
+SQL> CREATE TABLE "LOWER" (c1 NUMBER);
+CREATE TABLE "LOWER" (c1 NUMBER)
+             *
+ ERROR 在行 1:
+ORA-00955: 此一名稱已被一個現有物件使用
+
+
+SQL> CREATE TABLE "lower" (c1 NUMBER);
+
+已建立表格.
+
+SQL> SELECT table_name FROM dba_tables WHERE table_name='lower';
+
+TABLE_NAME
+------------------------------
+lower
+
+SQL> INSERT INTO lower VALUES(1);  --其實為LOWER
+
+已建立 1 個資料列.
+
+SQL> SELECT * FROM lower;  --其實為LOWER
+
+        C1
+----------
+         1
+
+SQL> INSERT INTO "lower" VALUES(2);
+
+已建立 1 個資料列.
+
+SQL> SELECT * FROM "lower";
+
+        C1
+----------
+         2
+
+SQL> COMMIT;
+
+確認完成.
+
+A NAMESPACE defines
+a group of object types， within which all names must be uniquely identified, 
+by schema and name
+
+TABLE, VIEW, SEQUENCE, PRIVATE SYNONYM位在同一個namespace，所以同一個schema中，
+不能有相同的table名字，也不能有table與view, sequence, private synonym相同名字的情
+況發生
+
+SQL> SELECT * FROM emp;  --可以出現在FROM子句的物件型態(table/view/synonym)
+SELECT * FROM emp;
+              *
+ ERROR 在行 1:
+ORA-00942: 表格或視觀表不存在
+
+
+當進行解析時，Optimizer首先決定emp所在的schema.
+然後先假設emp為table name.
+如果沒有此table，則將emp當作view name.
+如果還是沒有叫做emp的view，則將其當作private synonym
+如果也沒有叫做emp的private synonym，則將試圖尋找是否有叫做emp的public synonym
+假設以上都無法成功尋找到叫做emp的物件，則將會出現
+ORA-00942: 表格或視觀表不存在(Table OR View Not Exists)
+
+ORA-00942可能因為物件不存在或存在但沒權限存取而出現
+
+Code Datatype Description 
+1
+ VARCHAR2(size [BYTE | CHAR])
+ Variable-length character string having maximum length size bytes or characters. 
+ Maximum size is 4000 bytes or characters, and minimum is 1 byte or 1 character. 
+ You must specify size for VARCHAR2.
+
+BYTE indicates that the column will have byte length semantics; 
+CHAR indicates that the column will have character semantics.
+
+1
+ NVARCHAR2(size)
+ Variable-length Unicode character string having maximum length size characters. 
+ The number of bytes can be up to two times size for AL16UTF16 encoding and 
+ three times size for UTF8 encoding. Maximum size is determined by the national 
+ character set definition, with an upper limit of 4000 bytes. You must specify 
+ size for NVARCHAR2.
+ 
+2
+ NUMBER[(precision [, scale]])
+ Number having precision p and scale s. The precision p can range from 1 to 38. 
+ The scale s can range from -84 to 127.
+ 
+8
+ LONG
+ Character data of variable length up to 2 gigabytes, or 231 -1 bytes. 
+ Provided for backward compatibility.
+
+
+SQL> DROP TABLE t1;
+SQL> CREATE TABLE t1(a NUMBER,b VARCHAR2(10),c CHAR(10));  --A為數字(NUMBER(38))
+                                                             ,B/C欄位最多只能儲存
+                                                             10Bytes資料
+SQL> INSERT INTO t1 VALUES(100000,'A','A');
+SQL> INSERT INTO t1 VALUES(123456,'B','B');
+SQL> COMMIT;
+SQL> SELECT * FROM t1;
+
+         A B          C
+---------- ---------- ----------
+    100000 A          A
+    123456 B          B
+
+SQL> SELECT DUMP(b),DUMP(c) FROM t1 WHERE a=100000;
+
+DUMP(B)
+--------------------------------------------------------------------------------
+DUMP(C)
+--------------------------------------------------------------------------------
+Typ=1 Len=1: 65  -- VARCHAR2(10)表示最多可以儲存10Bytes資料.但如果資料低於
+                    10Bytes,則僅儲存資料本身內容即可.
+Typ=96 Len=10: 65,32,32,32,32,32,32,32,32,32  -- CHAR(10)表示最多可以儲存10Bytes
+                                                 資料.但如果資料低於10Bytes,則在
+                                                 資料尾部填補空白,以補足10Bytes長
+                                                 度.
+
+SQL> SELECT a,dump(a) FROM t1;
+
+         A
+----------
+DUMP(A)
+--------------------------------------------------------------------------------
+    100000
+Typ=2 Len=2: 195,11
+
+    123456
+Typ=2 Len=4: 195,13,35,57
+
+
+SQL> DROP TABLE t1;
+SQL> CREATE TABLE t1(a DATE,b TIMESTAMP);
+
+已建立表格.
+
+SQL> INSERT INTO t1 VALUES (SYSDATE,SYSTIMESTAMP);
+
+已建立 1 個資料列.
+
+SQL> SELECT * FROM t1;
+
+A              B
+-------------- -----------------------------------------------------------------
+18-4月 -10     18-4月 -10 09.49.37.598000 上午
+因為DATE使用NLS_DATE_FORMAT來顯示日期
+而TIMESTAMP使用NLS_TIMESTAMP_FORMAT顯示
+
+SQL> SELECT parameter,value
+  2  FROM nls_session_parameters
+  3  WHERE parameter IN ('NLS_DATE_FORMAT','NLS_TIMESTAMP_FORMAT');
+
+PARAMETER                                VALUE
+---------------------------------------- ---------------------------------------
+NLS_DATE_FORMAT                          DD-MON-RR
+NLS_TIMESTAMP_FORMAT                     DD-MON-RR HH.MI.SSXFF AM
+
+SQL> ALTER SESSION SET NLS_DATE_FORMAT='DD-MON-RR HH.MI.SS AM';
+
+已更改階段作業.
+
+SQL> SELECT * FROM t1;
+
+A
+----------------------------
+B
+---------------------------------------------------------------------------
+18-4月 -10 09.49.37 上午
+18-4月 -10 09.49.37.598000 上午
+
+SQL> SELECT SESSIONTIMEZONE,DBTIMEZONE FROM dual;
+
+SESSIONTIMEZONE                                                     DBTIME
+--------------------------------------------------------------------------- ------
++08:00                                                                      +00:00
+
+SQL> CREATE TABLE t2(c1 DATE,c2 TIMESTAMP,c3 TIMESTAMP WITH TIME ZONE,c4 TIMESTAMP WITH LOCAL TIME ZONE);
+
+已建立表格.
+timestamp with local time zone的欄位,所儲存的時間為DB所在的時區時間
+SQL> INSERT INTO t2 VALUES(SYSDATE,SYSTIMESTAMP,SYSTIMESTAMP,SYSTIMESTAMP);
+
+已建立 1 個資料列.
+
+SQL> SELECT * FROM t2;
+
+C1
+----------------------------
+C2
+---------------------------------------------------------------------------
+C3
+---------------------------------------------------------------------------
+C4
+---------------------------------------------------------------------------
+18-4月 -10 09.57.06 上午
+18-4月 -10 09.57.06.958000 上午
+18-4月 -10 09.57.06.958000 上午 +08:00
+18-4月 -10 09.57.06.958000 上午
+
+SQL> ALTER SESSION SET TIME_ZONE='-07:00';
+
+已更改階段作業.
+
+SQL> SELECT * FROM t2;
+
+C1
+----------------------------
+C2
+---------------------------------------------------------------------------
+C3
+---------------------------------------------------------------------------
+C4
+---------------------------------------------------------------------------
+18-4月 -10 09.57.06 上午
+18-4月 -10 09.57.06.958000 上午
+18-4月 -10 09.57.06.958000 上午 +08:00
+17-4月 -10 06.57.06.958000 下午  <--自動轉換為session's的時區時間
+
