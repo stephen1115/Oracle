@@ -536,7 +536,29 @@ AWI, P. 1-28
 System Monitor Process (SMON)
 1. The System Mointor process (SMON) performs recovery at instance startup if necessary.
 2. SMON is also responsible fro cleaning up templorary segments that are no longer in use.
-	 
-	 
-	 
+
+AWI, P. 1-29
+Process Monitor Process (PMON)
+1. The process monitor performs process recovery when a user process fails. 
+2. PMON is responsible for cleaning up the cache and freeing resources that the process was 
+   using. 
+3. PMON also checks on the dispatcher processes (described later in this table) and server 
+   processes and restarts them if they have failed. 
+
+AWI, P. 1-30
+Recoverer Process (RECO)
+1. In a distributed database, the recoverer process (RECO) automatically resolves failures 
+   in distributed transactions. 
+2. The RECO process of a node automatically connects to other databases involved in an 
+   in-doubt distributed transaction. When RECO reestablishes a connection between the databases, 
+   it automatically resolves all in-doubt transactions, removing from each database's pending 
+   transaction table any rows that correspond to the resolved transactions.  
+
+AWI, P. 1-31
+Archiver Processes (ARCn)
+The archiver processes (ARCn) copy online redo log files to offline storage 
+after a redo log switch occurs. These processes can also collect transaction 
+redo data and transmit it to standby database destinations. 
+ARCn processes exist only when the database is in ARCHIVELOG mode and 
+automatic archiving is enabled.  
 	 
