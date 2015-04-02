@@ -532,6 +532,48 @@ datafile' header與controlfile內
 checkpoint-> full(將同時更新controlfile/datafile's header的checkpoint information),incremental
 (僅更新datafile's header)
 
+The checkpoint process (CKPT) updates the control file and data file headers with checkpoint 
+information and signals DBWn to write blocks to disk. Checkpoint information includes the 
+checkpoint position, SCN, location in online redo log to begin recovery, and so on. 
+As shown bellow, CKPT does not write data blocks to data files or redo blocks to
+online redo log files.
+
+            	 ┌──┤System Global Area (SGA)├──┐
+            	 │                              │
+            	 │  ┌─────────────────────────┐ │
+            	 │  │  Database Buffer Cache  │ │
+            	 │  │                         │ │
+            	 │  └─────────────────────────┘ │
+            ┌────│                              │──────┐
+            │    └──────────────────────────────┘      │	
+    		↓	                                       ↓
+    	╔════════╗─────────────────────────┐       ╔════════╗
+    	║  CKPT  ║                         │       ║  DBWn  ║
+    	╚════════╝─────────────────────┐   │       ╚════════╝
+    	    │                          │   │          │   │
+            ↓                          │   │          │   │
+     ───────                ─────────  │   │          │   │
+     Control   	            Data File  ↓   │          │   │
+     Files   ┌─────┐        Heade   ┌─────┐↓          │   │
+     ─────── │     │─┐      ─────── │-----│─┐         │   │
+         ┌───│	   │ │              │	  │-│         │   │
+         │	 └─┬───┘ │              └─┬───┘ │───────  │   │
+         │	   │─────┘         	     ↑└─────┘ Data    │   │
+         └─────┘                     │   ↑    File    │   │
+                                     │   │    Body    │   │
+                                     │   │ ─────────  │   │
+                                     │   │            │   │
+    								 │   │   		  │   │
+    								 │   └────────────┘	  │
+                                     └────────────────────┘
+
+
+
+
+
+
+
+
 AWI, P. 1-28
 System Monitor Process (SMON)
 1. The System Mointor process (SMON) performs recovery at instance startup if necessary.
