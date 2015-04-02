@@ -518,17 +518,71 @@ QMNC
 MMON
 MMNL
 
-已選取 22 個資料列.   
+已選取 22 個資料列.
 
+AWI, P. 1-29
+Process Monitor Process (PMON)
+1. The process monitor (PMON) monitors the other background processes and 
+   performs process recovery when a server or dispatcher process terminates 
+   abnormally.
+2. PMON is responsible for cleaning up the database buffer cache and freeing
+   resources that the client process was using. For example, PMON resets the 
+   status of the active transaction table, releases locks that are no longer 
+   required, and removes the process ID from the list of active processes.
+3. PMON also registers information about the instance and dispatcher processes
+   with the Oracle Net listener. When an instance starts, PMON polls the 
+   listener to determine whether it is running. If the listener is running, then
+   PMON passes it relevant parameters. If it is not running, then PMON 
+   periodically attempts to contact it.   
+  (PMON also checks on the dispatcher processes (described later in this table)
+   and server processes and restarts them if they have failed.) 
+
+AWI, P. 1-28
+System Monitor Process (SMON)
+1. The system monitor process (SMON) is in charge of a variety of system-level
+   cleanup duties. The duties assigned to SMON include:
+
+   █ Performing instance recovery, if necessary, at instance startup. 
+     In an Oracle RAC database, the SMON process of one database instance can 
+	 perform instance recovery for a failed instance.
+	 
+   █ Recovering terminated transactions that were skipped during instance 
+     recovery because of file-read or tablespace offline errors. SMON recovers
+	 the transactions when the tablespace or file is brought back online.
+
+   █ Cleaning up unused temporary segments. For example, Oracle Database 
+     allocates extents when creating an index. If the operation fails, then SMON
+	 cleans up the temporary space.
+
+   █ Coalescing contiguous free extents within dictionary-managed tablespaces.
+
+2. SMON checks regularly to see whether it is needed. Other processes can call 
+   SMON if they detect a need for it.
+   
 AWI, P. 1-23
 Database Writer Process (DBWn)
-1. The Database Writer process(DBWn) writes the contents of buffers to data 
-   files.
-2. The DBWn processes are reponsibile for writing modified (dirty) buffers in
-   the database buffer ache to disk.	 
-3. The DBW0 process is adequate for most systems.
-4. You also can configure additional processes (DBW1 ~ DBW9 and DBWa ~ DBWz)
-   to improve write performance if your system modifies data heavily.
+1. The database writer process (DBWn) writes the contents of database buffers 
+   to data files. DBWn processes write modified buffers in the database buffer 
+   cache to disk.
+2. Although one database writer process (DBW0) is adequate for most systems, 
+   you can configure additional processes—DBW1 through DBW9 and DBWa through 
+   DBWj—to improve write performance if your system modifies data heavily. 
+   These additional DBWn processes are not useful on uniprocessor systems.	 
+3. The DBWn process writes dirty buffers to disk under the following conditions:
+   █ When a server process cannot find a clean reusable buffer after scanning a
+     threshold number of buffers, it signals DBWn to write. DBWn writes dirty 
+	 buffers to disk asynchronously if possible while performing other 
+	 processing.
+
+   █ DBWn periodically writes buffers to advance the checkpoint, which is the 
+     position in the redo thread from which instance recovery begins. The log 
+	 position of the checkpoint is determined by the oldest dirty buffer in the
+	 buffer cache.
+4. In many cases the blocks that DBWn writes are scattered throughout the disk. 
+   Thus, the writes tend to be slower than the sequential writes performed by 
+   LGWR. DBWn performs multiblock writes when possible to improve efficiency. 
+   The number of blocks written in a multiblock write varies by operating 
+   system.
 
 <補充>
 clean buffer --
@@ -546,8 +600,30 @@ DBWR
 
 AWI, P. 1-25
 Log Writer Process (LGWR)
-1. The Log Writer process (LGWR) is responsible fro redo log buffer management
-   by writing the redo log buffer entries to a redo log file on disk.   
+1. The log writer process (LGWR) manages the redo log buffer. LGWR writes one
+   contiguous portion of the buffer to the online redo log. By separating the
+   tasks of modifying database buffers, performing scattered writes of dirty 
+   buffers to disk, and performing fast sequential writes of redo to disk, the
+   database improves performance.
+2. In the following circumstances, LGWR writes all redo entries that have been
+   copied into the buffer since the last time it wrote:
+
+   █ A user commits a transaction.
+
+   █ An online redo log switch occurs.
+
+   █ Three seconds have passed since LGWR last wrote.
+
+   █ The redo log buffer is one-third full or contains 1 MB of buffered data.
+
+   █ DBWn must write modified buffers to disk.
+
+   Before DBWn can write a dirty buffer, redo records associated with changes to
+   the buffer must be written to disk (the write-ahead protocol). If DBWn finds 
+   that some redo records have not been written, it signals LGWR to write the 
+   records to disk and waits for LGWR to complete before writing the data buffers
+   to disk.   
+
 <補充>
 LGWR
   -- 將新產生的redo entries，即log Buffer (上次LGWR寫入操作後，新產生的
@@ -567,6 +643,7 @@ Checkpoint Process (CKPT)
    files to record the detail of the checkpoint.
 4. The SCNs recorded in the file headers guarantee that all changes made to
    database blocks prior to that SCN have been written to disk.
+   
 <補充>
 CKPT
   -- 要求DBWR將某些dirty buffers寫到datafile(incremental checkpoint)，當DBWR作業
@@ -612,59 +689,29 @@ online redo log files.
     								 │   └────────────┘	  │
                                      └────────────────────┘
 
-AWI, P. 1-28
-System Monitor Process (SMON)
-1. The system monitor process (SMON) is in charge of a variety of system-level
-   cleanup duties. The duties assigned to SMON include:
-
-   █ Performing instance recovery, if necessary, at instance startup. 
-     In an Oracle RAC database, the SMON process of one database instance can 
-	 perform instance recovery for a failed instance.
-	 
-   █ Recovering terminated transactions that were skipped during instance 
-     recovery because of file-read or tablespace offline errors. SMON recovers
-	 the transactions when the tablespace or file is brought back online.
-
-   █ Cleaning up unused temporary segments. For example, Oracle Database 
-     allocates extents when creating an index. If the operation fails, then SMON
-	 cleans up the temporary space.
-
-   █ Coalescing contiguous free extents within dictionary-managed tablespaces.
-
-2. SMON checks regularly to see whether it is needed. Other processes can call 
-   SMON if they detect a need for it.
-
-AWI, P. 1-29
-Process Monitor Process (PMON)
-1. The process monitor (PMON) monitors the other background processes and 
-   performs process recovery when a server or dispatcher process terminates 
-   abnormally.
-2. PMON is responsible for cleaning up the database buffer cache and freeing
-   resources that the client process was using. For example, PMON resets the 
-   status of the active transaction table, releases locks that are no longer 
-   required, and removes the process ID from the list of active processes.
-3. PMON also registers information about the instance and dispatcher processes
-   with the Oracle Net listener. When an instance starts, PMON polls the 
-   listener to determine whether it is running. If the listener is running, then
-   PMON passes it relevant parameters. If it is not running, then PMON 
-   periodically attempts to contact it.   
-  (PMON also checks on the dispatcher processes (described later in this table)
-   and server processes and restarts them if they have failed.) 
-
 AWI, P. 1-30
 Recoverer Process (RECO)
-1. In a distributed database, the recoverer process (RECO) automatically resolves failures 
-   in distributed transactions. 
-2. The RECO process of a node automatically connects to other databases involved in an 
-   in-doubt distributed transaction. When RECO reestablishes a connection between the databases, 
-   it automatically resolves all in-doubt transactions, removing from each database's pending 
-   transaction table any rows that correspond to the resolved transactions.  
+1. In a distributed database, the recoverer process (RECO) automatically 
+   resolves failures in distributed transactions. 
+2. The RECO process of a node automatically connects to other databases involved
+   in an in-doubt distributed transaction. When RECO reestablishes a connection 
+   between the databases, it automatically resolves all in-doubt transactions, 
+   removing from each database's pending transaction table any rows that 
+   correspond to the resolved transactions.  
 
+Optional Background Processes
+An optional background process is any background process not defined as 
+mandatory. Most optional background processes are specific to tasks or features. 
+For example, background processes that support Oracle Streams 
+Advanced Queuing (AQ) or Oracle Automatic Storage Management (Oracle ASM) are 
+only available when these features are enabled.
+   
 AWI, P. 1-31
 Archiver Processes (ARCn)
-The archiver processes (ARCn) copy online redo log files to offline storage 
-after a redo log switch occurs. These processes can also collect transaction 
-redo data and transmit it to standby database destinations. 
-ARCn processes exist only when the database is in ARCHIVELOG mode and 
-automatic archiving is enabled.  
+1. The archiver processes (ARCn) copy online redo log files to offline storage 
+   after a redo log switch occurs. These processes can also collect transaction 
+   redo data and transmit it to standby database destinations. 
+2. ARCn processes exist only when the database is in ARCHIVELOG mode and 
+   automatic archiving is enabled.
+
 	 
