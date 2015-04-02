@@ -447,12 +447,43 @@ Server Processes
      information
 
 Backgroud Processes
-1. To maximize performance and accommodate many users, a multiprocess Oracle
-   database system uses some additional Oracle database processes called
-   background processes.
-2. An Oracle database instance can have many background processes.
-3. See the V$BGPROCESS view for more information on the background processes.
+1. A multiprocess Oracle database uses some additional processes called 
+   background processes. 
+2. The background processes perform maintenance tasks required to operate the
+   database and to maximize performance for multiple users.
+3. Each background process has a separate task, but works with the other 
+   processes. For example, the LGWR process writes data from the redo log buffer
+   to the online redo log. When a filled log file is ready to be archived, LGWR 
+   signals another process to archive the file.
+4. Oracle Database creates background processes automatically when a database 
+   instance starts. An instance can have many background processes, not all of 
+   which always exist in every database configuration. 
+   The following query lists the background processes running on your database:
 
+   SELECT PNAME 
+   FROM   V$PROCESS 
+   WHERE  PNAME IS NOT NULL 
+   ORDER BY PNAME;
+5. See the V$BGPROCESS view for more information on the background processes.
+6. Mandatory Background Processes
+   The mandatory background processes are present in all typical database 
+   configurations. These processes run by default in a database instance 
+   started with a minimally configured initialization parameter file.
+   
+   █ Process Monitor Process (PMON)
+
+   █ System Monitor Process (SMON)
+
+   █ Database Writer Process (DBWn)
+
+   █ Log Writer Process (LGWR)
+
+   █ Checkpoint Process (CKPT)
+
+   █ Manageability Monitor Processes (MMON and MMNL)
+
+   █ Recoverer Process (RECO)
+    
 <補充>
 background process->當instance啟動後,自動帶起的processes,每個process都事先設定完成,不需dba介入
 --必要bg processes:smon,pmon,dbwr,lgwr,ckpt,reco
