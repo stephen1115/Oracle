@@ -485,16 +485,11 @@ Backgroud Processes
    █ Recoverer Process (RECO)
     
 <補充>
-background process->當instance啟動後,自動帶起的processes,每個process都事先設定完成,不需dba介入
---必要bg processes:smon,pmon,dbwr,lgwr,ckpt,reco
+background process
+  -- 當instance啟動後,自動帶起的processes,每個process都事先設定完成,不需dba介入
+  -- 必要bg processes: SMON, PMON, DBWR, LGWR, CKPT, RECO
 
 只有當client/server方式建立的connect,需要listener
-
-server process將datafile的block內容複製到buffer cache,此時為clean buffer(此buffer的內容與datafile's block一致),
-但是若server process進行dml異動buffer內容.則此buffer就變成dirty buffer(此buffer的內容與datafile's block不一致)
-dbwr->將buffer cache的dirty buffer寫到datafile,因此buffer就變成clean buffer	
- 1.當server process發現buffer cache的clean buffers太少或dirty buffers太多
- 2.每3秒,dbwr將部分的dirty buffers寫到datafile
 
 SQL> select name from v$bgprocess where paddr != '00';
 
@@ -533,19 +528,35 @@ Database Writer Process (DBWn)
    the database buffer ache to disk.	 
 3. The DBW0 process is adequate for most systems.
 4. You also can configure additional processes (DBW1 ~ DBW9 and DBWa ~ DBWz)
-   to improve write performance if your system modifies data heavily.	 
+   to improve write performance if your system modifies data heavily.
+
+<補充>
+clean buffer --
+  server process將datafile的block內容複製到buffer cache，此時為clean buffer 
+  (此時buffer的內容與datafile's block一致)
+
+dirty buffer -- 
+  但是若server process進行DML異動buffer內容，則此buffer就變成dirty buffer
+  (此時buffer的內容與datafile's block不一致)
+                                     ^^^^^^
+DBWR
+  -- 將buffer cache的dirty buffer寫到datafile，因此buffer就變成clean buffer	
+  -- 當server process發現buffer cache的clean buffers太少或dirty buffers太多時
+  -- 每3秒,dbwr將部分的dirty buffers寫到datafile
 
 AWI, P. 1-25
 Log Writer Process (LGWR)
 1. The Log Writer process (LGWR) is responsible fro redo log buffer management
    by writing the redo log buffer entries to a redo log file on disk.   
 <補充>
-lgwr->將新產生的redo entries:log Buffer(上次lgwr寫入操作後,新產生的redo entries)寫到online logfile
- 1.transaction commit
- 2.每3秒
- 3.redo entry佔log buffer 1/3以上或佔1M空間
- 4.當dbwr想要將某個dirty buffer寫到datafile,會先要求lgwr將redo entry寫到logfile,然後才會將dirty 
-   buffer寫到datafile
+LGWR
+  -- 將新產生的redo entries，即log Buffer (上次LGWR寫入操作後，新產生的
+     redo entries) 寫到online logfile
+  1. transaction commit
+  2. 每3秒
+  3. redo entry佔log buffer 1/3以上或佔1M空間
+  4. 當DBWR想要將某個dirty buffer寫到datafile，會先要求LGWR將redo entry寫到
+     logfile，然後才會將dirty buffer寫到datafile
 
 AWI, P. 1-27
 Checkpoint Process (CKPT)
@@ -557,15 +568,18 @@ Checkpoint Process (CKPT)
 4. The SCNs recorded in the file headers guarantee that all changes made to
    database blocks prior to that SCN have been written to disk.
 <補充>
-ckpt->要求dbwr將某些dirty buffers寫到datafile(incremental checkpoint),當dbwr作業完成後.ckpt將相
-關的checkpoint information(current system change number,current log sequence number等)紀錄到
-datafile' header與controlfile內
-checkpoint-> full(將同時更新controlfile/datafile's header的checkpoint information),incremental
-(僅更新datafile's header)
+CKPT
+  -- 要求DBWR將某些dirty buffers寫到datafile(incremental checkpoint)，當DBWR作業
+     完成後，CKPT將相關的checkpoint information( current system change number,
+     current log sequence number等)紀錄到datafile' header與controlfile內
+checkpoint
+  full(將同時更新controlfile/datafile's header的checkpoint information),
+  incremental(僅更新datafile's header)
 
-The checkpoint process (CKPT) updates the control file and data file headers with checkpoint 
-information and signals DBWn to write blocks to disk. Checkpoint information includes the 
-checkpoint position, SCN, location in online redo log to begin recovery, and so on. 
+The checkpoint process (CKPT) updates the control file and data file headers 
+with checkpoint information and signals DBWn to write blocks to disk. Checkpoint 
+information includes the checkpoint position, SCN, location in online redo log 
+to begin recovery, and so on. 
 As shown bellow, CKPT does not write data blocks to data files or redo blocks to
 online redo log files.
 
@@ -598,25 +612,44 @@ online redo log files.
     								 │   └────────────┘	  │
                                      └────────────────────┘
 
-
-
-
-
-
-
-
 AWI, P. 1-28
 System Monitor Process (SMON)
-1. The System Mointor process (SMON) performs recovery at instance startup if necessary.
-2. SMON is also responsible fro cleaning up templorary segments that are no longer in use.
+1. The system monitor process (SMON) is in charge of a variety of system-level
+   cleanup duties. The duties assigned to SMON include:
+
+   █ Performing instance recovery, if necessary, at instance startup. 
+     In an Oracle RAC database, the SMON process of one database instance can 
+	 perform instance recovery for a failed instance.
+	 
+   █ Recovering terminated transactions that were skipped during instance 
+     recovery because of file-read or tablespace offline errors. SMON recovers
+	 the transactions when the tablespace or file is brought back online.
+
+   █ Cleaning up unused temporary segments. For example, Oracle Database 
+     allocates extents when creating an index. If the operation fails, then SMON
+	 cleans up the temporary space.
+
+   █ Coalescing contiguous free extents within dictionary-managed tablespaces.
+
+2. SMON checks regularly to see whether it is needed. Other processes can call 
+   SMON if they detect a need for it.
 
 AWI, P. 1-29
 Process Monitor Process (PMON)
-1. The process monitor performs process recovery when a user process fails. 
-2. PMON is responsible for cleaning up the cache and freeing resources that the process was 
-   using. 
-3. PMON also checks on the dispatcher processes (described later in this table) and server 
-   processes and restarts them if they have failed. 
+1. The process monitor (PMON) monitors the other background processes and 
+   performs process recovery when a server or dispatcher process terminates 
+   abnormally.
+2. PMON is responsible for cleaning up the database buffer cache and freeing
+   resources that the client process was using. For example, PMON resets the 
+   status of the active transaction table, releases locks that are no longer 
+   required, and removes the process ID from the list of active processes.
+3. PMON also registers information about the instance and dispatcher processes
+   with the Oracle Net listener. When an instance starts, PMON polls the 
+   listener to determine whether it is running. If the listener is running, then
+   PMON passes it relevant parameters. If it is not running, then PMON 
+   periodically attempts to contact it.   
+  (PMON also checks on the dispatcher processes (described later in this table)
+   and server processes and restarts them if they have failed.) 
 
 AWI, P. 1-30
 Recoverer Process (RECO)
