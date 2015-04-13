@@ -373,3 +373,237 @@ C4
 18-4月 -10 09.57.06.958000 上午 +08:00
 17-4月 -10 06.57.06.958000 下午  <--自動轉換為session's的時區時間
 
+CREATE TABLE [schema.]table [ORGANIZATION HEAP]
+(column datatype [DEFAULT expression]
+[,column datatype [DEFAULT expression]…);
+
+CREATE TABLE [schema.]table AS subquery; --constriant只會保留NOT NULL
+ --subquery的SELECT list的欄位及其資料型態,將成為新table的欄位與資料型態
+ --而subquery的rows將被新增到新table裡.
+
+Adding columns:
+SQL> ALTER TABLE emp ADD (job_id NUMBER);  --新增欄位到每一筆現存的row,所新增的欄位值使用default value.
+   --ALTER TABLE emp ADD (job_id NUMBER DEFAULT 10); --如此新增的column值,為10.
+SQL> ALTER TABLE emp MODIFY (comm NUMBER(4,2) DEFAULT 0.05);  --變更欄位定義.若變更預設值,僅對未來新增的row產生影響.
+
+SQL> ALTER TABLE emp DROP COLUMN comm;  --直接lock table,刪除comm欄位定義與真實資料(row的某個欄位).所以每一筆row的大小將縮小.
+
+SQL> ALTER TABLE emp SET UNUSED COLUMN job_id; --僅先將column更名,但沒有刪除真實資料(DBA_UNUSED_COL_TABS)
+
+SQL> ALTER TABLE emp DROP UNUSED COLUMNS;  --將之前set unused column的欄位資料真正刪除,此動作將先lock table,禁止DML/DDL.
+
+SQL> ALTER TABLE emp RENAME COLUMN hiredate TO recruited;  --變更column name
+
+SQL> ALTER TABLE emp RENAME TO old_emp;  --變更table name
+
+SQL> ALTER TABLE emp READ ONLY;  --11g only
+                   --READ WRITE;
+
+Data Integrity(資料完整性)->確認table資料遵守商業規則(Businese Rule)
+1.Constraint(最簡單,但功能較少)
+2.Trigger(在Database端,需要撰寫PL/SQL程式.但功能完整)
+3.Application邏輯(在Client端)				   
+
+UNIQUE->不可以重複
+NOT NULL->不可以儲存空值
+PRIMARY KEY->不可以重複,也不可以儲存空值.一個table只能有一個primary key限制.如果有另一個欄位也需要pk限制,則必須使用NOT NULL+UNIQUE達到.
+FOREIGN KEY->欄位值必須參考另一個欄位的值,但是被參考的欄位必須有UNIQUE或PRIMARY KEY限制
+CHECK->欄位值必須讓CHECK condition為True
+
+建立table時,同時宣告constraint
+column level宣告的好處,不需要指定限制所對應的column.缺點只能在一個欄位上(NOT NULL只能使用column level)
+SQL> CREATE TABLE t3(a NUMBER PRIMARY KEY,b VARCHAR2(10) CONSTRAINT t3_b_uk UNIQUE);
+如果不指定constriant name,將由Oracle自行命名為SYS_Cnnnnn(nnnnn為serial number)
+
+table level宣告的好處,可以使用多個欄位當作constraint,但是一定要指定constraint所對應的欄位
+SQL> CREATE TABLE t4(a NUMBER,b VARCHAR2(10),CONSTRAINT t4_ab_pk PRIMARY KEY(a,b));
+
+建立table後,才宣告constraint,必須使用類似table level的宣告
+SQL> CREATE TABLE t5(a NUMBER,b VARCHAR2(10));
+
+SQL> INSERT INTO t5 VALUES(1,'A1');
+SQL> INSERT INTO t5 VALUES(2,'B1');
+SQL> INSERT INTO t5 VALUES(3,'C1');
+SQL> COMMIT;
+
+確認完成.
+
+FORIGN KEY的宣告
+SQL> CREATE TABLE t6(a VARCHAR2(10),b NUMBER REFERENCES t5(a));  --no action
+-----------------------------------------------------------------------------------
+CREATE TABLE t6(a VARCHAR2(10),b NUMBER REFERENCES t5(a))
+                                                      *
+ ERROR 在行 1:
+ORA-02270: 此資料欄清單沒有相符的唯一索引鍵或主索引鍵
+-----------------------------------------------------------------------------------
+
+SQL> ALTER TABLE t5 ADD CONSTRAINT t5_a_pk PRIMARY KEY(a);
+
+SQL> CREATE TABLE t6(a VARCHAR2(10),b NUMBER REFERENCES t5(a));  --建立FK時,如果沒有明確指定delete rule,其預設為NO ACTION.
+
+SQL> SELECT constraint_name,constraint_type,delete_rule  --no action
+  2  FROM dba_constraints
+  3  WHERE owner='SYS' AND table_name='T6';
+
+CONSTRAINT_NAME                C DELETE_RU
+------------------------------ - ---------
+SYS_C005610                    R NO ACTION  --no action表示當t5.a欄位值變更時,t6.b欄位值將不跟隨發生任何改變
+
+SQL> INSERT INTO t6 VALUES('a1',1);
+
+已建立 1 個資料列.
+
+SQL> INSERT INTO t6 VALUES('b1',2);
+
+已建立 1 個資料列.
+
+SQL> INSERT INTO t6 VALUES('c1',1);
+
+已建立 1 個資料列.
+
+SQL> INSERT INTO t6 VALUES('d1',4);
+INSERT INTO t6 VALUES('d1',4)
+*
+ ERROR 在行 1:
+ORA-02291: 違反整合性限制條件 (OE.SYS_C005610) - 找不到父項索引鍵  --4並沒有出現在t5表格的任何一筆row的a欄位裡
+
+SQL> COMMIT;
+
+確認完成.
+
+SQL> SELECT * FROM t5;
+
+         A B
+---------- ----------
+         1 A1
+         2 B1         --父項紀錄
+         3 C1
+
+SQL> SELECT * FROM t6;
+
+A                   B
+---------- ----------
+a1                  1
+b1                  2　　--t5.A=2的子項紀錄
+c1                  1
+
+SQL> DELETE t5 WHERE a=3;  --因為child table中並沒有任何row參考a=3的欄位值
+
+已刪除 1 個資料列.
+
+SQL> DELETE t5 WHERE a=2;
+DELETE t5 WHERE a=2
+*
+ ERROR 在行 1:
+ORA-02292: 違反整合性限制條件 (SYS.SYS_C005610) - 發現子項記錄
+
+
+SQL> ROLLBACK;
+
+倒回完成.
+
+SQL> ALTER TABLE t6 DROP CONSTRAINT sys_c005610;  --刪除目前的foreign key constraint.這個操作不會影響table內容.
+
+已更改表格.
+
+SQL> ALTER TABLE t6 ADD CONSTRAINT t6_b_fk FOREIGN KEY(b) REFERENCES t5(a) ON DELETE CASCADE;
+
+已更改表格.
+
+SQL> SELECT constraint_name,constraint_type,delete_rule
+  2  FROM dba_constraints
+  3  WHERE owner='SYS' AND table_name='T6';
+
+CONSTRAINT_NAME                C DELETE_RU
+------------------------------ - ---------
+T6_B_FK                        R CASCADE  --當t5發生delete行為時,所有參考該a欄位值的t6表格row,將一同被刪除.
+
+SQL> SELECT * FROM t5;
+
+         A B
+---------- ----------
+         1 A1
+         2 B1
+         3 C1
+
+SQL> SELECT * FROM t6;
+
+A                   B
+---------- ----------
+a1                  1
+b1                  2
+c1                  1
+
+SQL> DELETE t5 WHERE a=2;
+
+已刪除 1 個資料列.
+
+SQL> SELECT * FROM t5;
+
+         A B
+---------- ----------
+         1 A1
+         3 C1
+
+SQL> SELECT * FROM t6;  --因為Fk的on delete cascade而被刪除一筆row
+
+A                   B
+---------- ----------
+a1                  1
+c1                  1
+
+SQL> ROLLBACK;
+
+倒回完成.
+
+SQL> ALTER TABLE t6 DROP CONSTRAINT t6_b_fk;
+
+已更改表格.
+
+SQL> ALTER TABLE t6 ADD CONSTRAINT t6_b_fk FOREIGN KEY(b) REFERENCES t5(a) ON DELETE SET NULL;
+
+已更改表格.
+
+SQL> SELECT constraint_name,constraint_type,delete_rule
+  2  FROM dba_constraints
+  3  WHERE owner='SYS' AND table_name='T6';
+
+CONSTRAINT_NAME                C DELETE_RU
+------------------------------ - ---------
+T6_B_FK                        R SET NULL  --當t5發生delete行為時,所有參考該a欄位值的t6表格的b欄位值,將被更改為空值.
+
+SQL> SELECT * FROM t5;
+
+         A B
+---------- ----------
+         1 A1
+         2 B1
+         3 C1
+
+SQL> SELECT * FROM t6;
+
+A                   B
+---------- ----------
+a1                  1
+b1                  2
+c1                  1
+
+SQL> DELETE t5 WHERE a=2;
+
+已刪除 1 個資料列.
+
+SQL> SELECT * FROM t5;
+
+         A B
+---------- ----------
+         1 A1
+         3 C1
+
+SQL> SELECT * FROM t6;
+
+A                   B
+---------- ----------
+a1                  1
+b1                      <--b欄位值變成空值
+c1                  1
+
