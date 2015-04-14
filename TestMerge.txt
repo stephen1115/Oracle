@@ -1,1 +1,2 @@
 Add from local editing branch.
+Add from local master branch.
