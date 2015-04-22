@@ -1,0 +1,323 @@
+1. View the Exhibit and examine the structure of the SALES, CUSTOMERS, PRODUCTS,
+   and TIMES tables.
+   The PROD_ID column is the foreign key in the SALES table, which references 
+   the PRODUCTS table. Similarly, the CUST_ID and TIME_ID columns are also 
+   foreign keys in the SALES table referencing the CUSTOMERS and TIMES tables, 
+   respectively.
+   Evaluate the following CREATE TABLE command:
+   CREATE TABLE new_sales(prod_id, cust_id, order_date DEFAULT SYSDATE)
+   AS
+   SELECT prod_id, cust_id, time_id
+   FROM sales;
+   Which statement is true regarding the above command? 
+   A. The NEW_SALES table would not get created because the DEFAULT value cannot 
+      be specified in the column definition.
+   B. The NEW_SALES table would get created and all the NOT NULL constraints 
+      defined on the specified columns would be passed to the new table. 
+   C. The NEW_SALES table would not get created because the column names in the 
+      CREATE TABLE command and the SELECT clause do not match. 
+   D. The NEW_SALES table would get created and all the FOREIGN KEY constraints 
+      defined on the specified columns would be passed to the new table.
+
+   Answer: B
+   答案解析：
+   A答案：默认sysdate可以在列出被指定。
+ 
+   sh@TEST0924> CREATE TABLE new_sales(prod_id, cust_id, order_date DEFAULT SYSDATE) AS
+              2 SELECT prod_id, cust_id, time_id FROM sales;
+ 
+   Table created.
+ 
+   Answer: B
+   答案解析：
+   A答案：默认sysdate可以在列出被指定。
+ 
+   sh@TEST0924> CREATE TABLE new_sales(prod_id, cust_id, order_date DEFAULT SYSDATE) AS
+   2  SELECT prod_id, cust_id, time_id FROM sales;
+ 
+   Table created.
+ 
+   B答案：NULL约束会传递。由以下可以看出，not null是可以传递的。B正确
+   第一种方法，查看表的结构，可见not null约束是可以传递的。
+   sh@TEST0924> desc SALES
+    Name                                                  Null?    Type
+   ----------------------------------------------------- -------- ------------------------------------
+    PROD_ID                                               NOT NULL NUMBER
+    CUST_ID                                               NOT NULL NUMBER
+    TIME_ID                                               NOT NULL DATE
+    CHANNEL_ID                                       NOT NULL NUMBER
+    PROMO_ID                                          NOT NULL NUMBER
+    QUANTITY_SOLD                                NOT NULL NUMBER(10,2)
+    AMOUNT_SOLD                                  NOT NULL NUMBER(10,2)
+ 
+sh@TEST0924> desc new_sales
+ Name                                                  Null?    Type
+----------------------------------------------------- -------- ------------------------------------
+ PROD_ID                                               NOT NULL NUMBER
+ CUST_ID                                               NOT NULL NUMBER
+ ORDER_DATE                                     NOT NULL DATE
+第二种方法：由下面的查询看出，not null也是传递的。B正确
+sh@TEST0924> select a.owner,a.TABLE_NAME,b.COLUMN_NAME,a.CONSTRAINT_NAME,a.CONSTRAINT_TYPE,a.SEARCH_CONDITION
+  2  from USER_CONSTRAINTS a,USER_CONS_COLUMNS b
+  3  where a.CONSTRAINT_NAME=b.CONSTRAINT_NAME and A.table_name='SALES';
+ 
+OWNER      TABLE_NAME COLUMN_NAME     CONSTRAINT_NAME                CONSTRAINT SEARCH_CONDITION
+---------- ---------- --------------- ------------------------------ ---------- ------------------------------
+SH         SALES      CUST_ID                    SALES_CUSTOMER_FK              R
+SH         SALES      PROD_ID                  SALES_PRODUCT_FK               R
+SH         SALES      TIME_ID                   SALES_TIME_FK                          R
+SH         SALES      CHANNEL_ID          SALES_CHANNEL_FK               R
+SH         SALES      PROD_ID                  SYS_C0011009                           C                  "PROD_ID" IS NOT NULL
+SH         SALES      CUST_ID                   SYS_C0011010                           C                  "CUST_ID" IS NOT NULL
+SH         SALES      TIME_ID                  SYS_C0011011                           C                  "TIME_ID" IS NOT NULL
+SH         SALES      CHANNEL_ID          SYS_C0011012                       C              "CHANNEL_ID" IS NOT NULL
+SH         SALES      PROMO_ID              SYS_C0011013                       C              "PROMO_ID" IS NOT NULL
+SH         SALES      QUANTITY_SOLD   SYS_C0011014                       C          "QUANTITY_SOLD" IS NOT NULL
+SH         SALES      AMOUNT_SOLD     SYS_C0011015                       C          "AMOUNT_SOLD" IS NOT NULL
+SH         SALES      PROMO_ID            SALES_PROMO_FK                 R
+ 
+12 rows selected.
+ 
+sh@TEST0924> l
+  1   select a.owner,a.TABLE_NAME,b.COLUMN_NAME,a.CONSTRAINT_NAME,a.CONSTRAINT_TYPE,a.SEARCH_CONDITION
+  2  from USER_CONSTRAINTS a,USER_CONS_COLUMNS b
+  3*  where a.CONSTRAINT_NAME=b.CONSTRAINT_NAME and A.table_name='NEW_SALES'
+sh@TEST0924> /
+ 
+OWNER      TABLE_NAME COLUMN_NAME     CONSTRAINT_NAME                CONSTRAINT SEARCH_CONDITION
+---------- ---------- --------------- ------------------------------ ---------- ------------------------------
+SH         NEW_SALES  PROD_ID         SYS_C0011428                   C          "PROD_ID" IS NOT NULL
+SH         NEW_SALES  CUST_ID         SYS_C0011429                   C          "CUST_ID" IS NOT NULL
+SH         NEW_SALES  ORDER_DATE      SYS_C0011430                   C          "ORDER_DATE" IS NOT NULL
+ 
+C答案：
+由A中所见，此表是可以创建的，虽然字段名不一样，但数据库类型一样，就可以创建表。C错误。
+D答案：
+由B第二种方法看出，仅仅只是传递了not null约束，而SALES_PRODUCT_FK，SALES_CUSTOMER_FK，SALES_TIME_FK这三个外键约束是没有被传递的。B答案：NULL约束会传递。由以下可以看出，not null是可以传递的。B正确
+第一种方法，查看表的结构，可见not null约束是可以传递的。
+sh@TEST0924> desc SALES
+ Name                                                  Null?    Type
+----------------------------------------------------- -------- ------------------------------------
+ PROD_ID                                               NOT NULL NUMBER
+ CUST_ID                                               NOT NULL NUMBER
+ TIME_ID                                               NOT NULL DATE
+ CHANNEL_ID                                       NOT NULL NUMBER
+ PROMO_ID                                          NOT NULL NUMBER
+ QUANTITY_SOLD                                NOT NULL NUMBER(10,2)
+ AMOUNT_SOLD                                  NOT NULL NUMBER(10,2)
+ 
+sh@TEST0924> desc new_sales
+ Name                                                  Null?    Type
+----------------------------------------------------- -------- ------------------------------------
+ PROD_ID                                               NOT NULL NUMBER
+ CUST_ID                                               NOT NULL NUMBER
+ ORDER_DATE                                     NOT NULL DATE
+第二种方法：由下面的查询看出，not null也是传递的。B正确
+sh@TEST0924> select a.owner,a.TABLE_NAME,b.COLUMN_NAME,a.CONSTRAINT_NAME,a.CONSTRAINT_TYPE,a.SEARCH_CONDITION
+  2  from USER_CONSTRAINTS a,USER_CONS_COLUMNS b
+  3  where a.CONSTRAINT_NAME=b.CONSTRAINT_NAME and A.table_name='SALES';
+ 
+OWNER      TABLE_NAME COLUMN_NAME     CONSTRAINT_NAME                CONSTRAINT SEARCH_CONDITION
+---------- ---------- --------------- ------------------------------ ---------- ------------------------------
+SH         SALES      CUST_ID                    SALES_CUSTOMER_FK              R
+SH         SALES      PROD_ID                  SALES_PRODUCT_FK               R
+SH         SALES      TIME_ID                   SALES_TIME_FK                          R
+SH         SALES      CHANNEL_ID          SALES_CHANNEL_FK               R
+SH         SALES      PROD_ID                  SYS_C0011009                           C                  "PROD_ID" IS NOT NULL
+SH         SALES      CUST_ID                   SYS_C0011010                           C                  "CUST_ID" IS NOT NULL
+SH         SALES      TIME_ID                  SYS_C0011011                           C                  "TIME_ID" IS NOT NULL
+SH         SALES      CHANNEL_ID          SYS_C0011012                       C              "CHANNEL_ID" IS NOT NULL
+SH         SALES      PROMO_ID              SYS_C0011013                       C              "PROMO_ID" IS NOT NULL
+SH         SALES      QUANTITY_SOLD   SYS_C0011014                       C          "QUANTITY_SOLD" IS NOT NULL
+SH         SALES      AMOUNT_SOLD     SYS_C0011015                       C          "AMOUNT_SOLD" IS NOT NULL
+SH         SALES      PROMO_ID            SALES_PROMO_FK                 R
+ 
+12 rows selected.
+ 
+sh@TEST0924> l
+  1   select a.owner,a.TABLE_NAME,b.COLUMN_NAME,a.CONSTRAINT_NAME,a.CONSTRAINT_TYPE,a.SEARCH_CONDITION
+  2  from USER_CONSTRAINTS a,USER_CONS_COLUMNS b
+  3*  where a.CONSTRAINT_NAME=b.CONSTRAINT_NAME and A.table_name='NEW_SALES'
+sh@TEST0924> /
+ 
+OWNER      TABLE_NAME COLUMN_NAME     CONSTRAINT_NAME                CONSTRAINT SEARCH_CONDITION
+---------- ---------- --------------- ------------------------------ ---------- ------------------------------
+SH         NEW_SALES  PROD_ID         SYS_C0011428                   C          "PROD_ID" IS NOT NULL
+SH         NEW_SALES  CUST_ID         SYS_C0011429                   C          "CUST_ID" IS NOT NULL
+SH         NEW_SALES  ORDER_DATE      SYS_C0011430                   C          "ORDER_DATE" IS NOT NULL
+ 
+C答案：
+由A中所见，此表是可以创建的，虽然字段名不一样，但数据库类型一样，就可以创建表。C错误。
+D答案：
+由B第二种方法看出，仅仅只是传递了not null约束，而SALES_PRODUCT_FK，SALES_CUSTOMER_FK，SALES_TIME_FK这三个外键约束是没有被传递的。
+
+2. View the Exhibit to examine the description for the SALES table.
+
+Which views can have all DML operations performed on it? (Choose all that apply.) 
+A. CREATE VIEW v3
+AS SELECT * FROM SALES   
+WHERE cust_id = 2034   
+WITH CHECK OPTION;
+B. CREATE VIEW v1
+AS SELECT * FROM SALES   
+WHERE time_id <= SYSDATE - 2*365   
+WITH CHECK OPTION;
+C. CREATE VIEW v2
+AS SELECT prod_id, cust_id, time_id FROM SALES   
+WHERE time_id <= SYSDATE - 2*365   
+WITH CHECK OPTION; 
+D. CREATE VIEW v4
+AS SELECT prod_id, cust_id, SUM(quantity_sold) FROM SALES   
+WHERE time_id <= SYSDATE - 2*365   
+GROUP BY prod_id, cust_id   
+WITH CHECK OPTION;
+Answer: AB
+答案解析：
+参考：
+C不正确的原因为有其它列不能为空
+D出错，sum(quantity_sold)需要加个别名
+sh@TESTDB> create view v4
+  2  as select prod_id,cust_id,sum(quantity_sold) from sales
+  3  where time_id<=sysdate-2*365
+  4  group by prod_id,cust_id
+  5  with check option
+  6  ;
+as select prod_id,cust_id,sum(quantity_sold) from sales
+                          *
+ERROR at line 2:
+ORA-00998: must name this expression with a column alias
+ 
+sh@TESTDB> create view v4
+  2  as select prod_id,cust_id,sum(quantity_sold) sumqty from sales
+  3   where time_id<=sysdate-2*365
+  4  group by prod_id,cust_id
+  5  with check option
+  6  ;
+
+3. You need to extract details of those products in   the SALES table where the PROD_ID column
+contains the string '_D123'.
+Which WHERE clause could  be used in the SELECT statement to get the required output?
+A. WHERE prod_id LIKE '%_D123%' ESCAPE '_'
+B. WHERE prod_id LIKE '%\_D123%' ESCAPE '\'
+C. WHERE prod_id LIKE '%_D123%' ESCAPE '%_'
+D. WHERE prod_id LIKE '%\_D123%' ESCAPE '\_'
+Answer: B
+答案解析：
+ESCAPE子句为指定转译字符，因为‘_’下滑线在LIKE子句中指的是任意一个字符，所以需要把_’下滑线进行转译。
+
+4. Which two statements are true regarding single row functions? (Choose two.)
+A. They a ccept only a single argument.
+B. They c an be nested only to two levels.
+C. Arguments can only be column values or constants.
+D. They a lways return a single result row for every row of a queried table.
+E. They c an return a data type  value different from the one that is referenced.
+Answer: DE
+答案解析：
+参考：http://blog.csdn.net/rlhua/article/details/12848395
+
+A. 只接受一个参数，错误，可以接受一个或多个参数
+B. 只可以被嵌套两级，错误，可以被全套多级
+C. 参数只能是列值或者常量.，参数还可以是变量和表达式
+D. 对于查询表的每一行总是返回一个结果行.正确。
+E. 返回的数据类型值可以与之前引用的数据类型不同，正确。
+
+5. Which SQL statements would display the value 1890.55 as $1,890.55? (Choose three .)
+A. SELECT TO_CHAR(1890.55,'$0G000D00')
+FROM DUAL;
+B. SELECT TO_CHAR(1890.55,'$9,999V99')
+FROM DUAL; 
+C. SELECT TO_CHAR(1890.55,'$99,999D99')                         
+FROM DUAL;
+D. SELECT TO_CHAR(1890.55,'$99G999D00')
+FROM DUAL;
+E. SELECT TO_CHAR(1890.55,'$99G999D99')
+FROM DUAL;
+Answer: ADE
+答案解析：
+G表示分组分隔符group
+D表示小数点decimal point
+V表示移动N位（小数点），乘以10的n次方后面跟几位就是几次方
+如：
+to_char(12,'99V999') ' 12000'
+to_char(12.4,'99V999') ' 12400'
+to_char(12.45, '99V9') ' 125'
+0表示补齐位数。
+实验验证
+hr@TEST0924> SELECT TO_CHAR(1890.55,'$0G000D00') FROM DUAL;
+
+TO_CHAR(18
+----------
+ $1,890.55
+
+hr@TEST0924> SELECT TO_CHAR(1890.55,'$9,999V99') FROM DUAL;
+
+TO_CHAR(1
+---------
+ $1,89055
+
+hr@TEST0924> SELECT TO_CHAR(1890.55,'$99,999D99') FROM DUAL;
+SELECT TO_CHAR(1890.55,'$99,999D99') FROM DUAL
+                       *
+ERROR at line 1:
+ORA-01481: invalid number format model
+
+
+hr@TEST0924>  SELECT TO_CHAR(1890.55,'$99G999D00') FROM DUAL;
+
+TO_CHAR(189
+-----------
+  $1,890.55
+
+hr@TEST0924> SELECT TO_CHAR(1890.55,'$99G999D99') FROM DUAL;
+
+TO_CHAR(189
+-----------
+  $1,890.55
+
+6. Examine the structure of the SHIPMENTS table:
+name           Null       Type
+PO_ID          NOT NULL    NUMBER(3)
+PO_DATE        NOT NULL    DATE
+SHIPMENT_DATE NOT NULL    DATE
+SHIPMENT_MODE             VARCHAR2(30)
+SHIPMENT_COST             NUMBER(8,2)
+You want to generate a report that displays the PO_ID and the penalty amount to be paid if the
+SHIPMENT_DATE is later than one month from the PO_DATE. The penalty is $20 per day.
+Evaluate the following two queries:
+SQL> SELECT po_id, CASE
+WHEN MONTHS_BETWEEN (shipment_date,po_date)>1 THEN
+TO_CHAR((shipment_date - po_date) * 20) ELSE 'No Penalty' END PENALTY
+FROM shipments;
+SQL>SELECT po_id, DECODE
+(MONTHS_BETWEEN (po_date,shipment_date)>1,
+TO_CHAR((shipment_date - po_date) * 20), 'No Penalty') PENALTY   
+FROM shipments;
+Which statement is true regarding the above commands?
+A. Both execute successfully and give correct results.
+B. Only the first query executes successfully but gives a wrong result.
+C. Only the first query executes successfully and gives the  correct result.
+D. Only the second query executes successfully but gives a wrong result.
+E. Only the second query executes successfully and gives the correct result.
+Answer: C
+答案解析：
+参考：http://blog.csdn.net/rlhua/article/details/12868497
+http://blog.csdn.net/rlhua/article/details/12848395
+
+题意要求： 显示PO_ID和支付的罚款总金额，SHIPMENT_DATE与PO_DATE进行比较，SHIPMENT_DATE如果比PO_DATE晚一个月，则每天罚款$20。
+
+MONTHS_BETWEEN(date1, date2): 返回date1和date2两个日期之间间隔几个月，结果可以为正或为负。如果date1晚于date2则结果为正;如果date1早于date2则结果为负;结果的非整数部分也代表月间隔的一部分。
+ 
+DECODE(expr,search1,result1[,search2,result2……,default])：比较expr与search，如果等于search1则返回result1，如果等于search2则返回result2，依次类推，如果都不等于，如果有default则返回default，否则返回NULL.
+ORACLE在比较之前，会自动把expr和每一个search隐式转换成第一个search（search1）的数据类型。自动把返回值转换成第一个result（result1）的数据类型。如果第一个result的数据类型为CHAR或者值是null，则Oracle转换返回值为VARCHAR2. 
+在DECODE函数中,NULL是相等的，如果expr为空，则Oracle将会返回第一个为NULL的search所对应的result。DECODE列表中的最大表达式个数为255个。
+
+第一个SQL的表达是正确，可以正确执行的。其实我觉得这道题的答案有点出入，MONTHS_BETWEEN返回的是月数，每天罚款$20，相乘起来，因为一个是天的单位，一个是月的单位，如果题中改成每月罚款20，则才是正确的。
+ DECODE 的表达是错误的。
+sh@TEST0924> SELECT po_id, DECODE (MONTHS_BETWEEN (po_date,shipment_date)>1,
+  2  TO_CHAR((shipment_date - po_date) * 20), 'No Penalty') PENALTY
+  3  FROM shipments;
+SELECT po_id, DECODE (MONTHS_BETWEEN (po_date,shipment_date)>1,
+                                                            *
+ERROR at line 1:
+ORA-00907: missing right parenthesis
+
