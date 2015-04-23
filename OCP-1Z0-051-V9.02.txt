@@ -10,78 +10,78 @@
    SELECT prod_id, cust_id, time_id
    FROM sales;
    Which statement is true regarding the above command?    
-                                                   ┌──────────────────────────────────────────────────────────────────────────┐
-                                                   │                                                                          │ 
-                                                   │                 ┌────────────────────────────────────────────┐           │   ┌────────────────────────────────────────────┐
-                                                   │                 │Table PROMOTIONS                            │           │   │Table TIMES                                 │
-                                                   │                 ├─────────────────────┬────────┬─────────────┤           │   ├──────────────────────┬────────┬────────────┤
-                                                   │                 │Name                 │Null?   │Type         │           │   │Name                  │Null?   │Type        │
-                                                   │                 ├─────────────────────┼────────┼─────────────┤           │   ├──────────────────────┼────────┼────────────┤
-                                                   │         ┌───────┤PROMO_ID             │NOT NULL│NUMBER(6)    ├────┐      ├───┤TIME_ID               │NOT NULL│DATE        │
-                                                   │         │       │PROMO_NAME           │NOT NULL│VARCHAR2(30) │    │      │   │DAY_NAME              │NOT NULL│VARCHAR2(9) │
-                                                   │         │       │PROMO_SUBCATEGORY    │NOT NULL│VARCHAR2(30) │    │      │   │DAY_NUMBER_IN_MONTH   │NOT NULL│NUMBER(2)   │
-                                                   │         │       │PROMO_SUBCATEGORY_ID │NOT NULL│NUMBER       │    │      │   │CALENDAR_WEEK_NUMBER  │NOT NULL│NUMBER(2)   │
-                                                   │         │       │PROMO_CATEGORY       │NOT NULL│VARCHAR2(30) │    │      │   │CALENDAR_MONTH_NUMBER │NOT NULL│NUMBER(2)   │
-                                                   │         │       │PROMO_CATEGORY_ID    │NOT NULL│NUMBER       │    │      │   │CALENDAR_MONTH_NAME   │NOT NULL│VARCHAR2(9) │
-       ┌──────────────────────────────────┐        │         │       │PROMO_COST           │NOT NULL│NUMBER(10,2) │    │      │   │CALENDAR_YEAR         │NOT NULL│NUMBER(4)   │
-       │Table COSTS                       │        │         │       │PROMO_BEGIN_DATE     │NOT NULL│DATE         │    │      │   └──────────────────────┴────────┴────────────┘
-       ├───────────┬────────┬─────────────┤        │         │       │PROMO_END_DATE       │NOT NULL│DATE         │    │      │
-       │Name       │Null?   │Type         │        │         │       └─────────────────────┴────────┴─────────────┘    │      │
-       ├───────────┼────────┼─────────────┤        │         │                                                         │      │
-   ┌─＜│PROD_ID    │NOT NULL│NUMBER       │        │         │                                                         │      │
-   │   │TIME_ID    │NOT NULL│DATE         │＞──────┘         │                                                         │      │
-   │   │PROMO_ID   │NOT NULL│NUMBER       │＞────────────────┘                                                         │      │
-   │   │CHANNEL_ID │NOT NULL│NUMBER       │                                                                            │      │
-   │   │UNIT_COST  │NOT NULL│NUMBER(10,2) │                           ┌─────────────────────────────────────┐          │      │
-   │   │UNIT_PRICE │NOT NULL│NUMBER(10,2) │                           │Table SALES                          │          │      │
-   │   └───────────┴────────┴─────────────┘                           ├──────────────┬────────┬─────────────┤          │      │
-   │                                                                  │Name          │Null?   │Type         │          │      │
-   │                                                                  ├──────────────┼────────┼─────────────┤          │      │
-   │                                                        ┌───────＜│PROD_ID       │NOT NULL│NUMBER       │          │      │
-   │   ┌──────────────────────────────────────────────┐     │   ┌───＜│CUST_ID       │NOT NULL│NUMBER       │          │      │
-   │   │Table PRODUCTS                                │     │   │     │TIME_ID       │NOT NULL│DATE         │＞────────┼──────┘
-   │   ├─────────────────────┬────────┬───────────────┤     │   │     │CHANNEL_ID    │NOT NULL│NUMBER       │＞────────┼──────┐
-   │   │Name                 │Null?   │Type           │     │   │     │PROMO_ID      │NOT NULL│NUMBER       │＞────────┘      │
-   │   ├─────────────────────┼────────┼───────────────┤     │   │     │QUANTITY_SOLD │NOT NULL│NUMBER(10,2) │                 │
-   └───┤PROD_ID              │NOT NULL│NUMBER(6)      ├─────┘   │     └──────────────┴────────┴─────────────┘                 │
-       │PROD_NAME            │NOT NULL│VARCHAR2(50)   │         │                                                             │
-       │PROD_DESC            │NOT NULL│VARCHAR2(4000) │         │                                                             │
-       │PROD_CATEGORY        │NOT NULL│VARCHAR2(50)   │         │                                                             │
-       │PROD_CATEGORY_ID     │NOT NULL│NUMBER         │         │     ┌─────────────────────────────────────────┐             │
-       │PROD_UNIT_OF_MEASURE │        │VARCHAR2(20)   │         │     │Table CHANNELS                           │             │
-       │SUPPLIER_ID          │NOT NULL│NUMBER(6)      │         │     ├──────────────────┬────────┬─────────────┤             │
-       │PROD_STATUS          │NOT NULL│VARCHAR2(20)   │         │     │Name              │Null?   │Type         │             │
-       │PROD_LIST_PRICE      │NOT NULL│NUMBER(8,2)    │         │     ├──────────────────┼────────┼─────────────┤             │
-       │PROD_MIN_PRICE       │NOT NULL│NUMBER(8,2)    │	        │     │CHANNELS_ID       │NOT NULL│NUMBER       ├─────────────┘
-       └─────────────────────┴────────┴───────────────┘         │     │CHANNELS_DESC     │NOT NULL│VARCHAR2(20) │
-                                                                │     │CHANNELS_CLASS    │NOT NULL│VARCHAR2(20) │
-                                                                │     │CHANNELS_CLASS_ID │NOT NULL│NUMBER       │
-                                                                │     │CHANNELS_TOTAL    │NOT NULL│VARCHAR2(13) │
-                                                                │     │CHANNELS_TOTAL_ID │NOT NULL│NUMBER       │
-                                                                │     └──────────────────┴────────┴─────────────┘
-																│	  
-																│	  
-																│	  
-																│	  ┌────────────────────────────────────────────┐                 ┌──────────────────────────────────────┐
-																│	  │Table CUSTOMERS                             │                 │Table COUNTRIES                       │
-                                                                │     ├─────────────────────┬────────┬─────────────┤                 ├───────────────┬────────┬─────────────┤
-                                                                │     │Name                 │Null?   │Type         │                 │Name           │Null?   │Type         │
-                                                                │     ├─────────────────────┼────────┼─────────────┤                 ├───────────────┼────────┼─────────────┤
-                                                                └─────┤CUST_ID              │NOT NULL│NUMBER       │         ┌───────┤COUNTRY_ID     │NOT NULL│NUMBER       │
-                                                                      │CUST_FIRST_NAME      │NOT NULL│VARCHAR2(20) │         │       │COUNTRY_NAME   │NOT NULL│VARCHAR2(40) │
-                                                                      │CUST_LAST_NAME       │NOT NULL│VARCHAR2(40) │         │       │COUNTRY_REGION │NOT NULL│VARCHAR2(20) │
-                                                                      │CUST_GENDER          │NOT NULL│CHAR(1)      │         │       │COUNTRY_TOTAL  │NOT NULL│VARCHAR2(11) │
-                                                                      │CUST_YEAR_OF_BIRTH   │NOT NULL│NUMBER(4)    │         │       └───────────────┴────────┴─────────────┘
-                                                                      │CUST_MARITIAL_STATUS │        │VARCHAR2(20) │         │       
-																	  │CUST_STREET_ADDRESS  │NOT NULL│VARCHAR2(40) │         │       
-																	  │CUST_POSTAL_CODE     │NOT NULL│VARCHAR2(10) │         │       
-																	  │CUST_CITY            │NOT NULL│VARCHAR2(30) │         │
-																	  │CUST_STATE_PROVINCE  │NOT NULL│VARCHAR2(40) │         │
-																	  │COUNTRY_ID           │NOT NULL│NUMBER       │＞───────┘
-																	  │CUST_INCOME_LEVEL    │        │VARCHAR2(30) │
-																	  │CUST_CREDIT_LIMIT    │        │NUMBER       │
-																	  │CUST_EMAIL           │        │VARCHAR2(30) │
-																	  └─────────────────────┴────────┴─────────────┘
+                                             ┌────────────────────────────────────────────────────────┐
+                                             │                                                        │ 
+                                             │   ┌──────────────────────────────────────────┐         │   ┌────────────────────────────────────────────┐
+                                             │   │Table PROMOTIONS                          │         │   │Table TIMES                                 │
+                                             │   ├────────────────────┬────────┬────────────┤         │   ├──────────────────────┬────────┬────────────┤
+                                             │   │Name                │Null?   │Type        │         │   │Name                  │Null?   │Type        │
+                                             │   ├────────────────────┼────────┼────────────┤         │   ├──────────────────────┼────────┼────────────┤
+                                             │ ┌─┤PROMO_ID            │NOT NULL│NUMBER(6)   ├───────┐ ├───┤TIME_ID               │NOT NULL│DATE        │
+                                             │ │ │PROMO_NAME          │NOT NULL│VARCHAR2(30)│       │ │   │DAY_NAME              │NOT NULL│VARCHAR2(9) │
+                                             │ │ │PROMO_SUBCATEGORY   │NOT NULL│VARCHAR2(30)│       │ │   │DAY_NUMBER_IN_MONTH   │NOT NULL│NUMBER(2)   │
+                                             │ │ │PROMO_SUBCATEGORY_ID│NOT NULL│NUMBER      │       │ │   │CALENDAR_WEEK_NUMBER  │NOT NULL│NUMBER(2)   │
+                                             │ │ │PROMO_CATEGORY      │NOT NULL│VARCHAR2(30)│       │ │   │CALENDAR_MONTH_NUMBER │NOT NULL│NUMBER(2)   │
+                                             │ │ │PROMO_CATEGORY_ID   │NOT NULL│NUMBER      │       │ │   │CALENDAR_MONTH_NAME   │NOT NULL│VARCHAR2(9) │
+       ┌────────────────────────────────┐    │ │ │PROMO_COST          │NOT NULL│NUMBER(10,2)│       │ │   │CALENDAR_YEAR         │NOT NULL│NUMBER(4)   │
+       │Table COSTS                     │    │ │ │PROMO_BEGIN_DATE    │NOT NULL│DATE        │       │ │   └──────────────────────┴────────┴────────────┘
+       ├──────────┬────────┬────────────┤    │ │ │PROMO_END_DATE      │NOT NULL│DATE        │       │ │
+       │Name      │Null?   │Type        │    │ │ └────────────────────┴────────┴────────────┘       │ │
+       ├──────────┼────────┼────────────┤    │ │                                                    │ │
+   ┌─＜│PROD_ID   │NOT NULL│NUMBER      │    │ │                                                    │ │
+   │   │TIME_ID   │NOT NULL│DATE        │＞──┘ │                                                    │ │
+   │   │PROMO_ID  │NOT NULL│NUMBER      │＞────┘                                                    │ │
+   │   │CHANNEL_ID│NOT NULL│NUMBER      │                                                           │ │
+   │   │UNIT_COST │NOT NULL│NUMBER(10,2)│                   ┌───────────────────────────────────┐   │ │
+   │   │UNIT_PRICE│NOT NULL│NUMBER(10,2)│                   │Table SALES                        │   │ │
+   │   └──────────┴────────┴────────────┘                   ├─────────────┬────────┬────────────┤   │ │
+   │                                                        │Name         │Null?   │Type        │   │ │
+   │                                                        ├─────────────┼────────┼────────────┤   │ │
+   │                                                  ┌───＜│PROD_ID      │NOT NULL│NUMBER      │   │ │
+   │   ┌────────────────────────────────────────────┐ │ ┌─＜│CUST_ID      │NOT NULL│NUMBER      │   │ │
+   │   │Table PRODUCTS                              │ │ │   │TIME_ID      │NOT NULL│DATE        │＞─┼─┘
+   │   ├────────────────────┬────────┬──────────────┤ │ │   │CHANNEL_ID   │NOT NULL│NUMBER      │＞─┼─┐
+   │   │Name                │Null?   │Type          │ │ │   │PROMO_ID     │NOT NULL│NUMBER      │＞─┘ │
+   │   ├────────────────────┼────────┼──────────────┤ │ │   │QUANTITY_SOLD│NOT NULL│NUMBER(10,2)│     │
+   └───┤PROD_ID             │NOT NULL│NUMBER(6)     ├─┘ │   └─────────────┴────────┴────────────┘     │
+       │PROD_NAME           │NOT NULL│VARCHAR2(50)  │   │                                             │
+       │PROD_DESC           │NOT NULL│VARCHAR2(4000)│   │                                             │
+       │PROD_CATEGORY       │NOT NULL│VARCHAR2(50)  │   │                                             │
+       │PROD_CATEGORY_ID    │NOT NULL│NUMBER        │   │   ┌───────────────────────────────────────┐ │
+       │PROD_UNIT_OF_MEASURE│        │VARCHAR2(20)  │   │   │Table CHANNELS                         │ │
+       │SUPPLIER_ID         │NOT NULL│NUMBER(6)     │   │   ├─────────────────┬────────┬────────────┤ │
+       │PROD_STATUS         │NOT NULL│VARCHAR2(20)  │   │   │Name             │Null?   │Type        │ │
+       │PROD_LIST_PRICE     │NOT NULL│NUMBER(8,2)   │   │   ├─────────────────┼────────┼────────────┤ │
+       │PROD_MIN_PRICE      │NOT NULL│NUMBER(8,2)   │	│   │CHANNELS_ID      │NOT NULL│NUMBER      ├─┘
+       └────────────────────┴────────┴──────────────┘   │   │CHANNELS_DESC    │NOT NULL│VARCHAR2(20)│
+                                                        │   │CHANNELS_CLASS   │NOT NULL│VARCHAR2(20)│
+                                                        │   │CHANNELS_CLASS_ID│NOT NULL│NUMBER      │
+                                                        │   │CHANNELS_TOTAL   │NOT NULL│VARCHAR2(13)│
+                                                        │   │CHANNELS_TOTAL_ID│NOT NULL│NUMBER      │
+                                                        │   └─────────────────┴────────┴────────────┘
+                                                        │  
+                                                        │  
+                                                        │  
+														│   ┌──────────────────────────────────────────┐     ┌────────────────────────────────────┐
+														│   │Table CUSTOMERS                           │     │Table COUNTRIES                     │
+                                                        │   ├────────────────────┬────────┬────────────┤     ├──────────────┬────────┬────────────┤
+                                                        │   │Name                │Null?   │Type        │     │Name          │Null?   │Type        │
+                                                        │   ├────────────────────┼────────┼────────────┤     ├──────────────┼────────┼────────────┤
+                                                        └───┤CUST_ID             │NOT NULL│NUMBER      │   ┌─┤COUNTRY_ID    │NOT NULL│NUMBER      │
+                                                            │CUST_FIRST_NAME     │NOT NULL│VARCHAR2(20)│   │ │COUNTRY_NAME  │NOT NULL│VARCHAR2(40)│
+                                                            │CUST_LAST_NAME      │NOT NULL│VARCHAR2(40)│   │ │COUNTRY_REGION│NOT NULL│VARCHAR2(20)│
+                                                            │CUST_GENDER         │NOT NULL│CHAR(1)     │   │ │COUNTRY_TOTAL │NOT NULL│VARCHAR2(11)│
+                                                            │CUST_YEAR_OF_BIRTH  │NOT NULL│NUMBER(4)   │   │ └──────────────┴────────┴────────────┘
+                                                            │CUST_MARITIAL_STATUS│        │VARCHAR2(20)│   │       
+															│CUST_STREET_ADDRESS │NOT NULL│VARCHAR2(40)│   │       
+															│CUST_POSTAL_CODE    │NOT NULL│VARCHAR2(10)│   │       
+															│CUST_CITY           │NOT NULL│VARCHAR2(30)│   │
+															│CUST_STATE_PROVINCE │NOT NULL│VARCHAR2(40)│   │
+															│COUNTRY_ID          │NOT NULL│NUMBER      │＞─┘
+															│CUST_INCOME_LEVEL   │        │VARCHAR2(30)│  
+															│CUST_CREDIT_LIMIT   │        │NUMBER      │
+															│CUST_EMAIL          │        │VARCHAR2(30)│
+															└────────────────────┴────────┴────────────┘
                                                                       
    A. The NEW_SALES table would not get created because the DEFAULT value cannot 
       be specified in the column definition.
