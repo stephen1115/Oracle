@@ -9,7 +9,7 @@
    AS
    SELECT prod_id, cust_id, time_id
    FROM sales;
-   Which statement is true regarding the above command? 
+   Which statement is true regarding the above command?    
                                                    ┌──────────────────────────────────────────────────────────────────────────┐
                                                    │                                                                          │ 
                                                    │                 ┌────────────────────────────────────────────┐           │   ┌────────────────────────────────────────────┐
