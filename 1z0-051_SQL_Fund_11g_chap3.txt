@@ -1,0 +1,145 @@
+Using Single-Row Functions to Customize Output
+
+SQL Functions --
+can be used to do the following:
+1. Perform calculations on data
+2. Modify individual data items
+3. Manipulate output for groups of rows
+4. Format dates and numbers for display
+5. Convert column data types
+
+Two Types of SQL Functions
+Single-row functions --
+  1. These functions operate on single rows only and return one result per row.
+  2. They accept one or more arguments and return one value for each row that 
+     is returned by the query. An argument can be one of the following:
+	 2.1. User-supplied constant
+	 2.2. Variable value
+	 2.3. Column name
+	 2.4. Expression
+  3. Features of single-row functions include:
+     3.1. Acting on each row that is returned in the query
+	 3.2. Returning one result per row
+	 3.3. Possibly returning a data value of a different type than the one that
+          is referenced.
+	 3.4. Possibly expecting one or more arguments
+	 3.5. Can be used in SELECT, WHERE, and ORDER BY clauses
+	 3.6. Can be nested
+  4. There are different types of single-row functions.
+     -- Character functions
+	    Accept character input and can return both character and number values
+	 -- Number functions
+	    Accept numeric input and return numeric values
+	 -- Date functions
+	    Operate on values of the DATE data type (All date functions return a 
+		value of the DATE data type except the MONTHS_BETWEEN function, which
+		returns a number.)
+	 -- Conversion functions
+	    Convert a value from one data type to another
+	 -- General functions
+	    NVL
+		NVL2
+		NULLIF
+		COALESCE
+		CASE
+		DECODE
+Multiple-row functions --
+  1. Fuctions can manipulate groups of rows to give one resultper group of rows.
+     These functions also known as group functions.
+	 
+Character Functions
+  Character Functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Case-conversion functions         Character-manipulation functions
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  LOWER                             CONACT
+  UPPER                             SUBSTR
+  INIICAP                           LENGTH
+                                    INSTR
+                                    LPAD | RPAD
+									TRIM
+									REPLACE
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  
+  Case-conversion functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                   Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  LOWER( 'SQL Course' )      sql course
+  UPPER( 'SQL Course' )      SQL COURSE
+  INIICAP( 'SQL Course' )    Sql Course
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  
+  Examples:
+     SELECT 'The job id for '||UPPER(last_name)||' is '
+       ||LOWER(job_id) AS "EMPLOYEE DETAILS"
+     FROM employees;
+	 
+	 SELECT employee_id, last_name, department_id
+	 FROM employees
+	 WHERE last_name = 'higgins';
+	 
+	 SELECT employee_id, last_name, department_id
+	 FROM employees
+	 WHERE LOWER( last_name ) = 'higgins';
+	 
+	 SELECT employee_id, UPPER( last_name ), department_id
+	 FROM employees
+	 WHERE INITCAP( last_name ) = 'Higgins';
+
+  Character-manipulation functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                               Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  CONCAT( 'Hello', 'World' )             HelloWorld
+  SUBSTR( 'HelloWorld', 1, 5 )           Hello
+  LENGTH( 'HellowWorld' )                10
+  INSTR( 'HellowWorld', 'W' )            6
+  LPAD( salary, 10, '*' )                *****24000
+  RPAD( salary, 10, '*' )                24000*****
+  REPLACE( 'JACK and JUE', 'J', 'BL')    BLACK and BLUE
+  TRIM( 'H' FROM 'HelloWorld' )          elloWorld
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Examples:
+     SELECT employee_id, CONACT( first_name, last_name) NAME,
+	        job_id, LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+	 FROM employees
+	 WHERE SUBSTR(job_id, 4) = 'REP';
+	 
+     SELECT employee_id, CONACT( first_name, last_name) NAME,
+	        LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+	 FROM employees
+	 WHERE SUBSTR( last_name, -1, 1 ) = 'n';
+	 
+Number Functions
+  Case-conversion functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  ROUND( 45.926, 2 )      45.93
+  TRUNC( 45.926, 2 )      45.92
+  MOD( 1600, 300 )        100
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Examples:
+     SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
+	 FROM DUAL;
+  
+  DUAL Table
+    1. DUAL is a public table that you can use to view results from functions and
+       calculations.
+    2. The DUAL table is owned by the user SYS and can be accessed by all users.
+    3. It contains one column, DUMMY, and one row with the value X.
+    4. The DUAL table is useful when you want to return a value only once 
+       ( for example, the value of a constant, pseudocolumn, or expression that 
+  	   is ot derived from a table with user data).
+    5. The DUAL table is generally used fro completeness of the SELECT clause 
+       syntax, because both SELECT and FROM clauses are mandatory, and serveral 
+  	 calculations do not need to select from th actual tables.	   
+     
+     SELECT TRUNC( 45.923, 2 ), TRUNC( 45.923 ), TRUNC( 45.923, -1 )
+	 FROM DUAL;
+
+	 SELECT last_name, salary, MOD( salary, 5000 )
+	 FROM employees
+	 WHERE job_id = 'SA_REP';
+	 
