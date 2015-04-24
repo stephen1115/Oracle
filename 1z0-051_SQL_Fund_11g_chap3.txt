@@ -111,5 +111,35 @@ Character Functions
 	 FROM employees
 	 WHERE SUBSTR( last_name, -1, 1 ) = 'n';
 	 
+Number Functions
+  Case-conversion functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  ROUND( 45.926, 2 )      45.93
+  TRUNC( 45.926, 2 )      45.92
+  MOD( 1600, 300 )        100
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Examples:
+     SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
+	 FROM DUAL;
+  
+  DUAL Table
+    1. DUAL is a public table that you can use to view results from functions and
+       calculations.
+    2. The DUAL table is owned by the user SYS and can be accessed by all users.
+    3. It contains one column, DUMMY, and one row with the value X.
+    4. The DUAL table is useful when you want to return a value only once 
+       ( for example, the value of a constant, pseudocolumn, or expression that 
+  	   is ot derived from a table with user data).
+    5. The DUAL table is generally used fro completeness of the SELECT clause 
+       syntax, because both SELECT and FROM clauses are mandatory, and serveral 
+  	 calculations do not need to select from th actual tables.	   
+     
+     SELECT TRUNC( 45.923, 2 ), TRUNC( 45.923 ), TRUNC( 45.923, -1 )
+	 FROM DUAL;
 
+	 SELECT last_name, salary, MOD( salary, 5000 )
+	 FROM employees
+	 WHERE job_id = 'SA_REP';
 	 
