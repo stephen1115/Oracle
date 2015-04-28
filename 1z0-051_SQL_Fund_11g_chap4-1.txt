@@ -1,0 +1,44 @@
+Chapter 4
+
+Single-Row Functions
+Aggregate Functions
+Analytic Functions
+
+Single-Row Function --> 一筆Row 回傳一筆結果
+             
+  Row 1 -->  Function  ---> Result 1
+  Row 2 -->            ---> Result 2
+            Single-Row Function
+
+  Row 1  -->  Function  ---> Result
+  Row 2  --> 
+               Multiple Rows Function
+    grouped rows
+
+                SELECT       Columns
+
+                FROM         Table
+
+  Single-Row    WHERE        Rows
+  Function
+
+  Multiple-Row  GROUP BY     Grouped Rows
+  Function
+                HAVING       Filter Grouped Rows
+
+                ORDER BY
+
+  Single-Row Function 只能放在WHERE子句之後，例如：
+  HAVING，ORDER BY 或 SELECT 
+  但不能放在GROUP BY之後，GROUP BY之後只能放一個欄位
+
+  Multiple-Row Function 只能放在GROUP BY子句之後
+
+Single-Row Functions 其中的五種函數
+Character
+Number
+Date
+General
+Conversion
+
+

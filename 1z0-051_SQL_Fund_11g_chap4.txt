@@ -1,44 +1,231 @@
-Chapter 4
+Using Single-Row Functions to Customize Output
 
-Single-Row Functions
-Aggregate Functions
-Analytic Functions
+SQL Functions --
+can be used to do the following:
+1. Perform calculations on data
+2. Modify individual data items
+3. Manipulate output for groups of rows
+4. Format dates and numbers for display
+5. Convert column data types
 
-Single-Row Function --> ה¸€ח­†Row ו›ו‚³ה¸€ח­†חµז
-             
-  Row 1 -->  Function  ---> Result 1
-  Row 2 -->            ---> Result 2
-            Single-Row Function
+Two Types of SQL Functions
+Single-row functions --
+  1. These functions operate on single rows only and return one result per row.
+  2. They accept one or more arguments and return one value for each row that 
+     is returned by the query. An argument can be one of the following:
+	 2.1. User-supplied constant
+	 2.2. Variable value
+	 2.3. Column name
+	 2.4. Expression
+  3. Features of single-row functions include:
+     3.1. Acting on each row that is returned in the query
+	 3.2. Returning one result per row
+	 3.3. Possibly returning a data value of a different type than the one that
+          is referenced.
+	 3.4. Possibly expecting one or more arguments
+	 3.5. Can be used in SELECT, WHERE, and ORDER BY clauses
+	 3.6. Can be nested
+  4. There are different types of single-row functions.
+     -- Character functions
+	    Accept character input and can return both character and number values
+	 -- Number functions
+	    Accept numeric input and return numeric values
+	 -- Date functions
+	    Operate on values of the DATE data type (All date functions return a 
+		value of the DATE data type except the MONTHS_BETWEEN function, which
+		returns a number.)
+	 -- Conversion functions
+	    Convert a value from one data type to another
+	 -- General functions
+	    NVL
+		NVL2
+		NULLIF
+		COALESCE
+		CASE
+		DECODE
+Multiple-row functions --
+  1. Fuctions can manipulate groups of rows to give one resultper group of rows.
+     These functions also known as group functions.
+	 
+Character Functions
+  Character Functions
+  ?????????????????????????????????????????????????????????????????????????????
+  Case-conversion functions         Character-manipulation functions
+  ?????????????????????????????????????????????????????????????????????????????
+  LOWER                             CONACT
+  UPPER                             SUBSTR
+  INIICAP                           LENGTH
+                                    INSTR
+                                    LPAD | RPAD
+									TRIM
+									REPLACE
+  ?????????????????????????????????????????????????????????????????????????????
+  
+  Case-conversion functions
+  ?????????????????????????????????????????????????????????????????????????????
+  Function                   Result
+  ?????????????????????????????????????????????????????????????????????????????
+  LOWER( 'SQL Course' )      sql course
+  UPPER( 'SQL Course' )      SQL COURSE
+  INIICAP( 'SQL Course' )    Sql Course
+  ?????????????????????????????????????????????????????????????????????????????
+  
+  Examples:
+     SELECT 'The job id for '||UPPER(last_name)||' is '
+       ||LOWER(job_id) AS "EMPLOYEE DETAILS"
+     FROM employees;
+	 
+	 SELECT employee_id, last_name, department_id
+	 FROM employees
+	 WHERE last_name = 'higgins';
+	 
+	 SELECT employee_id, last_name, department_id
+	 FROM employees
+	 WHERE LOWER( last_name ) = 'higgins';
+	 
+	 SELECT employee_id, UPPER( last_name ), department_id
+	 FROM employees
+	 WHERE INITCAP( last_name ) = 'Higgins';
 
-  Row 1  -->  Function  ---> Result
-  Row 2  --> 
-               Multiple Rows Function
-    grouped rows
+  Character-manipulation functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                               Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  CONCAT( 'Hello', 'World' )             HelloWorld
+  SUBSTR( 'HelloWorld', 1, 5 )           Hello
+  LENGTH( 'HellowWorld' )                10
+  INSTR( 'HellowWorld', 'W' )            6
+  LPAD( salary, 10, '*' )                *****24000
+  RPAD( salary, 10, '*' )                24000*****
+  REPLACE( 'JACK and JUE', 'J', 'BL')    BLACK and BLUE
+  TRIM( 'H' FROM 'HelloWorld' )          elloWorld
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Examples:
+     SELECT employee_id, CONACT( first_name, last_name) NAME,
+	        job_id, LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+	 FROM employees
+	 WHERE SUBSTR(job_id, 4) = 'REP';
+	 
+     SELECT employee_id, CONACT( first_name, last_name) NAME,
+	        LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+	 FROM employees
+	 WHERE SUBSTR( last_name, -1, 1 ) = 'n';
+	 
+Number Functions
+  Case-conversion functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Function                Result
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
+  ROUND( 45.926, 2 )      45.93
+  TRUNC( 45.926, 2 )      45.92
+  MOD( 1600, 300 )        100
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
+  Examples:
+     SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
+	 FROM DUAL;
+  
+  DUAL Table
+    1. DUAL is a public table that you can use to view results from functions and
+       calculations.
+    2. The DUAL table is owned by the user SYS and can be accessed by all users.
+    3. It contains one column, DUMMY, and one row with the value X.
+    4. The DUAL table is useful when you want to return a value only once 
+       ( for example, the value of a constant, pseudocolumn, or expression that 
+  	   is ot derived from a table with user data).
+    5. The DUAL table is generally used fro completeness of the SELECT clause 
+       syntax, because both SELECT and FROM clauses are mandatory, and serveral 
+  	   calculations do not need to select from th actual tables.	   
+     
+       SELECT TRUNC( 45.923, 2 ), TRUNC( 45.923 ), TRUNC( 45.923, -1 )
+	   FROM DUAL;
+       
+	   SELECT last_name, salary, MOD( salary, 5000 )
+	   FROM employees
+	   WHERE job_id = 'SA_REP';
+	 
+Working with Dates
+  1. The Oracle Database stores dates in an internal numeric format, representing 
+     the century, year, month, day, hours, minutes, and seconds.
+  2. The default display and input format for any date is DD-MM-RR.
+  Examples:
+     SELECT last_name, hire_date
+	 FROM employees
+	 WHERE hire_date < '10-FEB-88';
+	
+Using the SYSDATE Function
+  1. SYSDATE is a function that returns:
+     Date
+	 Time
+  2. You can use SYSDATE just as you would use any other column name.
+  Examples:
+     SELECT SYSDATE
+     FROM dual;
+  3. SYSDATE returns the current date and time set for the operating system on
+     which the database resides.
+  4. The CURRENT_DATE function that returns the current date in the session 
+     time zone.
 
-                SELECT       Columns
+Arithmetic with Dates
+  ????????? 	 
+  ?????????????????????????????????????????????????????????????????????????????
+  Operation           Result            Description
+  ?????????????????????????????????????????????????????????????????????????????
+  date + number       Date              Adds a number of days to a date
+  date - number       Date              Subtracts a number of days from a date
+  date - date         Number of days    Subtracts one date from another
+  date + number/24    Date              Adds a number of hours to a date
+  ?????????????????????????????????????????????????????????????????????????????
+  Examples:
+    SELECT last_name, (SYSDATE - hire_date)/7 AS WEEKS
+	FROM employees
+	WHERE department_id = '90';
 
-                FROM         Table
+  NOTE:
+    Your results may differ depending on the date and time set for operating 
+	system of your local database when you run the SQL query.
 
-  Single-Row    WHERE        Rows
-  Function
+Date-Manipulation Functions
+  ?????????????????????????????????????????????????????????????????????????????
+  Function                        Description
+  ?????????????????????????????????????????????????????????????????????????????
+  MONTHS_BETWEEN(date1, date2)    1. Finds the number of months between date1 
+                                     and date2.
+								  2. ??????????, ??????
+								     ? date1 ? date2 ?, ?????
+									 ? date1 ? date2 ?, ?????
+  ADD_MONTHS(date, n)             1. Add n number of calendar months to date.
+                                  2. The value of n number must be an integer
+                                     and can be negative.
+  NEXT_DAY(date, 'char')          1. Finds the date of the next specificed day 
+                                     of the week ('char') following date.
+								  2. The value of char may be a number 
+								     representing a day or character string.
+  LAST_DAY(date)                  1. Finds the date of the last day of the 
+                                     month that contains date
+  -----------------------------------------------------------------------------
+  ROUND(date[, 'fmt'])            1. Returns date rounded to the unit that is 
+                                     specificed by the format model fmt.
+								  2. If the format model fmt is omitted, date
+								     is rounded to the nearest day.
+  TRUNC(date[, 'fmt'])            1. Returns date with the time portion of the 
+                                     day truncated to the unit that is 
+									 specified by the format model fmt.
+								  2. If the format model fmt is omitted, date
+								     is truncated to the nearest day.
+  ?????????????????????????????????????????????????????????????????????????????
+  Examples:
+      SELECT employee_id, hire_date, MONTHS_BETWEEN(SYSDATE, hire_date) TENURE,
+	         ADD_MONTHS(hire_date, 6) REVIEW, NEXT_DAY(hire_date, 'FRIDAY'),
+			 LAST_DAY(hire_date)
+	  FROM employees
+	  WHERE MONTHS_BETWEEN(SYSDATE, hire_date) < 150;
+	  
+	  SELECT employee_id, hire_date, ROUND(hire_date, 'MONTH'),
+	         TRUNC(hire_date, 'MONTH')
+	  FROM employees
+	  WHERE hire_date LIKE '%97';
+	  
 
-  Multiple-Row  GROUP BY     Grouped Rows
-  Function
-                HAVING       Filter Grouped Rows
-
-                ORDER BY
-
-  Single-Row Function ו×טƒ½ז”¾ו¨WHEREו­ו¥ה¹‹ו¾ן¼ה¾‹ו¦‚ן¼
-  HAVINGן¼ORDER BY זˆ– SELECT 
-  ה½†ה¸טƒ½ז”¾ו¨GROUP BYה¹‹ו¾ן¼GROUP BYה¹‹ו¾ו×טƒ½ז”¾ה¸€ו€‹ז¬„ה½
-
-  Multiple-Row Function ו×טƒ½ז”¾ו¨GROUP BYו­ו¥ה¹‹ו¾
-
-Single-Row Functions ו…¶ה¸­ח„ה÷”ח¨®ו‡½ז•¸
-Character
-Number
-Date
-General
-Conversion
 
 
+  
