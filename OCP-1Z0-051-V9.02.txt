@@ -432,35 +432,42 @@
    ERROR at line 1:
    ORA-00907: missing right parenthesis
 
-7. Which two  statements are true regarding the USING and ON clauses in table joins? (Choose two.)
-A. Both USING and ON clauses can be used for equijoins and nonequijoins. 
-B. A maximum of one pair of columns can be joined between two tables using the ON clause. 
-C. The  ON clause can be used to join tables on columns that have different names but compatible data
-types.
-D. The  WHERE clause can be used to apply additional conditions in SELECT statements containing the
-ON or the  USING clause.
-Answer: CD
-答案解析：
-参考：http://blog.csdn.net/rlhua/article/details/12877591
-A, USING和ON子句可以用于等值连接和非等值连接,USING不能用于非等值连接，ON可以。
-B, 使用ON子句最大只能使用两个列连接两个表.错误，可以连接多个列
-C,ON子句用于连接表的列可以是不同的名字，但是数据类型要兼容，正确。ON子句还可以用于联接同一表内或者不同表中具有不同名称的列。
-D,在包含ON或USING子句的SELECT命令中，WHERE子句可以做为附加的条件，正确。
-
+7. Which two  statements are true regarding the USING and ON clauses in table 
+   joins? (Choose two.)
+   A. Both USING and ON clauses can be used for equijoins and nonequijoins. 
+   B. A maximum of one pair of columns can be joined between two tables using the ON clause. 
+   C. The ON clause can be used to join tables on columns that have different
+      names but compatible data types.
+   D. The  WHERE clause can be used to apply additional conditions in SELECT statements 
+      containing the ON or the  USING clause.
+   
+   Answer: CD
+   答案解析：
+   参考：http://blog.csdn.net/rlhua/article/details/12877591
+   A, USING和ON子句可以用于等值连接和非等值连接,USING不能用于非等值连接，ON可以。
+   B, 使用ON子句最大只能使用两个列连接两个表.错误，可以连接多个列
+   C,ON子句用于连接表的列可以是不同的名字，但是数据类型要兼容，正确。ON子句还可以用于联接同一表内或者不同表中具有不同名称的列。
+   D,在包含ON或USING子句的SELECT命令中，WHERE子句可以做为附加的条件，正确。
+   
 8. View the Exhibit and examine the structure of the CUSTOMERS table.
-Which two tasks would require subqueries or joins to be executed in a single statement? (Choose two.) 
+   Which two tasks would require subqueries or joins to be executed in a single
+   statement? (Choose two.) 
 
-A. listing of customers who do not have a credit limit and were born before 1980
-B. finding the number of customers, in each city, whose marital status is 'married'
-C. finding the average credit limit of male customers residing in 'Tokyo' or 'Sydney'
-D. listing of those customers whose credit limit is the same as the credit limit of customers residing in the
-city 'Tokyo'
-E. finding the number of customers, in each city, whose credit limit is more than the average credit limit of
-all the customers
-Answer: DE
-答案解析：
-参考：http://blog.csdn.net/rlhua/article/details/12879585
-ABC不用子查询就可以查询出，题意选择两个，排除ABC,选择DE
+   A. listing of customers who do not have a credit limit and were born before
+      1980
+   B. finding the number of customers, in each city, whose marital status is 
+      'married'
+   C. finding the average credit limit of male customers residing in 'Tokyo' or
+      'Sydney'
+   D. listing of those customers whose credit limit is the same as the credit 
+      limit of customers residing in the city 'Tokyo'
+   E. finding the number of customers, in each city, whose credit limit is more
+      than the average credit limit of all the customers
+
+  Answer: DE
+  答案解析：
+  参考：http://blog.csdn.net/rlhua/article/details/12879585
+  ABC不用子查询就可以查询出，题意选择两个，排除ABC,选择DE
 
 A. 列出没有信贷限额并且1980年以前出生的客户。
 SELECT 客户 from 表名 where 信贷限额 is null and 出生日期>1980;
