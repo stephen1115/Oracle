@@ -110,19 +110,19 @@
    D. Only the second query executes successfully but gives a wrong result.
    E. Only the second query executes successfully and gives the correct result.
 
-7. Which two  statements are true regarding the USING and ON clauses in table 
+7. Which two statements are true regarding the USING and ON clauses in table 
    joins? (Choose two.)
    A. Both USING and ON clauses can be used for equijoins and nonequijoins. 
-   B. A maximum of one pair of columns can be joined between two tables using the ON clause. 
+   B. A maximum of one pair of columns can be joined between two tables using
+      the ON clause. 
    C. The ON clause can be used to join tables on columns that have different
       names but compatible data types.
-   D. The  WHERE clause can be used to apply additional conditions in SELECT statements 
-      containing the ON or the  USING clause.
+   D. The WHERE clause can be used to apply additional conditions in SELECT 
+      statements containing the ON or the  USING clause.
 
 8. View the Exhibit and examine the structure of the CUSTOMERS table.
    Which two tasks would require subqueries or joins to be executed in a single
    statement? (Choose two.) 
-
    A. listing of customers who do not have a credit limit and were born before
       1980
    B. finding the number of customers, in each city, whose marital status is 
@@ -133,4 +133,115 @@
       limit of customers residing in the city 'Tokyo'
    E. finding the number of customers, in each city, whose credit limit is more
       than the average credit limit of all the customers
+
+9. Which statement is true regarding the INTERSECT operator?
+   A. It ignores NULL values.
+   B. Reversing the order of the intersected tables alters the result.
+   C. The names of columns in all SELECT statements must be identical.
+   D. The number of columns and data   types must be identical for all SELECT 
+      statements in the query.
 	  
+10. View the Exhibit; examine the structure of the PROMOTIONS table.
+    Each promotion has a duration of at least seven days .
+    Your manager has asked you to generate a report, which provides the weekly
+	cost for each promotion done to l date.
+    Which query would achieve the required result? 
+    A. SELECT promo_name, promo_cost/promo_end_date-promo_begin_date/7
+       FROM promotions;
+    B. SELECT promo_name,(promo_cost/promo_end_date-promo_begin_date)/7
+       FROM promotions;
+    C. SELECT promo_name, promo_cost/(promo_end_date-promo_begin_date/7)
+       FROM promotions;
+    D. SELECT promo_name, promo_cost/((promo_end_date-promo_begin_date)/7)
+       FROM promotions;
+
+11. View the Exhibit and examine the structure of the PRODUCTS table.
+    All products have a list price. 
+    You issue the following command to display the total price of each product
+	after a discount of 25% and atax of 15% are  applied on it. Freight charges
+	of $100 have to be applied to all the products.
+    SQL> SELECT prod_name, prod_list_price -(prod_list_price*(25/100))                 
+    +(prod_list_price -(prod_list_price*(25/100))*(15/100))+100                                 
+    AS "TOTAL PRICE" 
+    FROM products; 
+    What would be the outcome if all the parentheses are removed from the above
+	statement?     
+    A. It produces a syntax error.
+    B. The result remains unchanged. 
+    C. The total price value would be lower than the correct value. 
+    D. The total price value would be higher than the correct value.
+
+12. You need to produce a report where each customer's credit limit has been 
+    incremented by $1000. In the output, the customer's last name should have
+	the heading Name and the incremented credit limit should be labeled New 
+	Credit Limit. The column headings should have only the first letter of each
+	word in uppercase . 
+    Which statement would accomplish this requirement? 
+    A.
+    SELECT cust_last_name Name, cust_credit_limit + 1000 "New Credit Limit" 
+    FROM customers;
+    
+    B.
+    SELECT cust_last_name AS Name, cust_credit_limit + 1000       
+    AS New Credit Limit 
+    FROM customers;
+    
+    C.
+    SELECT cust_last_name AS "Name", cust_credit_limit + 1000       
+    AS "New Credit Limit" 
+    FROM customers;
+    
+    D.
+    SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000       
+    INITCAP("NEW CREDIT LIMIT") 
+    FROM customers;
+
+13. View the Exhibit and examine the structure of the PRODUCTS table.
+    You need to generate a report in the following format:
+    CATEGORIES
+    5MP Digital Photo Camera's category is Photo
+    Y Box's category is Electronics
+    Envoy Ambassador's category is Hardware
+    Which two queries would give the required output? (Choose two.) 
+    A. SELECT prod_name  q'''s category is ' prod_category CATEGORIES
+       FROM products;
+    B. SELECT prod_name  q'['s ]'category is ' prod_category CATEGORIES
+       FROM products;
+    C. SELECT prod_name  q'\'s\' ' category is ' prod_category CATEGORIES
+       FROM products;
+    D. SELECT prod_name  q'<'s >' 'category is ' prod_category CATEGORIES
+       FROM products;
+
+14. Using the CUSTOMERS table, you need to generate a report that shows 50% of
+    each credit amount in each income level. The report should NOT show any 
+	repeated credit amounts in each income level.  
+    Which  query would give the required result? 
+    A.
+    SELECT  cust_income_level, DISTINCT cust_credit_limit * 0.50    
+    AS "50% Credit Limit" 
+    FROM customers;
+    B.
+    SELECT DISTINCT cust_income_level, DISTINCT cust_credit_limit * 0.50    
+    AS "50% Credit Limit" 
+    FROM customers;
+    C.
+    SELECT DISTINCT cust_income_level   '   '  cust_credit_limit * 0.50 
+    AS "50% Credit Limit" 
+    FROM customers;
+    D.
+    SELECT cust_income_level ' ' cust_credit_limit * 0.50 AS "50% Credit Limit" 
+    FROM customers;
+
+15. View the Exhibit and examine the data in the CUSTOMERS table.  
+    Evaluate the following query: 
+    SQL> SELECT cust_name AS "NAME", cust_credit_limit/2 AS MIDPOINT,
+	     MIDPOINT+100 AS "MAX LOWER LIMIT" 
+    FROM customers; 
+    The above query produces an error on execution. 
+    What is the reason for the error? 
+    A. An alias cannot be used in an expression. 
+    B. The a lias NAME should not be enclosed with in double quotation marks. 
+    C. The MIDPOINT+100 expression  gives an error because  CUST_CREDIT_LIMIT 
+	   contains NULL values. 
+    D. The a lias MIDPOINT should be enclosed with in double quotation marks 
+	   for the CUST_CREDIT_LIMIT/2 expression .

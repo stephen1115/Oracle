@@ -463,7 +463,7 @@
       limit of customers residing in the city 'Tokyo'
    E. finding the number of customers, in each city, whose credit limit is more
       than the average credit limit of all the customers
-
+ 
   Answer: DE
   答案解析：
   参考：http://blog.csdn.net/rlhua/article/details/12879585
@@ -500,10 +500,10 @@ D. 对于所有SELECT查询语句，列的数量和数据类型必须相同。
 • 使相交的表按反方向排序不会更改结果。
 • INTERSECT不会忽略NULL值。
 
-10. View the Exhibit; e xamine the structure of the PROMOTIONS table.
+10. View the Exhibit; examine the structure of the PROMOTIONS table.
 
 Each promotion has a duration of at least seven days .
-Your manager has asked you to generate a report,  which provides the weekly cost for each promotion
+Your manager has asked you to generate a report, which provides the weekly cost for each promotion
 done to l date.
 Which query would achieve the required result? 
 A. SELECT promo_name, promo_cost/promo_end_date-promo_begin_date/7
@@ -545,15 +545,15 @@ SQL>SELECT prod_name, prod_list_price -(prod_list_price*(25/100))
 +(prod_list_price -(prod_list_price*(25/100))*(15/100))+100                                 
 AS "TOTAL PRICE" 
 FROM products; 
-What would be the outcome if all the parenthese s are removed from the above statement?
+What would be the outcome if all the parentheses are removed from the above statement?
  
 A. It produces a syntax error.
 B. The result remains unchanged. 
 C. The total price value would be lower than the correct value. 
 D. The total price value would be higher than the correct value.
  
-[html] view plaincopyprint?
-<span style="font-size:12px;">sh@TESTDB> SELECT prod_name, prod_list_price -(prod_list_price*(25/100))                    
+view plain copy print?
+> SELECT prod_name, prod_list_price -(prod_list_price*(25/100))                    
   2  +(prod_list_price -(prod_list_price*(25/100))*(15/100))+100                                    
   3  AS "TOTAL PRICE"   
   4  FROM products where rownum<6   
@@ -567,17 +567,38 @@ Y Box                                               613.732875
 Envoy 256MB - 40GB                                  1812.48288  
 Mini DV Camcorder with 3.5" Swivel LCD              1983.73288</span>  
 
+去除括号后：
+view plain copy print?
+>  SELECT prod_name, prod_list_price -prod_list_price*25/100  
+  2  +prod_list_price -prod_list_price*25/100*15/100+100   
+  3  AS "TOTAL PRICE"  
+  4  FROM products where rownum<6  
+  5  order by "TOTAL PRICE";  
+  
+PROD_NAME                                          TOTAL PRICE  
+-------------------------------------------------- -----------  
+Y Box                                               613.732875  
+5MP Telephoto Digital Camera                        1641.23288  
+17" LCD w/built-in HDTV Tuner                       1812.48288  
+Envoy 256MB - 40GB                                  1812.48288  
+Mini DV Camcorder with 3.5" Swivel LCD              1983.73288</span>  
+
+虽然计算顺序不一样，但计算结果是一样的
+ 
+此题答案选：B
+
+
+
 12. You need to produce a report where each customer's credit limit has been incremented by $1000. In
-the output, t he customer's last name should have the heading Name and the   incremented credit limit
+the output, the customer's last name should have the heading Name and the incremented credit limit
 should be labeled New Credit Limit. The column headings should have only the first letter of each word in
 uppercase . 
 Which statement would accomplish this requirement? 
 A.
-SELECT cust_last_name Name, cust_credit_limit + 1000      
-"New Credit Limit" 
+SELECT cust_last_name Name, cust_credit_limit + 1000 "New Credit Limit" 
 FROM customers;
-[sql] view plaincopyprint?
-sh@TESTDB> SELECT cust_last_name Name, cust_credit_limit + 1000        
+
+> SELECT cust_last_name Name, cust_credit_limit + 1000        
   2  "New Credit Limit"   
   3  FROM customers WHERE ROWNUM<6;   
   
@@ -589,15 +610,12 @@ Ruddy                                                         12000
 Ruddy                                                          2500  
 Ruddy                                                         10000  
 
- 
-
 B.
 SELECT cust_last_name AS Name, cust_credit_limit + 1000       
 AS New Credit Limit 
 FROM customers;
  
-[sql] view plaincopyprint?
-sh@TESTDB> SELECT cust_last_name AS Name, cust_credit_limit + 1000         
+> SELECT cust_last_name AS Name, cust_credit_limit + 1000         
   2  AS New Credit Limit   
   3  FROM customers WHERE ROWNUM<6;   
 AS New Credit Limit  
@@ -605,15 +623,13 @@ AS New Credit Limit
 ERROR at line 2:  
 ORA-00923: FROM keyword not found where expected  
 
- 
-
 C.
 SELECT cust_last_name AS "Name", cust_credit_limit + 1000       
 AS "New Credit Limit" 
 FROM customers;
  
-[sql] view plaincopyprint?
-<a target="_blank" href="mailto:sh@TESTDB">sh@TESTDB</a>> SELECT cust_last_name AS "Name", cust_credit_limit + 1000         
+
+> SELECT cust_last_name AS "Name", cust_credit_limit + 1000         
   2  AS "New Credit Limit"   
   3  FROM customers WHERE ROWNUM<6;   
   
@@ -625,15 +641,12 @@ Ruddy                                                         12000
 Ruddy                                                          2500  
 Ruddy                                                         10000  
 
- 
-
 D.
 SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000       
 INITCAP("NEW CREDIT LIMIT") 
 FROM customers;
  
-[sql] view plaincopyprint?
-sh@TESTDB> SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000         
+> SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000         
   2  INITCAP("NEW CREDIT LIMIT")   
   3  FROM customers WHERE ROWNUM<6;  
 INITCAP("NEW CREDIT LIMIT")  
@@ -653,13 +666,13 @@ CATEGORIES
 Y Box's category is Electronics
 Envoy Ambassador's category is Hardware
 Which two queries would give the required output? (Choose two.) 
-A. SELECT prod_name  q'''s category is '  prod_category CATEGORIES
+A. SELECT prod_name  q'''s category is ' prod_category CATEGORIES
 FROM products;
-B. SELECT prod_name  q'['s ]'category is '  prod_category CATEGORIES
+B. SELECT prod_name  q'['s ]'category is ' prod_category CATEGORIES
 FROM products;
-C. SELECT prod_name  q'\'s\'   ' category is '  prod_category CATEGORIES
+C. SELECT prod_name  q'\'s\' ' category is ' prod_category CATEGORIES
 FROM products;
-D. SELECT prod_name  q'<'s >'   'category is '  prod_category CATEGORIES
+D. SELECT prod_name  q'<'s >' 'category is ' prod_category CATEGORIES
 FROM products;
 Answer: CD
 答案解析：
