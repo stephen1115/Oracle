@@ -53,6 +53,8 @@
       GROUP BY prod_id, cust_id   
       WITH CHECK OPTION;
 
+	  
+	  
 3. You need to extract details of those products in the SALES table where the 
    PROD_ID column contains the string '_D123'.
    Which WHERE clause could  be used in the SELECT statement to get the required 
@@ -177,24 +179,17 @@
 	Credit Limit. The column headings should have only the first letter of each
 	word in uppercase . 
     Which statement would accomplish this requirement? 
-    A.
-    SELECT cust_last_name Name, cust_credit_limit + 1000 "New Credit Limit" 
-    FROM customers;
-    
-    B.
-    SELECT cust_last_name AS Name, cust_credit_limit + 1000       
-    AS New Credit Limit 
-    FROM customers;
-    
-    C.
-    SELECT cust_last_name AS "Name", cust_credit_limit + 1000       
-    AS "New Credit Limit" 
-    FROM customers;
-    
-    D.
-    SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000       
-    INITCAP("NEW CREDIT LIMIT") 
-    FROM customers;
+    A. SELECT cust_last_name Name, cust_credit_limit + 1000 "New Credit Limit" 
+       FROM customers;   
+    B. SELECT cust_last_name AS Name, cust_credit_limit + 1000 
+	   AS New Credit Limit 
+       FROM customers;   
+    C. SELECT cust_last_name AS "Name", cust_credit_limit + 1000       
+       AS "New Credit Limit" 
+       FROM customers;   
+    D. SELECT INITCAP(cust_last_name) "Name", cust_credit_limit + 1000       
+       INITCAP("NEW CREDIT LIMIT") 
+       FROM customers;
 
 13. View the Exhibit and examine the structure of the PRODUCTS table.
     You need to generate a report in the following format:
