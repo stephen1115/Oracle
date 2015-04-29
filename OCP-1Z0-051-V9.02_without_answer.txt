@@ -1,0 +1,136 @@
+1. View the Exhibit and examine the structure of the SALES, CUSTOMERS, PRODUCTS,
+   and TIMES tables.
+   The PROD_ID column is the foreign key in the SALES table, which references 
+   the PRODUCTS table. Similarly, the CUST_ID and TIME_ID columns are also 
+   foreign keys in the SALES table referencing the CUSTOMERS and TIMES tables, 
+   respectively.
+   Evaluate the following CREATE TABLE command:
+   CREATE TABLE new_sales(prod_id, cust_id, order_date DEFAULT SYSDATE)
+   AS
+   SELECT prod_id, cust_id, time_id
+   FROM sales;
+   Which statement is true regarding the above command?    
+                                                                      
+   A. The NEW_SALES table would not get created because the DEFAULT value cannot 
+      be specified in the column definition.
+   B. The NEW_SALES table would get created and all the NOT NULL constraints 
+      defined on the specified columns would be passed to the new table. 
+   C. The NEW_SALES table would not get created because the column names in the 
+      CREATE TABLE command and the SELECT clause do not match. 
+   D. The NEW_SALES table would get created and all the FOREIGN KEY constraints 
+      defined on the specified columns would be passed to the new table.
+
+2. View the Exhibit to examine the description for the SALES table.
+   ┌───────────────────────────────────┐
+   │Table SALES                        │
+   ├─────────────┬────────┬────────────┤
+   │Name         │Null?   │Type        │
+   ├─────────────┼────────┼────────────┤
+   │PROD_ID      │NOT NULL│NUMBER      │
+   │CUST_ID      │NOT NULL│NUMBER      │
+   │TIME_ID      │NOT NULL│DATE        │
+   │CHANNEL_ID   │NOT NULL│NUMBER      │
+   │PROMO_ID     │NOT NULL│NUMBER      │
+   │QUANTITY_SOLD│NOT NULL│NUMBER(10,2)│
+   └─────────────┴────────┴────────────┘
+   Which views can have all DML operations performed on it?
+   (Choose all that apply.) 
+   A. CREATE VIEW v3
+      AS SELECT * FROM SALES   
+      WHERE cust_id = 2034   
+      WITH CHECK OPTION;
+   B. CREATE VIEW v1
+      AS SELECT * FROM SALES   
+      WHERE time_id <= SYSDATE - 2*365   
+      WITH CHECK OPTION;
+   C. CREATE VIEW v2
+      AS SELECT prod_id, cust_id, time_id FROM SALES   
+      WHERE time_id <= SYSDATE - 2*365   
+      WITH CHECK OPTION; 
+   D. CREATE VIEW v4
+      AS SELECT prod_id, cust_id, SUM(quantity_sold) FROM SALES   
+      WHERE time_id <= SYSDATE - 2*365   
+      GROUP BY prod_id, cust_id   
+      WITH CHECK OPTION;
+
+3. You need to extract details of those products in the SALES table where the 
+   PROD_ID column contains the string '_D123'.
+   Which WHERE clause could  be used in the SELECT statement to get the required 
+   output?
+   A. WHERE prod_id LIKE '%_D123%' ESCAPE '_'
+   B. WHERE prod_id LIKE '%\_D123%' ESCAPE '\'
+   C. WHERE prod_id LIKE '%_D123%' ESCAPE '%_'
+   D. WHERE prod_id LIKE '%\_D123%' ESCAPE '\_'
+
+4. Which two statements are true regarding single row functions? (Choose two.)
+   A. They accept only a single argument.
+   B. They can be nested only to two levels.
+   C. Arguments can only be column values or constants.
+   D. They always return a single result row for every row of a queried table.
+   E. They can return a data type value different from the one that is 
+      referenced.
+
+5. Which SQL statements would display the value 1890.55 as $1,890.55? 
+   ( Choose three .)
+   A. SELECT TO_CHAR(1890.55,'$0G000D00')
+      FROM DUAL;
+   B. SELECT TO_CHAR(1890.55,'$9,999V99')
+      FROM DUAL; 
+   C. SELECT TO_CHAR(1890.55,'$99,999D99')                         
+      FROM DUAL;
+   D. SELECT TO_CHAR(1890.55,'$99G999D00')
+      FROM DUAL;
+   E. SELECT TO_CHAR(1890.55,'$99G999D99')
+      FROM DUAL;
+
+6. Examine the structure of the SHIPMENTS table:
+   name           Null       Type
+   PO_ID          NOT NULL    NUMBER(3)
+   PO_DATE        NOT NULL    DATE
+   SHIPMENT_DATE  NOT NULL    DATE
+   SHIPMENT_MODE              VARCHAR2(30)
+   SHIPMENT_COST              NUMBER(8,2)
+   
+   You want to generate a report that displays the PO_ID and the penalty amount 
+   to be paid if the SHIPMENT_DATE is later than one month from the PO_DATE. 
+   The penalty is $20 per day.
+   Evaluate the following two queries:
+   SQL> SELECT po_id, CASE
+   WHEN MONTHS_BETWEEN (shipment_date,po_date)>1 THEN
+   TO_CHAR((shipment_date - po_date) * 20) ELSE 'No Penalty' END PENALTY
+   FROM shipments;
+   SQL>SELECT po_id, DECODE
+   (MONTHS_BETWEEN (po_date,shipment_date)>1,
+   TO_CHAR((shipment_date - po_date) * 20), 'No Penalty') PENALTY   
+   FROM shipments;
+   Which statement is true regarding the above commands?
+   A. Both execute successfully and give correct results.
+   B. Only the first query executes successfully but gives a wrong result.
+   C. Only the first query executes successfully and gives the  correct result.
+   D. Only the second query executes successfully but gives a wrong result.
+   E. Only the second query executes successfully and gives the correct result.
+
+7. Which two  statements are true regarding the USING and ON clauses in table 
+   joins? (Choose two.)
+   A. Both USING and ON clauses can be used for equijoins and nonequijoins. 
+   B. A maximum of one pair of columns can be joined between two tables using the ON clause. 
+   C. The ON clause can be used to join tables on columns that have different
+      names but compatible data types.
+   D. The  WHERE clause can be used to apply additional conditions in SELECT statements 
+      containing the ON or the  USING clause.
+
+8. View the Exhibit and examine the structure of the CUSTOMERS table.
+   Which two tasks would require subqueries or joins to be executed in a single
+   statement? (Choose two.) 
+
+   A. listing of customers who do not have a credit limit and were born before
+      1980
+   B. finding the number of customers, in each city, whose marital status is 
+      'married'
+   C. finding the average credit limit of male customers residing in 'Tokyo' or
+      'Sydney'
+   D. listing of those customers whose credit limit is the same as the credit 
+      limit of customers residing in the city 'Tokyo'
+   E. finding the number of customers, in each city, whose credit limit is more
+      than the average credit limit of all the customers
+	  
