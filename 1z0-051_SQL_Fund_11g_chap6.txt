@@ -1,0 +1,51 @@
+Reporting Aggregated Data Using the Group Functions
+  
+1. Group Functions
+   -- Unlike single-row functions, group functions operate on sets of rows to 
+      give one result per group.
+   -- These sets may comprise the entire table or the table split into groups.
+   
+           ┌───────────────────┐
+      ───> │  Group functions  │
+      ───> │                   │ ───>
+      ───> │                   │
+           └───────────────────┘
+   -- Syntax
+      SELECT group_function( column ), ...
+      FROM   table
+      [WHERE condition]
+      [ORDER BY column];
+
+      - The group function is placed after the SELECT keyword.
+      - You may have multiple group functions separated by commas.
+      - DISTINCT makes the function consider only nonduplicate values
+      - ALL makes it consider every value, including duplicates; The default ALL
+        and, therefore, does not need to be specified.
+      - The data types for the functions with an expr argument may be CHAR, 
+        VARCHAR2, NUMBER, or DATE.
+      - All group functions ignore null values. To substitute a value for null 
+        values, use the NVL, NVL2, COALESCE, CASE, or DECODE functions.
+
+   Types of Group Functions
+   ═════════════════════════════════════════════════════════════════════════════
+   Function    Description
+   ─────────────────────────────────────────────────────────────────────────────
+   AVG         AVG( [DISTINCT|ALL] n )
+               Average value of n, ignoring null values
+   COUNT       COUNT( {*|[DISTINCT|ALL] expr} )
+               Number of rows, where expr evaluated to something other than null
+               ( count all selected rows using *, including duplicates ana rows
+                 with nulls )
+   MAX         MAX( [DISTINCT|ALL] expr )
+               Maximum value of expr, ignoring null values
+   MIN         MIN( [DISTINCT|ALL] expr )
+               Minimum value of expr, ignoring null values
+   STDDEV      STDDEV( [DISTINCT|ALL] n )
+               Standard deviation of n, ignoring null values
+   SUM         SUM( [DISTINCT|ALL] n )
+               Sum values of n, ignoring null values
+   VARIANCE    Variance of n, ignoring null values
+   ═════════════════════════════════════════════════════════════════════════════
+   
+2. Using the AVG and SUM Functions
+
