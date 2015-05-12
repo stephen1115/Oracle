@@ -1,0 +1,266 @@
+Using Conversion Functions and Conditional Expressions
+
+Conversion Functions
+1. The data type conversion can be done implicily by the Oracle server or
+                                        ^^^^^^^^^
+   explicily by the user.
+   ^^^^^^^^^
+   1.1. Implicily data type conversions work according to the rules.
+   1.2. Explicily data type conversions are performed by using the conversion 
+        functions.
+        
+2. Implicily Data Type Conversion
+   2.1. Oracle server can automatically perform data type conversion in an 
+        expression.
+        A VARCHAR2 or CHAR value can be implicitly converted to a number or date
+        data type in an expression.
+        ════════════════════════════════════════════════════════════════════════
+        From                 To
+        ────────────────────────────────────────────────────────────────────────
+        VARCHAR2 or CHAR     NUMBER
+        VARCHAR2 or CHAR     DATE
+        ════════════════════════════════════════════════════════════════════════
+        Example:
+            the expression hire_date > '01-JAN-90' results in the implicit 
+            conversion from the string '01-JAN-90' to a date.
+   2.2. Oracle server uses the rule for expressions when a data type conversion 
+        is needed.
+        ════════════════════════════════════════════════════════════════════════
+        From       To
+        ────────────────────────────────────────────────────────────────────────
+        NUMBER     VARCHAR2 or CHAR
+        DATE       VARCHAR2 or CHAR
+        ════════════════════════════════════════════════════════════════════════
+        Example:
+            the expression grade = 2 results in the implicit conversion of the 
+            number 2 to the string "2" because grade is a CHAR(2) column.
+
+3. Explicit Data Type Conversion
+     ┌──TO_NUMBER──┐ ┌───TO_DATE───┐
+     ↓             │ │             ↓
+   NUMMBER        CHARACTER        DATE
+     │             ↑ ↑             │
+     └──TO_CHAR────┘ └───TO_CHAR───┘
+   3.1. Using the TO_CHAR Function with Dates
+   
+        TO_CHAR( date, 'format_model' )
+        
+        TO_CHAR converts a datetime data type to a value of VARCHAR2 data type 
+        in the format specified by the format_model.
+        Examples:
+            SELECT employee_id, TO_CHAR( hire_date, 'MM/YY') Month_Hired
+            FROM employees
+            WHERE last_name = 'Higgins';
+        
+            SELECT last_name,
+                   TO_CHAR( hire_date, 'fmDD Month YYYY')
+            FROM employees;
+
+            SELECT last_name,
+                   TO_CHAR( hire_date, 'fmDdspth "of" Month YYYY 
+                            fmHH:MI:SS AM' ) HIREDATE
+            FROM employees;
+   3.2. Using the TO_CHAR Function with Numbers
+        
+        TO_CHAR( number, 'format_model' );
+
+        TO_CHAR translates a value of NUMBER data type to VARCHAR2 data type in 
+        the format specified by the format_model.
+        
+        Number Format Elements
+        ════════════════════════════════════════════════════════════════════════
+        Element    Description                                 Example    Result
+        ────────────────────────────────────────────────────────────────────────
+        9          Numeric position (number of 9s              999999     1234
+                   determine display width)
+        0          Display leading zeros                       099999     001234
+        $          Floating local currency symbol              $99999     $1234
+        D          Returns the decimal character in the        99D99      99.99
+                   specified position. The default is a
+                   period (.).
+        G          Returns the group separator in the          9G999      9,999 
+                   specified position. You can specify
+                   multiple group separators in a number
+                   format model.
+        ════════════════════════════════════════════════════════════════════════
+        Examples:
+           SELECT TO_CHAR(salary, '$99,999.00') SALARY
+           FROM employees
+           WHERE last_name = 'Ernst';
+
+   3.3. Using the TO_NUMBER and TO_DATE Functions
+        TO_NUMBER( char, 'format_model' )
+        Convert a character string to a number format using the TO_NUMBER 
+        function.
+
+        TO_DATE( char, 'format_model' )
+        Convert a character string to a date format using the TO_DATE function.
+
+        These functions have an fx modifier. This modifier specifies the exact
+        match for the character argument and date format model of a TO_DATE 
+        function.
+        -- Punctuation and quoted text in the character argument must exactly 
+           match (except for case) the corresponding parts of the format model.
+        -- The character argument cannot have extra blanks. Without fx, the 
+           Oracle server ignores extra blanks.
+        -- Numeric data in the character argument must have the same number of 
+           digits as the corresponding element in the formate model. Without
+           fx, the numbers in the character argument can omit leading zeros.
+
+        Examples:
+           SELECT last_name, hire_date
+           FROM employees
+           WHERE hire_date = TO_DATE( 'May  24, 1999', 'fxMonth DD, YYYY' );
+                                           ^
+           Because the fx modifier is used, an exact match is required and the 
+           spaces after the word May are not recognized.
+
+           SELECT last_name, hire_date
+           FROM employees
+           WHERE hire_date = TO_DATE( 'May 24, 1999', 'fxMonth DD, YYYY' );
+ 
+   3.4. Using the TO_CHAR and TO_DATE Function with the RR Date Format
+        The RR format interprets the year portion of the date from 1950 to 1999.
+        Examples:
+           SELECT last_name, TO_CHAR(hire_date, 'DD-Mon-YYYY' )
+           FROM employees
+           WHERE hire_date < TO_DATE( '01-Jan-90', 'DD-Mon-RR' );
+
+        The following command, results in no rows being selected because the YY 
+        format interprets the year portion of the date in the curret 
+        century (2009).
+        Examples:
+           SELECT last_name, TO_CHAR(hire_date, 'DD-Mon-yyy')
+           FROM employees
+           WHERE TO_DATE( hire_date, 'DD-Mon-yy' ) < '01-Jan-1990';
+
+4. Nesting Functions
+   -- Single-row functions can be nested to any level.
+   -- Nested functions are evaluated from the deepest level to the least deep 
+      level.
+   F3( F2( F1( col, arg1 ), arg2 ) ,arg3 )
+    ↑ ↑  ↑                ↑      ↑     ↑
+    │ │  └─┤Step1=Result1├┘      │     │
+    │ └────┤Step2=Result2├───────┘     │
+    └──────┤Step3=Result3├─────────────┘
+
+   Examples:
+      SELECT last_name,
+             UPPER( CONCAT( SUBSTR( LAST_NAME, 1, 8 ), '_US' ))
+      FROM employees
+      WHERE department_id = 60;
+      -- The inner function retrieves the first eight characters of the last name.
+         Result1 = SUBSTR( LAST_NAME, 1, 8 )
+      -- The outer function concatenates the result with _US.
+         Result2 = CONCAT( Result1, '_US' )
+      -- The outermost function converts the results to uppercase.
+
+   Examples:
+      Display the date of the next Friday that is six months from the hire date.
+      The resulting date should apper as Friday, August 13th, 1999. Order the
+      results by hire date.
+      SELECT TO_CHAR( NEXT_DAY( ADD_MONTHS( hire_date, 6 ), 'FRIDAY' ),
+             'fmDay, Month ddth, YYYY')
+             "Next 6 Month Review"
+      FROM employees
+      ORDER BY hire_date;
+
+   Examples:
+      Display the salaries of employees divided by 7 and rounded to two decimals.
+      The result is then formatted to display the salary in Danish notation.
+      SELECT TO_CHAR( ROUND( ( salary/7 ), 2), '99G999D99',
+             'NLS_NUMERIC_CHARACTERS = '',.'' ' )
+             "Formatted Salary"
+      FROM employees;
+
+5. General Functions
+
+   General Functions
+   ══════════════════════════════════════════════════════════════════════════
+   Function    Description                                 
+   ──────────────────────────────────────────────────────────────────────────
+   NVL         NVL( expr1, expr2 )
+               Converts a nll value to an actual value
+   NVL2        NVL2( expr1, expr2, expr3 )
+               If expr1 is not null, NVL2 returns expr2. If expr1 is null,
+               NVL2 returns expr3. The argument expr1 can have any date type.
+   NULLIF      NULLIF( expr1, expr2 )
+               Compares two expressions and returns null if they are equal;
+               returns the first expression if they are not equal.
+   COALESCE    COALESCE( expr1, expr2, ..., exprn )
+               Returns the first non-null expression in the expression list.
+   ══════════════════════════════════════════════════════════════════════════
+
+   5.1. NVL Function
+        Syntax
+        NVL( expr1, expr2 )
+        -- expr1 is the source value or expression that may contain a null.
+        -- expr2 is the target value for converting the null and this value is
+           always the same as the data type of expr1.
+        Examples:
+           SELECT last_name, salary, NVL( commission_pct, 0 ),
+                  ( salary * 12 ) + ( salary * 12 * NVL( commission_pct, 0 ) ) AN_SAL
+           FROM employees;
+
+           SELECT last_name, salary, commission_pct,
+                  ( salary * 12 ) + ( salary * 12 * commission_pct ) AN_SAL
+           FROM employees;
+
+   5.2. NVL2 Function
+        Syntax
+        NVL2( expr1, expr2, expr3 )
+        -- expr1 is the source value or expression that may contain a null
+        -- expr2 is the value that is returned if expr1 is not null
+        -- expr3 is the value that is returned if expr1 is null
+        Examples:
+           SELECT last_name, salary, commission_pct,
+                  NVL2( commission_pct, 'SAL+COMM', 'SAL' ) income
+           FROM employees
+           WHERE department_id IN (50, 80);
+
+   5.3. NULLIF Function
+        Syntax
+        NULLIF( expr1, expr2 )
+        -- NULL compares expr1 and expr2. If they are equal, the function 
+           returns null. If they are not, the function return expr1.
+        -- However, you cannot specify the literal NULL for expr1.
+        -- The NULLIF function is logically equivalent to the following CASE 
+           expression.
+           CASE WHEN expr1 = expr2 THEN NULL ELSE expr1 END
+        Examples:
+           SELECT first_name, LENGTH( first_name ) "expr1",
+                  last_name, LENGTH( last_name ) "expr2",
+                  NULLIF( LENGTH( first_name ), LENGTH( last_name ) ) result
+           FROM employees;
+
+    5.4. COALESCE Function
+         Syntax
+         COALESCE( expr1, expr2, ..., exprn )
+         -- expr1 returns this expression if it is not null
+         -- expr2 returns this expression if the first expression is null and
+                  this expression is not null
+         -- expr3 returns this expression if the preceding expressions are null
+         -- The advantage of the COALESCE function over the NVL function is that
+            the COALESCE function can take multiple alternate values.
+         Examples:
+            SELECT last_name, employee_id,
+                   COALESCE( TO_CHAR( commission_pct ), TO_CHAR( manager_id ),
+                   'NO commission and no manager' )
+            FROM employees;
+
+         Examples:
+            For the employees who do not get any commission, your organization 
+            wants to give a salary increment of $2,000 and for employees who get
+            commission, the query should compute the new salary that is equal to
+            the existing salary added to the commission amount.
+            SELECT last_name, salary, commission_pct,
+                   COALESCE( ( salary + ( commission_pct * salary ) ), salary + 
+                             2000, salary ) "New Salary"
+            FROM employees;
+
+6. Conditional expressions
+   -- Provide the use of the IF-THEN-ELSE logic within a SQL statement.
+   -- Use two methods:
+      - CASE expression
+      - DECODE expression
+   
