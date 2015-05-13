@@ -48,4 +48,90 @@ Reporting Aggregated Data Using the Group Functions
    ═════════════════════════════════════════════════════════════════════════════
    
 2. Using the AVG and SUM Functions
+   -- You can use the AVG, SUM, MIN, and MAX functions against the columns that
+      can store numeric data.
+   Examples:
+      SELECT AVG(salary), MAX(salary), MIN(salary), SUM(salary)
+      FROM employees
+      WHERE job_id LIKE '%REP%';
+
+3. Using the MIN and MAX Functions
+   -- You can use the MIN and MAX functions for numeric, character, and date 
+      data types.
+      Examples:
+         Displays the most junior and most senior employees.
+         SELECT MIN(hire_date), MAX(hire_date)
+         FROM employees;
+
+      Examples:
+         Displays the employee last name that is first and  the employee last 
+         name that is last in an alphabetic list of all employees.
+         SELECT MIN(last_name), MAX(last_name)
+         FROM employees;
+   
+   -- The AVG, SUM, VARIANCE, and STDDEV functions can be used only with numeric 
+      data types.
+   -- MAX and MIN cannot be used with LOB or LONG data types.
+
+4. Using the COUNT Function
+   
+   The COUNT function has three formats
+   ═════════════════════════════════════════════════════════════════════════════
+   Formate                 Description
+   ─────────────────────────────────────────────────────────────────────────────
+   COUNT(*)                1. returns the number of rows in a table that satisfy
+                              the criteria of the SELECT statement, including 
+                              duplicate rows and rows containing null values in 
+                              any of the columns.
+                           2. If a WHERE clause is included in the SELECT 
+                              statement, COUNT(*) returns the number of rows 
+                              that satisfy the condition in the WHERE clause.
+   COUNT(expr)             1. returns the number of non-null values that are in 
+                              the column identified by expr.
+   COUNT(DISTINCT expr)    1. returns the number of unique, non-null values that
+                              are in the column identified by expr.
+   ═════════════════════════════════════════════════════════════════════════════
+   Examples:
+      Displays the number of employees in department 50.
+      SELECT COUNT(*)
+      FROM employees
+      WHERE department_id = 50;
+
+      Displays the number of employees in department 80 who can earn a 
+      commission.
+      SELECT COUNT(commission_pct)
+      FROM employees
+      WHERE department_id = 80;
+
+5. Using the DISTINCT Keyword
+   -- Use the DISTINCT keyword to suppress the counting of any duplicate values 
+      in a column.
+      Examples:
+         SELECT COUNT( DISTINCT department_id )
+         FROM employees;
+
+6. Group Functions and Null Values
+   -- All group functions ignore null value in the column.
+   -- The NVL function forces group functions to include null values.
+   Examples:
+      SELECT AVG(commission_pct)
+      FROM employees;
+      - The average is calculated based on only those rows in the table in which 
+        a valid value is stored in the COMMISSION_PCT column.
+      - The average is calculated as the total commission that is paid to all 
+        employee divided by the number of employees receiving a commission (four).
+
+      SELECT AVG( NVL( commission_pct, 0 ) )
+      FROM employees;
+      - The average is calculated based on all rows in the table, regardless of 
+        whether null values are stored in the COMMISSION_PCT column.
+      - The average is calculated as the total commission that is paid to all 
+        employees divided by the total number of employees in the company (20).
+      
+7. Grouping rows
+   7.1. Creating Groups of Data
+        -- all group functions have treated the table as one large group of 
+           information.
+        -- however, you need to divide the table of information into smaller 
+           groups. This can be done by using the GROUP BY clause.
 
