@@ -134,4 +134,165 @@ Reporting Aggregated Data Using the Group Functions
            information.
         -- however, you need to divide the table of information into smaller 
            groups. This can be done by using the GROUP BY clause.
+   7.2. GROUP BY Clasue Syntax
+        -- Using the GROUT BY Clause to divide the rows in a table into groups.
+        -- And then use the group functions to return summary information for 
+           each group.
+        -- the syntax   
+           SELECT column, group_function(column)
+           FROM   table
+           [WHERE  condition]
+           [GROUP BY group_by_expression]
+           [ORDER BY column];
 
+           group_by_expression Specifies the columns whose values determine the 
+                               basis for grouping rows.
+
+        -- Guidelines
+           - If you include a group function in a SELECT clause, you cannot 
+             selected individual results as well, unless the individual column 
+             appears in the GROUP BY clause.
+           - Using a WHERE clause, you can exclude rows before dividing them 
+             into groups.
+           - You must include the columns in the GROUP BY clause.
+           - You cannot use a column alias in the GROUP BY clause.
+   7.3. Using GROUP BY CLAUSE
+        Examples:
+           When using the GROUP BY clause, make sure that all columns in the 
+           SELECT list that are not group functions are included in the GROUP BY 
+           clause.
+           SELECT department_id, AVG(salary)
+           FROM employees
+           GROUP BY department_id;
+
+        Examples:
+           The GROUP BY column does not have to be in the SELECT clause. For 
+           this example, Without the department numbers, however, the results do 
+           not look meaningful.
+           SELECT AVG(salary)
+           FROM employees
+           GROUP BY department_id;
+
+        Examples:
+           The group function also can be used in the ORDER BY clause.
+           SELECT department_id, AVG(salary)
+           FROM employees
+           GROUP BY department_id
+           ORDER BY AVG(salary);
+   7.4. Grouping by More Than One Column
+        Sometimes, you need to see results for groups within groups.
+        Examples:
+           Displays the total salary that is paid to each job title in each 
+           department.
+           SELECT department_id, job_id, sum(salary)
+           FROM employees
+           GROUP BY department_id, job_id
+           ORDER BY job_id;
+           The EMPLOYEES table is grouped first by the department number, and 
+           then by the job title within that grouping.
+        Examples:
+           You can return summary results for groups and subgroups by listing
+           multiple GROUP BY columns.
+           SELECT department_id, job_id, SUM(salary)
+           FROM employees
+           WHERE department_id > 40
+           GROUP BY department_id, job_id
+           ORDER BY department_id;
+   7.5. Illegal Queries Using Group Functions
+        -- Whenever you used mixture of individual items(DEPARTMENT_ID) and 
+           group functions(COUNT) in the same SELECT statement, you must include 
+           a GROUP BY clause that specifies the individual items.
+           Examples:
+              SELECT department_id, COUNT(last_name)
+              FROM employees;
+              
+              The GROUP BY clause is missing, the error message "not a 
+              single-group group function" appears.
+
+              Correct the error by adding the GROUP BY clause:
+              SELECT department_id, COUNT(last_name)
+              FROM employees
+              GROUP BY department_id;
+
+           Examples:
+              SELECT department_id, job_id, COUNT(last_name)
+              FROM employees
+              GROUP BY department;
+
+              In this example, job_id is neither in GROUP BY clause nor is it 
+              being used by a group function, so there is a 
+              "not a GROUP BY expression" error.
+
+              Correct this error by adding job_id in the GROUP BY clause.
+              SELECT department_id, job_id, COUNT(last_name)
+              FROM employees
+              GROUP BY department_id, job_id;
+        
+        -- The WHERE clause cannot be used to restrict groups.
+        -- You can use the HAVING clause to restrict groups.
+        -- You cannot use group functions in the WHERE clause.
+           Examples:
+              SELECT department_id, AVG(salary)
+              FROM employees
+              WHERE AVG(salary) > 8000
+              GROUP BY department_id;
+              There is a "group function is not allowed here" error because it 
+              uses the WHERE clause to restrict the display of the average 
+              salaries of those departments that have an average salary greater 
+              than $8,000.
+              
+              Correct this error by using the HAVING clause to restrict groups:
+              SELECT department_id, AVG(salary)
+              FROM employees
+              GROUP BY department_id
+              HAVING AVG(salary) > 8000;
+   7.6. Restricting Group Results
+        -- Using the Having clause to restrict groups in the same way that use 
+           the WHERE clause to restrict the rows that you select.
+        -- The Oracle server performs the following steps when you use the 
+           HAVING clause:
+           1. Rows are grouped.
+           2. The group function is applied to the group.
+           3. The groups that match the criteria in the HAVING clause are 
+              displayed.
+        -- The syntax
+           SELECT column, group_function
+           FROM table
+           [WHERE condition]
+           [GROUP BY group_by_expression]
+           [HAVING   group_condition]
+           [ORDER BY column];
+
+        -- The WHERE clause restricts rows, whereas the HAVING clause restricts 
+           groups.
+           Examples:
+              Displays the department numbers and maximum salaries for those 
+              departments with a maximum salary greater than $10,000.
+              SELECT department_id, MAX(salary)
+              FROM employees
+              GROUP BY department_id
+              HAVING   MAX(salary) > 10000;
+
+              Displays the department numbers and average salaries for those 
+              departments with a maximum salary greater than $10000.
+              SELECT department_id, AVG(salary)
+              FROM employees
+              GROUP BY department_id
+              HAVING MAX(salary) > 10000;
+
+              Displays the job ID and total monthly salary for each job that has 
+              a total payroll exceeding $13,000.
+              SELECT job_id, SUM(salary) PAYROLL
+              FROM employees
+              WHERE job_id NOT LIKE '%REP%'
+              GROUP BY job_id
+              HAVING   SUM(salary) > 13000
+              ORDER BY SUM(salary);
+
+8. Nesting Group Functions
+   -- Group functions can be nested to a depth of two functions.
+   -- GROUP BY clause is mandatory when nesting group functions.
+      Examples:
+         SELECT MAX(AVG(salary))
+         FROM employees
+         GROUP BY department_id;
