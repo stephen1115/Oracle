@@ -1,16 +1,19 @@
 Using Single-Row Functions to Customize Output
 
-SQL Functions --
-can be used to do the following:
-1. Perform calculations on data
-2. Modify individual data items
-3. Manipulate output for groups of rows
-4. Format dates and numbers for display
-5. Convert column data types
+SQL Functions
+  -- can be used to do the following:
+     1. Perform calculations on data
+     2. Modify individual data items
+     3. Manipulate output for groups of rows
+     4. Format dates and numbers for display
+     5. Convert column data types
+  -- 可以接受參數輸入(0/1/多個),但只能/一定回傳1個結果
+     func(arg1,arg2,arg3,...)=>result
 
 Two Types of SQL Functions
 Single-row functions --
   1. These functions operate on single rows only and return one result per row.
+     一筆row回傳一個結果。
   2. They accept one or more arguments and return one value for each row that 
      is returned by the query. An argument can be one of the following:
 	 2.1. User-supplied constant
@@ -45,6 +48,7 @@ Single-row functions --
 		DECODE
 Multiple-row functions --
   1. Fuctions can manipulate groups of rows to give one resultper group of rows.
+     多筆row回傳一個結果。
      These functions also known as group functions.
 	 
 Character Functions
@@ -65,7 +69,6 @@ Character Functions
   ════════════════════════════════════════════════════════════════════════
   Function                   Result
   ────────────────────────────────────────────────────────────────────────
-
   LOWER( 'SQL Course' )      sql course
   UPPER( 'SQL Course' )      SQL COURSE
   INIICAP( 'SQL Course' )    Sql Course
@@ -86,6 +89,28 @@ Character Functions
 	 SELECT employee_id, UPPER( last_name ), department_id
 	 FROM employees
 	 WHERE INITCAP( last_name ) = 'Higgins';
+
+  Examples: 補充
+     SQL> SELECT UPPER('hello world'),LOWER('Hello WorLD'),INITCAP('HELLO world')
+        2 FROM dual;
+
+     UPPER('HELL LOWER('HELL INITCAP('HE  
+     ----------- ----------- -----------
+     HELLO WORLD hello world Hello World
+     
+     -INITCAP將第一個char變成大寫,其餘為小寫
+
+     SQL> SELECT last_name,first_name,last_name||first_name lf_name,
+                 CONCAT(last_name,first_name) concat_name
+       2  FROM   hr.employees
+       3  WHERE  department_id=90;
+     
+     LAST_NAME            FIRST_NAME           LF_NAME                        CONCAT_NAME
+     -------------------- -------------------- ------------------------------ ------------------------------
+     King                 Steven               KingSteven                     KingSteven
+     Kochhar              Neena                KochharNeena                   KochharNeena
+     De Haan              Lex                  De HaanLex                     De HaanLex
+
 
   Character-manipulation functions
   ═════════════════════════════════════════════════════════════════════════════
