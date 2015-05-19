@@ -1,3 +1,4 @@
+Displaying Data from Multiple Tables Using Joins
 
 
            ┌── SELECT ───┐
@@ -13,109 +14,232 @@
                ORDER BY ─┘
 			     │
 				 ↓
+                 
+1. Types of Joins
 
-  JOIN Type
-  ==============================================================================
-   Type         Description                                           
-  ------------------------------------------------------------------------------
-   INNER JOIN   滿足JOIN條件的ROW才會顯示 (只結合滿足JOIN條件的ROW DATA)
-                Ex:
-				  Natural join
+   JOIN Type
+   ═════════════════════════════════════════════════════════════════════════════
+    Type         Description                                           
+   ─────────────────────────────────────────────────────────────────────────────
+    INNER JOIN   滿足JOIN條件的ROW才會顯示 (只結合滿足JOIN條件的ROW DATA)
+                 Ex:
+                  Equi join
+	 			  Natural join
                   SELF join
-                  				  
-  ------------------------------------------------------------------------------
-   OUTER JOIN   連不 滿足JOIN條件 的ROW也要結合
-                     ^^^^^^^^^^^^
-			    (會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來)
-					  INNER JOIN
-				-- LEFT OUTER JOIN
-				-- RIGHT OUTER JOIN
-				-- FULL OUTER JOIN
-  ------------------------------------------------------------------------------
-   CROSS JOIN   不使用JOIN條件, 直接結合兩個TABLE的所有ROW DATA
-                (Cartesian Product)
-  ------------------------------------------------------------------------------
-   Natural JOIN
-  ------------------------------------------------------------------------------
-   Self JOIN			
-  ==============================================================================
-  
-  JOIN Condition
-  -- equality (=)
-  -- non-equality (非 =)
-     Ex.:
-	   T1.b > T2.c 或 T1.b BETWEEN T2.c AND T2.d
-
-  JOIN Method
-    -- sort MERGE
-    -- nested loop  ─┐ 會有Driving table
-    -- hash join    ─┘	
+                   				  
+    OUTER JOIN   連不 滿足JOIN條件 的ROW也要結合
+                      ^^^^^^^^^^^^
+	 		     (會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來)
+	 			 -- LEFT OUTER JOIN
+	 			 -- RIGHT OUTER JOIN
+	 			 -- FULL OUTER JOIN
+   
+    CROSS JOIN   不使用JOIN條件, 直接結合兩個TABLE的所有ROW DATA
+                 (Cartesian Product)
+   ═════════════════════════════════════════════════════════════════════════════
+   Inner Join
+   SQL定義兩種不同語法來表示JOIN。分別是
+     Explicit Join Notation ( 顯式連接符號 )
+         它直接使用關鍵字"JOIN"，JOIN前面的"INNER"關鍵字可以加也可以不加，來指定
+         要JOIN的Table。
+     Implicit Join Notation ( 隱式連接符號 )
+         它把需要join的table放到 SELECT 語句的 FROM 部分，並用逗號隔開。
+         WHERE 語句可能放置一些過濾謂詞(過濾條件)。那些過濾謂詞在功能上等價於
+         顯式連接符號。
+         儘管"隱加入符號"被廢棄於1992年，它的使用不被認為是最好的做法，資料系統仍
+         然支持它。
+     Examples:
+        Explicit Join
+        SELECT * 
+        FROM   employees
+        INNER JOIN departments
+        ON         employees.Department_ID = departements.Departement_ID;
+        等價於
+        SELECT *
+        FROM   employees, departments
+        WHERE  employees.Department_ID = departments.Department_ID;
+        
+   
+   JOIN Condition
+   -- equality (=)
+   -- non-equality (非 =)
+      Ex.:
+	    T1.b > T2.c 或 T1.b BETWEEN T2.c AND T2.d
+   
+   JOIN Method
+     -- sort MERGE
+     -- nested loop  ─┐ 會有Driving table
+     -- hash join    ─┘	
                      
-有N個Table要join時, 需要寫N-1個join條件
-一般在寫join子句時, table 資料較少的表格會寫在左邊, 稱之為driving table;
-如果以大表格為driving table寫在左邊, 以hash 為例, 有可能hash table太大, 這樣
-就會需要寫回HDD上, 增加I/O的次數, 造成速度變慢,
-ORACLE 怎麼知道是大TABLE還是小TABLE? 從統計資料可以得出
-
-在寫WHERE子句的條件時, 把SCHEMA NAME, TABLE NAME也寫進去子句, 是比較好的方式,
-不會比較快, 但方便閱讀
-
-Joining Tables Using SQL: 1999 Syntax
-Using a join to query data from more than one table:
-  SELECT table1.column, table2.column
-  FROM table1
-   [NATURAL JOIN table2] |
-   [JOIN table2 USING (column_name)] |
-   [JOIN table2
-     ON (table1.column_name = table2.column_name)] |
-   [LEFT|RIGHT|FULL OUTER JOIN table2
-     ON (table1.column_name = table2.column_name)] |
-   [CROSS JOIN table2];
+   有N個Table要join時, 需要寫N-1個join條件
+   一般在寫join子句時, table 資料較少的表格會寫在左邊, 稱之為driving table;
+   如果以大表格為driving table寫在左邊, 以hash 為例, 有可能hash table太大, 這樣
+   就會需要寫回HDD上, 增加I/O的次數, 造成速度變慢,
+   ORACLE 怎麼知道是大TABLE還是小TABLE? 從統計資料可以得出
    
-<補充>   
-1. ANSI 99 之前
-   FROM t1, t2
-   WHERE t1.b=t2.c AND t1.a > 10
-         ^^^^^^^^^     ^^^^^^^^^^ NON JOIN Predicate
-	     JOIN Predicate	  
-2. ANSI 99 之後
-   FROM t1 join t2 ON (t1.b=t2.c)
-   WHERE t1.a > 10
-3. ANSI 99 前後的寫法, 對於效能沒差, 但增加可讀性
+   在寫WHERE子句的條件時, 把SCHEMA NAME, TABLE NAME也寫進去子句, 是比較好的方式,
+   不會比較快, 但方便閱讀
 
-Qualifying Ambiguous Column Names
-1. Using the table prefix improves performance, because you tell the Oracle 
-   server exactly where to fine the columns.
-2. Instead of full table name prefixs, use table aliases.
-3. Shorter table aliases are better than longer onee.
-
-Creating Natural Joins
-1. The NATURAL JOIN clause is based on all the columns in the two tables that
-   have the SAME name.
-            ^^^^^^^^^
-2. It selects rows from the two tables that have equal values in all matched
-   columns. (INNER JOIN)
-3. If the columns having the same names have different data types, an error is
-   returned.
-
-   SELECT department_id, department_name, location_id, city
-   FROM departments
-   NATURAL JOIN locations;
+2. Joining Tables Using SQL: 1999 Syntax
+   Using a join to query data from more than one table:
+     SELECT table1.column, table2.column
+     FROM table1
+      [NATURAL JOIN table2] |
+      [JOIN table2 USING (column_name)] |
+      [JOIN table2
+        ON (table1.column_name = table2.column_name)] |
+      [LEFT|RIGHT|FULL OUTER JOIN table2
+        ON (table1.column_name = table2.column_name)] |
+      [CROSS JOIN table2];
    
-   The column, LOCATION_ID, which is the only column of the same name in both
-   tables.
-4. Natural Joins with a WHERE Clause
-   SELECT department_id, department_name, location_id, city
-   FROM departments
-   NATURAL JOIN locations
-   WHERE department_id IN (20, 50);
-   <補充>
-   若使用NATURAL JOIN, 則JOIN的WHERE子句不能寫上TABLE NAME
-   若非使用NATURAL JOIN, 則JOIN的WHERE子句上要加上TABLE NAME
+   NATURAL JOIN  joins two tables based on the same column name.
+   JOIN tables2 USING column_name  performs an equijoin based on the column name
+   JOIN tables2 on table1.column_name = table2.column_name  
+        performs an equijoin based on the condition in the ON clause
+   LEFT/RIGHT/FULL  OUTER is used to perform OUTER joins
+   CROSS JOIN  returns a Cartesian product from the two tables
 
-Creating Joins with the USING Clause
+   <補充>   
+   1. ANSI 99 之前
+      FROM t1, t2
+      WHERE t1.b=t2.c AND t1.a > 10
+            ^^^^^^^^^     ^^^^^^^^^^ NON JOIN Predicate
+   	     JOIN Predicate	  
+   2. ANSI 99 之後
+      FROM t1 join t2 ON (t1.b=t2.c)
+      WHERE t1.a > 10
+   3. ANSI 99 前後的寫法, 對於效能沒差, 但增加可讀性
 
+3. Qualifying Ambiguous Column Names
+   3.1. Using the table prefix improves performance, because you tell the Oracle 
+        server exactly where to fine the columns.
+   3.2. Instead of full table name prefixs, use table aliases.
+   3.3. Shorter table aliases are better than longer one.
    
+4. Creating Natural Joins
+   4.1. The NATURAL JOIN clause is based on all the columns in the two tables 
+        that have the SAME name.
+                      ^^^^^^^^^
+   4.2. It selects rows from the two tables that have equal values in all 
+        matched columns. (INNER JOIN)
+   4.3. If the columns having the same names have different data types, an error 
+        is returned.
+        Examples:
+           SELECT department_id, department_name, location_id, city
+           FROM departments
+           NATURAL JOIN locations;
+      
+           The column, LOCATION_ID, which is the only column of the same name in 
+           both tables.
+
+   4.4. Natural Joins with a WHERE Clause
+        Examples:
+           SELECT department_id, department_name, location_id, city
+           FROM departments
+           NATURAL JOIN locations
+           WHERE department_id IN (20, 50);
+        <補充>
+        若使用NATURAL JOIN, 則JOIN的WHERE子句不能寫上TABLE NAME
+        若非使用NATURAL JOIN, 則JOIN的WHERE子句上要加上TABLE NAME
+
+5. Creating Joins with the USING Clause
+   -- If several columns have the same names but the data types do not match,
+      use the USING clause to specify the column for equijoin.
+   -- Use the USING clause to match only one column when more than one column 
+      matchs.     
+   -- The NATURAL JOIN and USING clauses are mutually exclusive.
+   5.1. Retrieving Records with the USING Clause
+        Examples:
+           SELECT employee_id, last_name,
+                  location_id, department_id,
+           FROM   employees JOIN departments
+           USING  (department_id);
+        Specifically, any columns mentioned in the USING list will appear only 
+        once, with an unqualified name, rather than once for each table in the 
+        join. In the case above, there will be a single DepartmentID column and 
+        no employee.DepartmentID or department.DepartmentID.
+   5.2. Using Table Aliases with USING Clause
+        -- Do not qualify a column that is used in the USING clasue.
+        -- If he same column is used elsewhere in the SQL statement, do not 
+           aliase it.
+        Examples:
+           SELECT l.city, d.department_name
+           FROM   location l JOIN department d
+           USING  (location_id)
+           WHERE  d.location_id = 1400;
+           You should not aliase the location_id column in the WHERE clasue 
+           because the column is used in the USING clause.
+
+           SELECT l.city, d.department_name
+           FROM   location l JOIN department d
+           USING  (location_id)
+           WHERE  location_id = 1400;
+           The columns that referenced in the USING clause should not have a 
+           qualifier (table name or alias) anywhere in the SQL statement. This
+           statement is valid.
+
+        -- The columns that are common in both the tables, but not used in the 
+           USING clause, must be prefixed with a table aliase; otherwise, you 
+           get the "column ambiguously defined" error.
+           Examples:
+              SELECT first_name, d.department_name, d.manager_id
+              FROM   employees e JOIN departments d USING (department_id)
+              WHERE  department_id = 50;
+              The column, manager_id, is present in both the employees and 
+              departments table; if manager_id is not prefixed with a table 
+              alias, it gives a "column ambiguously defined" error.
+6. Creating Joins with the ON Clause
+   -- Use the ON clause to specify arbitrary conditions or specify columns
+      to join.
+   -- This join condititon for the natural join is basically an equijoin of all
+      columns with the same name.
+   -- The join condition is separated from other search condititons.
+   -- The ON clause makes code easy to understand.
+   6.1. Retrieving Records with the ON Clause
+        Examples:
+           SELECT e.employee_id, e.last_name, e.department_id,
+                  d.department_id, d.location_id
+           FROM   employees e JOIN department d
+           ON     ( e.department_id = d.department_id );
+           - The table alias is necessary to quailfy the matching column_name.
+           - The parenthesis around the joined columns is optional.
+             (e.department_id = d.department_id) worked and 
+             e.department_id = d.department_id will work.
+   6.2. Creating Three-way Joins with the ON Clause
+        -- A three-way join is a join of three tables.
+        -- Joins are performed from left to right.
+           Examples:
+              SELECT employee_id, city, department_name
+              FROM   employees e
+              JOIN   departments d
+              ON     d.department_id = e.department_id
+              JOIN   locations l
+              ON     d.location_id = l.location_id;
+              - the first join to be performed is EMPLOYEES JOIN DEPARTMENTS.
+              - the second join condition can reference columns from all three 
+                tables.
+              - the code example can also be accomplished with the USING clause:
+                SELECT e.employee_id, l.city, d.department_name
+                FROM   employees e
+                JOIN   departments d
+                USING  (department_id)
+                JOIN   locaitons l
+                USING  (location_id)
+   6.3. Applying Additional Conditions to a Join
+        -- Use the AND clause or the WHERE clause to apply additional conditions
+           Examples:
+              SELECT e.employee_id, e.last_name, e.department_id,
+                     d.department_id, d.location_id
+              FROM   employees e JOIN departments d
+              ON     (e.department_id = d.department_id)
+              AND    e.manager_id = 149;
+
+              SELECT e.employee_id, e.last_name, e.department_id,
+                     d.department_id, d.location_id
+              FROM   employees e JOIN departments d
+              ON     (e.department_id = d.department_id)
+              WHERE  e.manager_id = 149;
+              
 OUTER JOIN 會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來
 
 LEFT OUTER JOIN 會先把符合INNER JOIN的ROW 完成結合後, 再把左邊的表格中, 不符合的ROW顯示出來

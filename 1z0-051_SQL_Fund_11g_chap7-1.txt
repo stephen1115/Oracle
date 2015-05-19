@@ -1,0 +1,130 @@
+
+
+           ┌── SELECT ───┐
+		   │             │
+           │   FROM      │
+           │     ↓       │
+           │   WHERE     │
+           │     ↓       │
+           │   GROUP BY  │
+           │     ↓       │
+           └── HAVING    │
+                         │
+               ORDER BY ─┘
+			     │
+				 ↓
+
+  JOIN Type
+  ==============================================================================
+   Type         Description                                           
+  ------------------------------------------------------------------------------
+   INNER JOIN   滿足JOIN條件的ROW才會顯示 (只結合滿足JOIN條件的ROW DATA)
+                Ex:
+				  Natural join
+                  SELF join
+                  				  
+  ------------------------------------------------------------------------------
+   OUTER JOIN   連不 滿足JOIN條件 的ROW也要結合
+                     ^^^^^^^^^^^^
+			    (會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來)
+					  INNER JOIN
+				-- LEFT OUTER JOIN
+				-- RIGHT OUTER JOIN
+				-- FULL OUTER JOIN
+  ------------------------------------------------------------------------------
+   CROSS JOIN   不使用JOIN條件, 直接結合兩個TABLE的所有ROW DATA
+                (Cartesian Product)
+  ------------------------------------------------------------------------------
+   Natural JOIN
+  ------------------------------------------------------------------------------
+   Self JOIN			
+  ==============================================================================
+  
+  JOIN Condition
+  -- equality (=)
+  -- non-equality (非 =)
+     Ex.:
+	   T1.b > T2.c 或 T1.b BETWEEN T2.c AND T2.d
+
+  JOIN Method
+    -- sort MERGE
+    -- nested loop  ─┐ 會有Driving table
+    -- hash join    ─┘	
+                     
+有N個Table要join時, 需要寫N-1個join條件
+一般在寫join子句時, table 資料較少的表格會寫在左邊, 稱之為driving table;
+如果以大表格為driving table寫在左邊, 以hash 為例, 有可能hash table太大, 這樣
+就會需要寫回HDD上, 增加I/O的次數, 造成速度變慢,
+ORACLE 怎麼知道是大TABLE還是小TABLE? 從統計資料可以得出
+
+在寫WHERE子句的條件時, 把SCHEMA NAME, TABLE NAME也寫進去子句, 是比較好的方式,
+不會比較快, 但方便閱讀
+
+Joining Tables Using SQL: 1999 Syntax
+Using a join to query data from more than one table:
+  SELECT table1.column, table2.column
+  FROM table1
+   [NATURAL JOIN table2] |
+   [JOIN table2 USING (column_name)] |
+   [JOIN table2
+     ON (table1.column_name = table2.column_name)] |
+   [LEFT|RIGHT|FULL OUTER JOIN table2
+     ON (table1.column_name = table2.column_name)] |
+   [CROSS JOIN table2];
+   
+<補充>   
+1. ANSI 99 之前
+   FROM t1, t2
+   WHERE t1.b=t2.c AND t1.a > 10
+         ^^^^^^^^^     ^^^^^^^^^^ NON JOIN Predicate
+	     JOIN Predicate	  
+2. ANSI 99 之後
+   FROM t1 join t2 ON (t1.b=t2.c)
+   WHERE t1.a > 10
+3. ANSI 99 前後的寫法, 對於效能沒差, 但增加可讀性
+
+Qualifying Ambiguous Column Names
+1. Using the table prefix improves performance, because you tell the Oracle 
+   server exactly where to fine the columns.
+2. Instead of full table name prefixs, use table aliases.
+3. Shorter table aliases are better than longer onee.
+
+Creating Natural Joins
+1. The NATURAL JOIN clause is based on all the columns in the two tables that
+   have the SAME name.
+            ^^^^^^^^^
+2. It selects rows from the two tables that have equal values in all matched
+   columns. (INNER JOIN)
+3. If the columns having the same names have different data types, an error is
+   returned.
+
+   SELECT department_id, department_name, location_id, city
+   FROM departments
+   NATURAL JOIN locations;
+   
+   The column, LOCATION_ID, which is the only column of the same name in both
+   tables.
+4. Natural Joins with a WHERE Clause
+   SELECT department_id, department_name, location_id, city
+   FROM departments
+   NATURAL JOIN locations
+   WHERE department_id IN (20, 50);
+   <補充>
+   若使用NATURAL JOIN, 則JOIN的WHERE子句不能寫上TABLE NAME
+   若非使用NATURAL JOIN, 則JOIN的WHERE子句上要加上TABLE NAME
+
+Creating Joins with the USING Clause
+
+   
+OUTER JOIN 會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來
+
+LEFT OUTER JOIN 會先把符合INNER JOIN的ROW 完成結合後, 再把左邊的表格中, 不符合的ROW顯示出來
+
+
+
+LINE 329
+(+) ==> 代表要 + 上虛擬的ROW, 為了連結另一邊
+
+
+
+
