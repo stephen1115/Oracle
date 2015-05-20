@@ -188,6 +188,7 @@ Displaying Data from Multiple Tables Using Joins
               The column, manager_id, is present in both the employees and 
               departments table; if manager_id is not prefixed with a table 
               alias, it gives a "column ambiguously defined" error.
+
 6. Creating Joins with the ON Clause
    -- Use the ON clause to specify arbitrary conditions or specify columns
       to join.
