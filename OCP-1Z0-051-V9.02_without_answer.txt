@@ -52,8 +52,6 @@
       WHERE time_id <= SYSDATE - 2*365   
       GROUP BY prod_id, cust_id   
       WITH CHECK OPTION;
-
-	  
 	  
 3. You need to extract details of those products in the SALES table where the 
    PROD_ID column contains the string '_D123'.

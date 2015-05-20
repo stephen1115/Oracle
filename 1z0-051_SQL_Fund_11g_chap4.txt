@@ -1,16 +1,19 @@
 Using Single-Row Functions to Customize Output
 
-SQL Functions --
-can be used to do the following:
-1. Perform calculations on data
-2. Modify individual data items
-3. Manipulate output for groups of rows
-4. Format dates and numbers for display
-5. Convert column data types
+SQL Functions
+  -- can be used to do the following:
+     1. Perform calculations on data
+     2. Modify individual data items
+     3. Manipulate output for groups of rows
+     4. Format dates and numbers for display
+     5. Convert column data types
+  -- еiеH▒╡и№░╤╝╞┐щдJ(0/1/жhн╙),ж¤еuпр/д@йwж^╢╟1н╙╡▓кG
+     func(arg1,arg2,arg3,...)=>result
 
 Two Types of SQL Functions
 Single-row functions --
   1. These functions operate on single rows only and return one result per row.
+     д@╡зrowж^╢╟д@н╙╡▓кGбC
   2. They accept one or more arguments and return one value for each row that 
      is returned by the query. An argument can be one of the following:
 	 2.1. User-supplied constant
@@ -45,13 +48,14 @@ Single-row functions --
 		DECODE
 Multiple-row functions --
   1. Fuctions can manipulate groups of rows to give one resultper group of rows.
+     жh╡зrowж^╢╟д@н╙╡▓кGбC
      These functions also known as group functions.
 	 
 Character Functions
   Character Functions
-  ?????????????????????????????????????????????????????????????????????????????
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Case-conversion functions         Character-manipulation functions
-  ?????????????????????????????????????????????????????????????????????????????
+  вwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвw
   LOWER                             CONACT
   UPPER                             SUBSTR
   INIICAP                           LENGTH
@@ -59,17 +63,16 @@ Character Functions
                                     LPAD | RPAD
 									TRIM
 									REPLACE
-  ?????????????????????????????????????????????????????????????????????????????
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   
   Case-conversion functions
-  ?????????????????????????????????????????????????????????????????????????????
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Function                   Result
-  ?????????????????????????????????????????????????????????????????????????????
+  вwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвw
   LOWER( 'SQL Course' )      sql course
   UPPER( 'SQL Course' )      SQL COURSE
   INIICAP( 'SQL Course' )    Sql Course
-  ?????????????????????????????????????????????????????????????????????????????
-  
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Examples:
      SELECT 'The job id for '||UPPER(last_name)||' is '
        ||LOWER(job_id) AS "EMPLOYEE DETAILS"
@@ -87,8 +90,30 @@ Character Functions
 	 FROM employees
 	 WHERE INITCAP( last_name ) = 'Higgins';
 
+  Examples: ╕╔еR
+     SQL> SELECT UPPER('hello world'),LOWER('Hello WorLD'),INITCAP('HELLO world')
+        2 FROM dual;
+
+     UPPER('HELL LOWER('HELL INITCAP('HE  
+     ----------- ----------- -----------
+     HELLO WORLD hello world Hello World
+     
+     -INITCAP▒N▓─д@н╙char┼▄жидj╝g,иф╛lм░дp╝g
+
+     SQL> SELECT last_name,first_name,last_name||first_name lf_name,
+                 CONCAT(last_name,first_name) concat_name
+       2  FROM   hr.employees
+       3  WHERE  department_id=90;
+     
+     LAST_NAME            FIRST_NAME           LF_NAME                        CONCAT_NAME
+     -------------------- -------------------- ------------------------------ ------------------------------
+     King                 Steven               KingSteven                     KingSteven
+     Kochhar              Neena                KochharNeena                   KochharNeena
+     De Haan              Lex                  De HaanLex                     De HaanLex
+
+
   Character-manipulation functions
-  ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Function                               Result
   вwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвw
   CONCAT( 'Hello', 'World' )             HelloWorld
@@ -99,7 +124,7 @@ Character Functions
   RPAD( salary, 10, '*' )                24000*****
   REPLACE( 'JACK and JUE', 'J', 'BL')    BLACK and BLUE
   TRIM( 'H' FROM 'HelloWorld' )          elloWorld
-  ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Examples:
      SELECT employee_id, CONACT( first_name, last_name) NAME,
 	        job_id, LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
@@ -113,13 +138,13 @@ Character Functions
 	 
 Number Functions
   Case-conversion functions
-  ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Function                Result
   вwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвwвw
   ROUND( 45.926, 2 )      45.93
   TRUNC( 45.926, 2 )      45.92
   MOD( 1600, 300 )        100
-  ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+  вдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвдвд
   Examples:
      SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
 	 FROM DUAL;
