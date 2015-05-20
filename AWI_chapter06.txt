@@ -1,0 +1,79 @@
+Configuring the Oracle Network Environment
+
+1. Oracle Net Services
+   -- Oracle Net Services enables network connections from a client or 
+      middle-tier application to the Oracle server.
+   -- On the client computer, Oracle Net is a background component for 
+      application connections to the database.
+   -- On the database server, Oracle Net includes an active process called
+      the Oracle Net Listener, which is responsible for coordinating 
+      connections between the database and external applicatons. 
+                                                       ┌────────────┐
+                                                       │ ╔════════╗ │
+                                                       │ ║        ║ │
+                                                       │ ╚════════╝ │
+                                                       │ ╔════════╗ │
+                                                       │ ║        ║ │
+      ┌──────────┐ 	                                   │ ╚════════╝ │
+      │          │                                     │            │
+      │          │                                     │ ══════════ │
+      │          │                                     │ ══════════ │
+   ╔══╧══════════╧══╗                                  │ ══════════ │
+   ║                ║                                  │            │
+   ╚═══╣Client ╠════╝                                  └──┤Server├──┘
+                                                
+   ══════════════════    TCP/IP network                ══════════════════
+   Application   ↑   ＜───────                          ↑    RDMS
+   ──────────────┼───        /     ════════            ─┼────────────────
+   Oracle Net    ↓          ─────＞Listener＜────────＞ ↓    Oracle Net
+   ══════════════════              ════════            ══════════════════
+     Client or                                           Database Server
+     middle tier	 
+     
+	 ┌─────┐                                             ┌─────┐            
+     │-----│                                             │-----│
+     │	   │                                             │     │
+     └─────┘                                             └─────┘
+     Oracle Net                                          Oracle Net
+	 configuration files                                 configuration files
+
+2. Oracle Net Listener
+   -- The Oracle Net Listener ( or simply the listener ) is the gateway to the 
+      Oracle instance for all nonlocal user connections.
+   -- A single listener can service multiple database instances and thousands of 
+      client connections.
+   -- Enterprise Manager is one of the ways to access the listener.
+   -- Advanced administrators can also configure Oracle Net Services by 
+      mannually editing the configuration files.
+   -- When the Grid Infrastructure for Standalone Server is installed, the 
+      Oracle Net Listener is started from its software installation directory, 
+      known as <Grid_home>.
+                                                     ┌────────────┐
+                                                     │ ╔════════╗ │
+     ┌──────────┐ 	                                 │ ║        ║ │
+     │          │                                    │ ╚════════╝ │
+     │          │                            ┌────＞ │ ╔════════╗ │
+     │          │               ════════ ────┘       │ ║        ║ │
+  ╔══╧══════════╧══╗ ────────＞ Listener ─────────＞ │ ╚════════╝ │   
+  ║                ║            ════════ ────┐       │            │   
+  ╚════════════════╝               ↑         └────＞ │ ══════════ │
+  Enterprise Manager               │                 │ ══════════ │
+  Database Control                 │                 │ ══════════ │
+          │                     ┌─────┐              │            │
+          │                     │-----│              └──┤Server├──┘
+          │                     │	  │              Oracle database
+          └──────────────────＞ └─────┘            
+                                Oracle Net         
+                                configuration files
+								<Grid_home>/network/admin/listener.ora
+								                        ./sqlnet.ora
+
+3. Establishing Net Connections
+   -- To make a client or middle-tier connection, Oracle Net requires the client
+      to know the
+      - Host where the listener is running 
+      - Port that the listener is monitoring
+      - Protocol that the listener is using
+      - Name of the service that the listener is handling
+
+
