@@ -374,7 +374,62 @@ Number Functions
   Examples:
      SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
 	 FROM DUAL;
-  
+
+  Example: 干
+     -- ROUND彼き,翴彼き竚
+                                      -  + 
+                 ROUND(123.45,0)     210 12
+     SQL> SELECT ROUND(123.45),ROUND(123.45,1),ROUND(123.45,2),ROUND(123.45,-1),
+        2        ROUND(123.45,-2) 
+        3 FROM dual;
+                       计        タ计计翴材碭            璽计パ10计秨﹍(-1=>计,-2=>κ计)
+     ROUND(123.45) ROUND(123.45,1) ROUND(123.45,2) ROUND(123.45,-1) ROUND(123.45,-2)
+     ------------- --------------- --------------- ---------------- ----------------
+               123           123.5          123.45              120              100
+     
+     SQL> SELECT ROUND(123.45,-3) FROM dual;
+     
+     ROUND(123.45,-3)
+     ----------------
+                    0 --计秈︽4彼5
+     
+     SQL> SELECT ROUND(523.45,-3) FROM dual;
+     
+     ROUND(523.45,-3)
+     ----------------
+                 1000
+
+     -- TRUNC礚兵ン彼
+     SQL> SELECT TRUNC(123.45),TRUNC(123.45,1),TRUNC(123.45,2),TRUNC(123.45,-1),
+        2        TRUNC(123.45,-2),TRUNC(123.45,-3) 
+        3 FROM dual;
+
+     TRUNC(123.45) TRUNC(123.45,1) TRUNC(123.45,2) TRUNC(123.45,-1) TRUNC(123.45,-2) TRUNC(123.45,-3)
+     ------------- --------------- --------------- ---------------- ---------------- ----------------
+               123           123.4          123.45              120              100                0
+
+     -- MOD眔ㄢ计埃緇计
+     SQL> SELECT MOD(100,8),MOD(100,9) FROM dual;
+
+     MOD(100,8) MOD(100,9)
+     ---------- ----------
+              4          1
+
+     -- 坝计
+     SQL> SELECT FLOOR(100/8) FROM dual;
+
+     FLOOR(100/8)
+     ------------
+               12
+
+     -- CEIL程钡俱计(ゑ计),讽礚兵ン秈(ぃ计翴)
+     -- FLOOR程钡俱计(ゑ计)
+     SQL> SELECT CEIL(123.45),FLOOR(123.45) FROM dual;
+
+     CEIL(123.45) FLOOR(123.45)
+     ------------ -------------
+              124           123
+
   DUAL Table
     1. DUAL is a public table that you can use to view results from functions and
        calculations.
