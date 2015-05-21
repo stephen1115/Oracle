@@ -53,7 +53,7 @@ Multiple-row functions --
 	 
 Character Functions
   Character Functions
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Case-conversion functions         Character-manipulation functions
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   LOWER                             CONACT
@@ -63,16 +63,16 @@ Character Functions
                                     LPAD | RPAD
 									TRIM
 									REPLACE
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   
   Case-conversion functions
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Function                   Result
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   LOWER( 'SQL Course' )      sql course
   UPPER( 'SQL Course' )      SQL COURSE
   INIICAP( 'SQL Course' )    Sql Course
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Examples:
      SELECT 'The job id for '||UPPER(last_name)||' is '
        ||LOWER(job_id) AS "EMPLOYEE DETAILS"
@@ -105,15 +105,14 @@ Character Functions
        2  FROM   hr.employees
        3  WHERE  department_id=90;
      
-     LAST_NAME            FIRST_NAME           LF_NAME                        CONCAT_NAME
-     -------------------- -------------------- ------------------------------ ------------------------------
-     King                 Steven               KingSteven                     KingSteven
-     Kochhar              Neena                KochharNeena                   KochharNeena
-     De Haan              Lex                  De HaanLex                     De HaanLex
-
+     LAST_NAME     FIRST_NAME      LF_NAME           CONCAT_NAME
+     ------------- --------------- ----------------- ---------------------------
+     King          Steven          KingSteven        KingSteven
+     Kochhar       Neena           KochharNeena      KochharNeena
+     De Haan       Lex             De HaanLex        De HaanLex
 
   Character-manipulation functions
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Function                               Result
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   CONCAT( 'Hello', 'World' )             HelloWorld
@@ -124,7 +123,7 @@ Character Functions
   RPAD( salary, 10, '*' )                24000*****
   REPLACE( 'JACK and JUE', 'J', 'BL')    BLACK and BLUE
   TRIM( 'H' FROM 'HelloWorld' )          elloWorld
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Examples:
      SELECT employee_id, CONACT( first_name, last_name) NAME,
 	        job_id, LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
@@ -135,16 +134,243 @@ Character Functions
 	        LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
 	 FROM employees
 	 WHERE SUBSTR( last_name, -1, 1 ) = 'n';
-	 
+
+  Examples: ¸ֹ¥R
+     SQL> SELECT 'A'||'_B',CONCAT('A','_B') FROM dual;
+
+     'A' CON
+     --- ---
+     A_B A_B
+
+     SQL> SELECT 'A'||'_B'||'_C',CONCAT('A','_B','_C') FROM dual;
+     SELECT 'A'||'_B'||'_C',CONCAT('A','_B','_C') FROM dual
+                       *
+     ERROR at line 1:
+     ORA-00909: invalid number of arguments
+
+     - ¨ח¼ֶ×÷µ²×G¥i¥H³Q·ם§@¥t₪@­׃¨ח¼ֶ×÷¿י₪J°ׁ¼ֶ
+       --> ¨ח¼ֶ±_×¬₪ֶ
+     SQL> SELECT 'A'||'_B'||'_C',CONCAT(CONCAT('A','_B'),'_C') FROM dual; 
+
+     'A'|| CONCA
+     ----- -----
+     A_B_C A_B_C
+
+     SQL> SELECT last_name,LENGTH(last_name) 
+        2 FROM hr.employees 
+        3 WHERE department_id=90;
+
+     LAST_NAME            LENGTH(LAST_NAME)
+     -------------------- -----------------
+     King                                 4  -- ´X­׃¦r,₪£÷Þ₪@­׃¦r¥ׁ´X­׃character
+                                                ²ױ¦¨.₪@­׃character¥i¯א¥ׁ¦h­׃
+                                                bytes²ױ¦¨.
+     Kochhar                              7
+     De Haan                              7  -- ×ֵ¥ױ₪]÷ג
+
+     SQL> SELECT LENGTH('¥ׂ°©₪ו') 
+        2 FROM dual;
+
+        ENGTH('¥ׂ°©₪ו')
+        ----------------
+                       3  -- ´X­׃characters
+
+     SQL> SELECT LENGTHB('¥ׂ°©₪ו') 
+        2 FROM dual;
+
+        LENGTHB('¥ׂ°©₪ו')
+        -----------------
+                        6  -- ´X­׃Bytes
+
+     SQL> SELECT LENGTHB('ABC') FROM dual;
+     
+     LENGTHB('ABC')
+     --------------
+                  3
+     			                            ¢z¢w¢w ±q²ִ´X­׃¦r¶}©l
+                                            ¡ץ
+     SQL> SELECT last_name,SUBSTR(last_name,1,3) FROM hr.employees 
+        2 WHERE department_id=90;             ¡פ
+                                              ¢|¢w¢w ֵ×¨ת´X­׃¦r
+     LAST_NAME            SUBSTR
+     -------------------- ------
+     King                 Kin
+     Kochhar              Koc
+     De Haan              De
+     
+     SQL> SELECT last_name,SUBSTR(last_name,2,3) FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            SUBSTR
+     -------------------- ------
+     King                 ing
+     Kochhar              och
+     De Haan              e H
+                                  ¦r¦ך       ¢z¢w¢w ¥ׁ­‏¸ּ¶}©l÷ג
+                                   ¡ץ         ¡ץ   (¥¿¼ֶ:¥ׁ¥×¦V¥k,­t¼ֶ:¥ׁ¥k¦V¥×)
+     SQL> SELECT last_name,SUBSTR(last_name,-3,3) FROM hr.employees
+        2 WHERE department_id=90;	           ¡פ
+                                               ¢|¢w¢w ¦V¥kֵ×´X­׃¦r 
+     LAST_NAME            SUBSTR
+     -------------------- ------
+     King                 ing
+     Kochhar              har
+     De Haan              aan
+     
+     SQL> SELECT SUBSTR('¬ü°׃¥ׂ°©₪ו',1,3),SUBSTRB('¬ü°׃¥ׂ°©₪ו',1,3) FROM dual;
+     
+     SUBSTR SUB
+     ------ ---
+     ¬ü°׃¥ׂ ¬ü
+     
+     SQL> SELECT SUBSTR('¬ü°׃¥ׂ°©₪ו',1,2),SUBSTRB('¬ü°׃¥ׂ°©₪ו',1,2) FROM dual;
+     
+     SUBS SU
+     ---- --
+     ¬ü°׃ ¬ü
+     
+     SQL> SELECT last_name,INSTR(last_name,'i') FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'I')
+     -------------------- --------------------
+     King                                    2
+     Kochhar                                 0
+     De Haan                                 0
+     
+     SQL> SELECT last_name,INSTR(last_name,'h') FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'H')  <--¦¹³B÷Ù§@column heading,·|¦Û°Ê
+     -------------------- --------------------     ±Nselect listֵÜ¦¨₪j¼g.      
+     King                                    0
+     Kochhar                                 4
+     De Haan                                 0  <--¦]¬°©ׂ§ה´M×÷literal¬°₪p¼gh
+     					                           ¥ׁ¥×ֳה×÷²ִ´X­׃¦r¶}©l¦V¥k
+                                                   
+     SQL> SELECT last_name,INSTR(last_name,'h',1,1) FROM hr.employees
+        2 WHERE department_id=90;                ¡פ
+                                                 ¢|¢w¢w ¥X²{×÷²ִ´X¦¸
+     LAST_NAME            INSTR(LAST_NAME,'H',1,1)
+     -------------------- ------------------------
+     King                                        0
+     Kochhar                                     4
+     De Haan                                     0
+     
+     SQL> SELECT last_name,INSTR(last_name,'h',4,1) FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'H',4,1)
+     -------------------- ------------------------
+     King                                        0
+     Kochhar                                     4
+     De Haan                                     0
+     
+     SQL> SELECT last_name,INSTR(last_name,'h',1,2) FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'H',1,2)
+     -------------------- ------------------------
+     King                                        0
+     Kochhar                                     5
+     De Haan                                     0
+     
+     SQL> SELECT last_name,INSTR(last_name,'h',5,1) FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'H',5,1)
+     -------------------- ------------------------
+     King                                        0
+     Kochhar                                     5
+     De Haan                                     0
+     
+     SQL> SELECT last_name,INSTR(last_name,'h',6,1) FROM hr.employees 
+        2 WHERE department_id=90;
+     
+     LAST_NAME            INSTR(LAST_NAME,'H',6,1)
+     -------------------- ------------------------
+     King                                        0
+     Kochhar                                     0
+     De Haan                                     0
+     
+     SQL> SELECT INSTR('¬ü°׃¥ׂ°©₪ו','₪ו'),INSTRB('¬ü°׃¥ׂ°©₪ו','₪ו') FROM dual;
+     
+     INSTR('¬ü°׃¥ׂ°©₪ו','₪ו') INSTRB('¬ü°׃¥ׂ°©₪ו','₪ו')
+     ------------------------ -------------------------
+                            5                         9
+     					   
+     SQL> SELECT last_name,LPAD(last_name,10,'#'),RPAD(last_name,10,'!') 
+        2 FROM hr.employees 
+        3 WHERE department_id=90;
+     
+     LAST_NAME            LPAD(LAST_NAME,10,'# RPAD(LAST_NAME,10,'!
+     -------------------- -------------------- --------------------
+     King                 ######King           King!!!!!!
+     Kochhar              ###Kochhar           Kochhar!!!
+     De Haan              ###De Haan           De Haan!!!
+     
+     SQL> SELECT last_name,LPAD(last_name,10,' '),RPAD(last_name,10,' ') 
+        2 FROM hr.employees 
+        3 WHERE department_id=90;
+     
+     LAST_NAME            LPAD(LAST_NAME,10,'' RPAD(LAST_NAME,10,''
+     -------------------- -------------------- --------------------
+     King                       King           King
+     Kochhar                 Kochhar           Kochhar
+     De Haan                 De Haan           De Haan
+                                   Bytes
+     SQL> SELECT LPAD('¬ü°׃¥ׂ°©₪ו',10,'«z') FROM dual;
+     
+     LPAD('¬ü°׃
+     ----------
+     ¬ü°׃¥ׂ°©₪ו
+     
+     SQL> SELECT LPAD('¬ü°׃¥ׂ°©₪ו',20,'«z') FROM dual;
+     
+     LPAD('¬ü°׃¥ׂ°©₪ו',20
+     --------------------
+     «z«z«z«z«z¬ü°׃¥ׂ°©₪ו
+     
+     SQL> SELECT REPLACE('Jack and Jue','J','Bl') FROM dual;
+     
+     REPLACE('JACKA
+     --------------
+     Black and Blue
+     
+     SQL> SELECT TRIM('!' FROM '!Hello World!')   --±N³sִע×÷!¨ת°£,¥hְY¥B¥h§ְ
+        2 FROM dual;
+               --TRIM(BOTH '!' FROM '!Hello World!')
+     TRIM('!'FRO
+     -----------
+     Hello World
+     
+     SQL> SELECT TRIM('!' FROM '!!!Hello World!') FROM dual;
+     
+     TRIM('!'FRO
+     -----------
+     Hello World
+     
+     SQL> SELECT TRIM(LEADING '!' FROM '!Hello World!') FROM dual;  --¥hְY
+     
+     TRIM(LEADING
+     ------------
+     Hello World!
+     
+     SQL> SELECT TRIM(TRAILING '!' FROM '!Hello World!') FROM dual; --¥h§ְ
+     
+     TRIM(TRAILIN
+     ------------
+     !Hello World
+
 Number Functions
-  Case-conversion functions
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  Number functions
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Function                Result
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   ROUND( 45.926, 2 )      45.93
   TRUNC( 45.926, 2 )      45.92
   MOD( 1600, 300 )        100
-  ¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪¢₪
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Examples:
      SELECT ROUND( 45.923, 2 ), ROUND( 45.923, 0 ), ROUND( 45.923, -1 )
 	 FROM DUAL;
@@ -190,16 +416,15 @@ Using the SYSDATE Function
   4. The CURRENT_DATE function that returns the current date in the session 
      time zone.
 
-Arithmetic with Dates
-  ????????? 	 
-  ?????????????????????????????????????????????????????????????????????????????
+Arithmetic with Dates 
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Operation           Result            Description
-  ?????????????????????????????????????????????????????????????????????????????
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   date + number       Date              Adds a number of days to a date
   date - number       Date              Subtracts a number of days from a date
   date - date         Number of days    Subtracts one date from another
   date + number/24    Date              Adds a number of hours to a date
-  ?????????????????????????????????????????????????????????????????????????????
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Examples:
     SELECT last_name, (SYSDATE - hire_date)/7 AS WEEKS
 	FROM employees
@@ -210,9 +435,9 @@ Arithmetic with Dates
 	system of your local database when you run the SQL query.
 
 Date-Manipulation Functions
-  ?????????????????????????????????????????????????????????????????????????????
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Function                        Description
-  ?????????????????????????????????????????????????????????????????????????????
+  ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   MONTHS_BETWEEN(date1, date2)    1. Finds the number of months between date1 
                                      and date2.
 								  2. ??????????, ??????
@@ -237,7 +462,7 @@ Date-Manipulation Functions
 									 specified by the format model fmt.
 								  2. If the format model fmt is omitted, date
 								     is truncated to the nearest day.
-  ?????????????????????????????????????????????????????????????????????????????
+  שששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש
   Examples:
       SELECT employee_id, hire_date, MONTHS_BETWEEN(SYSDATE, hire_date) TENURE,
 	         ADD_MONTHS(hire_date, 6) REVIEW, NEXT_DAY(hire_date, 'FRIDAY'),
