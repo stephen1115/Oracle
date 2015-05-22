@@ -623,7 +623,7 @@ Oracle database instance的啟動分成三個階段，在不同的階段的啟�
             ┌─────────────────────────────────────┘
             │ Parameter file 
             │ Password file
-          │   -- sysdba
+            │   -- sysdba
             │   -- sysopen
             │   -- sysasm(asm interface)
             │ $ORACLE_HOME/dbs/orapworcl
