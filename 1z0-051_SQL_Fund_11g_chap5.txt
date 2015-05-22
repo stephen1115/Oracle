@@ -630,6 +630,206 @@ Conversion Functions (用來變更資料型態)
                    COALESCE( ( salary + ( commission_pct * salary ) ), salary + 
                              2000, salary ) "New Salary"
             FROM employees;
+    <補充>
+	    General Function用來處理可能包含空值的欄位,因為空值與任何數值進行數學運算時,其結果還是空值.
+        NVL(expr1,expr2)
+        -> IF expr1 IS NOT NULL 
+            THEN expr1
+            ELSE expr2
+           END IF
+        expr2的資料型態必須與expr1相同
+        
+        SQL> SELECT salary,commission_pct,salary*commission_pct
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT SALARY*COMMISSION_PCT
+        ---------- -------------- ---------------------
+             13000
+             12000
+             24000
+             17000
+             17000
+             12000
+             11000           空值                  空值
+             14000             .4                  5600
+             13500             .3                  4050
+             12000             .3                  3600
+             11000             .3                  3300
+             10500             .2                  2100
+             10500            .25                  2625
+             11500            .25                  2875
+             11000             .3                  3300
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT salary,commission_pct,salary*NVL(commission_pct,0)
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT SALARY*NVL(COMMISSION_PCT,0)
+        ---------- -------------- ----------------------------
+             13000                                           0
+             12000                                           0
+             24000                                           0
+             17000                                           0
+             17000                                           0
+             12000                                           0
+             11000                                           0
+             14000             .4                         5600
+             13500             .3                         4050
+             12000             .3                         3600
+             11000             .3                         3300
+             10500             .2                         2100
+             10500            .25                         2625
+             11500            .25                         2875
+             11000             .3                         3300
+        
+        已選取 15 個資料列.
+        
+        NVL2(expr1,expr2,expr3)   --expr1只是用來決定回傳expr2還是expr3
+        -> IF expr1 IS NOT NULL
+            THEN expr2
+            ELSE expr3
+           END IF
+        expr2與expr3的資料型態必須相同,但是expr1與expr2可以不一樣
+        SQL> SELECT salary,commission_pct,NVL2(commission_pct,'SAL+COMM','SAL')
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT NVL2(COM
+        ---------- -------------- --------
+             13000                SAL
+             12000                SAL
+             24000                SAL
+             17000                SAL
+             17000                SAL
+             12000                SAL
+             11000                SAL
+             14000             .4 SAL+COMM
+             13500             .3 SAL+COMM
+             12000             .3 SAL+COMM
+             11000             .3 SAL+COMM
+             10500             .2 SAL+COMM
+             10500            .25 SAL+COMM
+             11500            .25 SAL+COMM
+             11000             .3 SAL+COMM
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT salary,commission_pct,NVL2(commission_pct,salary*(1+commission_pct),salary)
+          2  FROM employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT NVL2(COMMISSION_PCT,SALARY*(1+COMMISSION_PCT),SALARY)
+        ---------- -------------- -----------------------------------------------------
+             24000                                                                24000
+             17000                                                                17000
+             17000                                                                17000
+             12008                                                                12008
+             11000                                                                11000
+             14000             .4                                                 19600
+             13500             .3                                                 17550
+             12000             .3                                                 15600
+             11000             .3                                                 14300
+             10500             .2                                                 12600
+             10500            .25                                                 13125
+             11500            .25                                                 14375
+             11000             .3                                                 14300
+             13000                                                                13000
+             12008                                                                12008
+        
+        已選取 15 個資料列.
+        
+        NULLIF(expr1,expr2)
+        -> IF expr1=expr2  
+            THEN NULL
+            ELSE expr1
+           END IF
+        SQL> SELECT last_name,first_name,NULLIF(LENGTH(last_name),LENGTH(first_name)) "名字長度是否相同?"
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+        LAST_NAME                 FIRST_NAME           名字長度是否相同?
+        ------------------------- -------------------- -----------------
+        Hartstein                 Michael                              9
+        Higgins                   Shelley
+        King                      Steven                               4
+        Kochhar                   Neena                                7
+        De Haan                   Lex                                  7
+        Greenberg                 Nancy                                9
+        Raphaely                  Den                                  8
+        Russell                   John                                 7
+        Partners                  Karen                                8
+        Errazuriz                 Alberto                              9
+        Cambrault                 Gerald                               9
+        Zlotkey                   Eleni                                7
+        Vishney                   Clara                                7
+        Ozer                      Lisa
+        Abel                      Ellen                                4
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT last_name,first_name,NVL2(NULLIF(LENGTH(last_name),LENGTH(first_name)),'不一致','一致') "名字長度是否相同?"
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+        LAST_NAME                 FIRST_NAME           名字長
+        ------------------------- -------------------- ------
+        Hartstein                 Michael              不一致
+        Higgins                   Shelley              一致
+        King                      Steven               不一致
+        Kochhar                   Neena                不一致
+        De Haan                   Lex                  不一致
+        Greenberg                 Nancy                不一致
+        Raphaely                  Den                  不一致
+        Russell                   John                 不一致
+        Partners                  Karen                不一致
+        Errazuriz                 Alberto              不一致
+        Cambrault                 Gerald               不一致
+        Zlotkey                   Eleni                不一致
+        Vishney                   Clara                不一致
+        Ozer                      Lisa                 一致
+        Abel                      Ellen                不一致
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT NVL(NULLIF(NULL,NULL),'空值') FROM dual;
+        SELECT NVL(NULLIF(NULL,NULL),'空值') FROM dual
+                          *
+        ERROR at line 1:
+        ORA-00932: inconsistent datatypes: expected - got CHAR
+        
+        
+        SQL> SELECT NVL(NULLIF(TO_CHAR(NULL),TO_CHAR(NULL)),'空值') FROM dual;
+        
+        NVL(
+        ----
+        空值
+        
+        SQL> SELECT NVL(NULLIF(TO_CHAR(NULL),TO_NUMBER(NULL)),'空值') FROM dual;
+        
+        NVL(
+        ----
+        空值
+        
+        SQL> SELECT NVL(NULLIF(TO_NUMBER(NULL),TO_CHAR(NULL)),'空值') FROM dual;
+        SELECT NVL(NULLIF(TO_NUMBER(NULL),TO_CHAR(NULL)),'空值') FROM dual
+                          *
+        ERROR at line 1:
+        ORA-00932: inconsistent datatypes: expected - got NUMBER
+        
+        COALESCE(expr1,expr2,...,exprN)
+        -> 由左向右找到第一個非空值的expr,每個expr的資料型態必須相同.
+        SQL> SELECT last_name,commission_pct,manager_id,salary,COALESCE(commission_pct,manager_id,salary,0)
+          2  FROM hr.employees
+          3  WHERE department_id=90;
+        
+        LAST_NAME                 COMMISSION_PCT MANAGER_ID     SALARY COALESCE(COMMISSION_PCT,MANAGER_ID,SALARY)
+        ------------------------- -------------- ---------- ---------- ------------------------------------------
+        King                                                     24000                                      24000
+        Kochhar                                         100      17000                                        100
+        De Haan                                         100      17000                                        100
 
 6. Conditional expressions
    -- Provide the use of the IF-THEN-ELSE logic within a SQL statement.
@@ -700,3 +900,132 @@ Conversion Functions (用來變更資料型態)
                                   0.45 ) TAX_RATE
             FROM employees
             WHERE departmaent_id = 80;
+    
+	<補充>
+	    DECODE是Oracle專屬的函數
+        SQL> SELECT last_name,job_id,salary,
+          2   DECODE(job_id,'IT_PROG',salary*1.2,
+          3                 'ST_CLERK',salary*1.1,
+          4                 'SA_REP',salary*1.05,
+          5                  salary) revised_salary
+          6  FROM hr.employees
+          7  WHERE salary>8000;
+        
+        IF job_id='IT_PROG' THEN salary*1.2 
+         ELSIF job_id='ST_CLERK' THEN salary*1.1
+          ELSIF job_id='SA_REP' THEN salary*1.05  
+           ELSE salary
+        END IF
+        
+        --DECODE(job_id,'IT_PROG',salary*1.2,'ST_CLERK',salary*1.1,'SA_REP',salary*1.05,salary) revised_salary
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000          13000
+        Baer                      PR_REP          10000          10000
+        Higgins                   AC_MGR          12000          12000
+        Gietz                     AC_ACCOUNT       8300           8300
+        King                      AD_PRES         24000          24000
+        Kochhar                   AD_VP           17000          17000
+        De Haan                   AD_VP           17000          17000
+        Hunold                    IT_PROG          9000          10800
+        Greenberg                 FI_MGR          12000          12000
+        Faviet                    FI_ACCOUNT       9000           9000
+        Chen                      FI_ACCOUNT       8200           8200
+        Raphaely                  PU_MAN          11000          11000
+        Fripp                     ST_MAN           8200           8200
+        Russell                   SA_MAN          14000          14000
+        Partners                  SA_MAN          13500          13500
+        Errazuriz                 SA_MAN          12000          12000
+        Cambrault                 SA_MAN          11000          11000
+        Zlotkey                   SA_MAN          10500          10500
+        Tucker                    SA_REP          10000          10500
+        Bernstein                 SA_REP           9500           9975
+        Hall                      SA_REP           9000           9450
+        King                      SA_REP          10000          10500
+        Sully                     SA_REP           9500           9975
+        McEwen                    SA_REP           9000           9450
+        Vishney                   SA_REP          10500          11025
+        Greene                    SA_REP           9500           9975
+        Ozer                      SA_REP          11500          12075
+        Bloom                     SA_REP          10000          10500
+        Fox                       SA_REP           9600          10080
+        Abel                      SA_REP          11000          11550
+        Hutton                    SA_REP           8800           9240
+        Taylor                    SA_REP           8600           9030
+        Livingston                SA_REP           8400           8820
+        
+        已選取 33 個資料列.
+        
+        CASE expression為ANSI SQL的語法
+        SQL> SELECT last_name,job_id,salary,
+          2   CASE job_id WHEN 'IT_PROG' THEN salary*1.2
+          3               WHEN 'ST_CLERK' THEN salary*1.1
+          4               WHEN 'SA_REP' THEN salary*1.05
+          5               ELSE salary
+          6   END revised_salary
+          7  FROM hr.employees
+          8  WHERE salary>10000
+          9  /
+        
+          
+        IF job_id='IT_PROG' THEN salary*1.2 
+         ELSIF job_id='ST_CLERK' THEN salary*1.1
+          ELSIF job_id='SA_REP' THEN salary*1.05  
+           ELSE salary
+        END IF
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000          13000
+        Higgins                   AC_MGR          12000          12000
+        King                      AD_PRES         24000          24000
+        Kochhar                   AD_VP           17000          17000
+        De Haan                   AD_VP           17000          17000
+        Greenberg                 FI_MGR          12000          12000
+        Raphaely                  PU_MAN          11000          11000
+        Russell                   SA_MAN          14000          14000
+        Partners                  SA_MAN          13500          13500
+        Errazuriz                 SA_MAN          12000          12000
+        Cambrault                 SA_MAN          11000          11000
+        Zlotkey                   SA_MAN          10500          10500
+        Vishney                   SA_REP          10500          11025
+        Ozer                      SA_REP          11500          12075
+        Abel                      SA_REP          11000          11550
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT last_name,job_id,salary,
+          2   CASE WHEN salary>15000 THEN salary*0.8
+          3        WHEN job_id='SA_REP' THEN salary*0.7
+          4        WHEN last_name='King' THEN salary*2
+          5        ELSE salary*0.6
+          6   END revised_salary
+          7  FROM hr.employees
+          8  WHERE salary>10000;
+        
+        IF salary>15000 THEN salary*0.8
+         ELSIF job_id='SA_REP' THEN salary*0.7
+          ELSIF last_name='King' THEN salary*2
+           ELSE salary
+        END IF
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000           7800
+        Higgins                   AC_MGR          12000           7200
+        King                      AD_PRES         24000          19200
+        Kochhar                   AD_VP           17000          13600
+        De Haan                   AD_VP           17000          13600
+        Greenberg                 FI_MGR          12000           7200
+        Raphaely                  PU_MAN          11000           6600
+        Russell                   SA_MAN          14000           8400
+        Partners                  SA_MAN          13500           8100
+        Errazuriz                 SA_MAN          12000           7200
+        Cambrault                 SA_MAN          11000           6600
+        Zlotkey                   SA_MAN          10500           6300
+        Vishney                   SA_REP          10500           7350
+        Ozer                      SA_REP          11500           8050
+        Abel                      SA_REP          11000           7700
+        
+        已選取 15 個資料列.
