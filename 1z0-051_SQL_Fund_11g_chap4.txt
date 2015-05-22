@@ -530,7 +530,247 @@ Date-Manipulation Functions
 	  FROM employees
 	  WHERE hire_date LIKE '%97';
 	  
+  Examples: 補充
+     SQL> SELECT parameter,value 
+       2  FROM nls_session_parameters
+       3  WHERE parameter like 'NLS_DATE%';
 
+     PARAMETER                     VALUE
+     ----------------------------- ----------------------------------------
+     NLS_DATE_FORMAT               DD-MON-RR   --MON表示顯示月份名字的縮寫,
+                                                 MONTH則要求顯示月份名字的全名
+     NLS_DATE_LANGUAGE             TRADITIONAL CHINESE  --月份名字所使用的語言
+     
+     --  SYSDATE將回傳世紀/年/月/日/小時/分/秒
+     SQL> SELECT SYSDATE FROM dual;
+     
+     SYSDATE
+     --------------
+     11-4月 -10    
+     
+     SQL> ALTER SESSION SET NLS_DATE_LANGUAGE=american;
+     
+     已更改階段作業.
+     
+     SQL> SELECT SYSDATE FROM dual;
+     
+     SYSDATE
+     ------------
+     11-APR-10    --APR為大寫,應為NLS_DATE_FORMAT的MON為大寫
+     
+     SQL> ALTER SESSION SET NLS_DATE_FORMAT='DD-mon-RR';
+     
+     已更改階段作業.
+     
+     SQL> SELECT SYSDATE FROM dual;
+     
+     SYSDATE
+     ------------
+     11-apr-10
+
+     SQL> ALTER SESSION SET NLS_DATE_FORMAT='DD-Mon-RR';
+     
+     已更改階段作業.
+     
+     --目前時間為2010-04-11
+     SQL> SELECT SYSDATE FROM dual;
+     
+     SYSDATE
+     ------------
+     11-Apr-10     
+     
+     SQL> SELECT last_name,hire_date
+       2  FROM hr.employees
+       3  WHERE hire_date<'01-Feb-02';  --02=>現在為2010-4-11,所以RR(02)為2002
+                           DD-MON-RR
+     EMPLOYEE_ID LAST_NAME                 HIRE_DATE
+     ----------- ------------------------- ------------
+             102 De Haan                   13-JAN-01
+     
+     RR是因應西元2000所提出的暫時解決方案(使用兩個digit顯示年份)
+     		    所輸入的兩位數年
+     		    0-49		    50-99
+     目	0-49	為目前世紀	    為目前世紀減一
+     前		
+     的	50-99	為目前世紀加一	為目前世紀
+     Year
+
+     YY則永遠直接加上目前世紀
+     
+     --如果將電腦時間變更為2091-04-11
+     SQL> SELECT SYSDATE FROM dual;
+     
+     SYSDATE
+     ------------
+     11-APR-91   --2091
+     
+     SQL> SELECT last_name,hire_date
+       2  FROM hr.employees
+       3  WHERE hire_date<'01-Feb-02';  --01-Feb-2102
+     
+     LAST_NAME                 HIRE_DATE
+     ------------------------- ------------
+     --結果省略
+     已選取 107 個資料列.
+     
+     --兩個日期如何比較大小
+     1.先將兩個日期分別換算為Julian Day(從BC 4712.1.1開始累計,每過1天加1)
+     
+     --建議不要使用兩個digit表示年份,請使用4個digit表示正確年份(包含世紀資訊).
+     SQL> SELECT last_name,hire_date
+       2  FROM hr.employees
+       3  WHERE hire_date<'01-Feb-2002';  --不須進行RR換算,明確給予正確年份
+     
+     EMPLOYEE_ID LAST_NAME                 HIRE_DATE
+     ----------- ------------------------- ------------
+             102 De Haan                   13-JAN-01
+     
+     Date1 – Date2 = Num1  --兩個日期相差幾天,若有小點則表示不滿1天的部分
+     Date1 – Num1 = Date2  
+     Date1 + Num1 = Date2  --Num1為幾天,若只想要加幾個小時,可以使用小數或分數.例如:加5小時=> SYSDATE+(5/24)
+     Date1 + Date2 = Error
+     
+     SQL> SELECT last_name,hire_date
+       2  FROM hr.employees
+       3  WHERE SYSDATE-hire_date>6000;  --日期相減為數字,日期相加=?
+     
+     LAST_NAME                 HIRE_DATE
+     ------------------------- ------------
+     Whalen                    17-SEP-87
+     King                      17-JUN-87
+     Kochhar                   21-SEP-89
+     De Haan                   13-JAN-93
+     Hunold                    03-JAN-90
+     Ernst                     21-MAY-91
+     
+     已選取 6 個資料列.
+     
+     SQL> SELECT last_name,hire_date+SYSDATE
+       2  FROM hr.employees
+       3  WHERE employee_id=100;
+     SELECT last_name,hire_date+SYSDATE
+                               *
+      ERROR 在行 1:
+     ORA-00975: 不可使用日期 + 日期
+     
+     SYSDATE=>目前日期的年月日時分秒
+     --顯示10天前與10天後的日期
+     SQL> SELECT SYSDATE+10,SYSDATE-10 FROM dual;
+     
+     SYSDATE+10   SYSDATE-10
+     ------------ ------------
+     26-MAR-13    06-MAR-13   --為何沒有顯示時分秒? NLS_DATE_FORMAT=DD-MON-RR
+                                     
+                                     ┌── 計算此兩個日期相差幾個月;
+                                     ↓   date1應該比date2大,不然將出現負數 
+     SQL> SELECT last_name,hire_date,MONTHS_BETWEEN(SYSDATE,hire_date)  
+       2  FROM hr.employees
+       3  WHERE employee_id=100;
+     
+     LAST_NAME                 HIRE_DATE    MONTHS_BETWEEN(SYSDATE,HIRE_DATE)
+     ------------------------- ------------ ---------------------------------
+     King                      17-JUN-87                           273.827215  --273月,0.827215*30=幾天
+     
+     SQL> SELECT last_name,hire_date,MONTHS_BETWEEN(hire_date,SYSDATE)
+       2  FROM hr.employees
+       3  WHERE employee_id=100;
+     
+     LAST_NAME                 HIRE_DATE    MONTHS_BETWEEN(HIRE_DATE,SYSDATE)
+     ------------------------- ------------ ---------------------------------
+     King                      17-JUN-87                           -273.82722
+     
+     SQL> SELECT SYSDATE,ADD_MONTHS(SYSDATE,3) FROM dual;  --加幾個月,但不考慮大/小月.加負數月,藉以顯示減幾個月
+     
+     SYSDATE      ADD_MONTHS(S
+     ------------ ------------
+     11-APR-10    11-JUL-10
+     
+     SQL> SELECT SYSDATE,NEXT_DAY(SYSDATE,'SAT') FROM dual;
+     
+     SYSDATE      NEXT_DAY(SYS
+     ------------ ------------
+     11-APR-10    17-APR-10
+     
+     由date1起算,下一次的星期幾的日期
+                                  date1   星期幾
+     SQL> SELECT SYSDATE,NEXT_DAY(SYSDATE,'SAT') FROM dual;
+     
+     SYSDATE      NEXT_DAY(SYS
+     ------------ ------------
+     11-APR-10    17-APR-10
+     
+     由SYSDATE起算,下一次的星期日的日期
+     SQL> SELECT SYSDATE,NEXT_DAY(SYSDATE,'SUN') FROM dual;
+     
+     SYSDATE      NEXT_DAY(SYS
+     ------------ ------------
+     11-APR-10    18-APR-10
+     
+     由SYSDATE起算,下一次的星期一的日期
+     SQL> SELECT SYSDATE,NEXT_DAY(SYSDATE,'MON') FROM dual;
+     
+     SYSDATE      NEXT_DAY(SYS
+     ------------ ------------
+     11-APR-10    12-APR-10
+     
+     **日期所在月份的最後一天
+     SQL> SELECT LAST_DAY(SYSDATE),LAST_DAY(TO_DATE('2010-02-23','YYYY-MM-DD')) FROM dual;
+     
+     LAST_DAY(SYS LAST_DAY(TO_
+     ------------ ------------
+     30-APR-10    28-FEB-10
+     
+     SQL> ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD:HH24:MI:SS';
+     
+     已更改階段作業.
+     
+     **日期的ROUND/TRUNC預設由DD為四捨五入或捨去的位置,是否超過中午12點
+     SQL> SELECT TRUNC(SYSDATE),ROUND(SYSDATE),SYSDATE FROM dual;
+     
+     TRUNC(SYSDATE)      ROUND(SYSDATE)      SYSDATE
+     ------------------- ------------------- -------------------
+     2010-04-11:00:00:00 2010-04-12:00:00:00 2010-04-11:15:34:35
+     
+     **是否超過15號
+     SQL> SELECT TRUNC(SYSDATE,'MONTH'),ROUND(SYSDATE,'MONTH'),SYSDATE FROM dual;
+     
+     TRUNC(SYSDATE,'MONT ROUND(SYSDATE,'MONT SYSDATE
+     ------------------- ------------------- -------------------
+     2010-04-01:00:00:00 2010-04-01:00:00:00 2010-04-11:15:36:29
+     
+     **是否超過6月
+     SQL> SELECT TRUNC(SYSDATE,'YEAR'),ROUND(SYSDATE,'YEAR'),SYSDATE FROM dual;
+     
+     TRUNC(SYSDATE,'YEAR ROUND(SYSDATE,'YEAR SYSDATE
+     ------------------- ------------------- -------------------
+     2010-01-01:00:00:00 2010-01-01:00:00:00 2010-04-11:15:37:55
+     
+     SQL> SELECT TRUNC(SYSDATE,'Day'),ROUND(SYSDATE,'Day'),SYSDATE FROM dual;
+     
+     TRUNC(SYSDATE,'DAY' ROUND(SYSDATE,'DAY' SYSDATE
+     ------------------- ------------------- -------------------
+     2010-04-11:00:00:00 2010-04-11:00:00:00 2010-04-11:15:38:29
+     
+     SQL> SELECT TO_CHAR(SYSDATE),TO_CHAR(SYSDATE,'D'),TO_CHAR(SYSDATE,'DAY'),TO_CHAR(SYSDATE,'DD'),TO_CHAR(SYSDATE,'DDD') FROM dual;
+     
+     TO_CHAR(SYSDATE)    T TO_CHAR(SYSDA TO TO_
+     ------------------- - ------------- -- ---
+     2014-02-09:14:25:27 1 SUNDAY        09 040
+     
+     D->本周第幾天
+     DD->本月第幾天
+     DDD->本年第幾天
+     
+     SQL> SELECT TO_CHAR(SYSDATE),TO_CHAR(SYSDATE,'W'),TO_CHAR(SYSDATE,'WW'),TO_CHAR(SYSDATE,'WWW') FROM dual;
+     
+     TO_CHAR(SYSDATE)    T TO TO_
+     ------------------- - -- ---
+     2014-02-09:14:25:48 2 06 062
+     
+     W->本月第幾周
+     WW->本年第幾周
+     WWW-> WW W
+     
 
 
   
