@@ -1,0 +1,126 @@
+Configuring the Oracle Network Environment
+
+1. Oracle Net Services
+   -- Oracle Net Services enables network connections from a client or 
+      middle-tier application to the Oracle server.
+   -- On the client computer, Oracle Net is a background component for 
+      application connections to the database.
+   -- On the database server, Oracle Net includes an active process called
+      the Oracle Net Listener, which is responsible for coordinating 
+      connections between the database and external applicatons. 
+                                                       ┌────────────┐
+                                                       │ ╔════════╗ │
+                                                       │ ║        ║ │
+                                                       │ ╚════════╝ │
+                                                       │ ╔════════╗ │
+                                                       │ ║        ║ │
+      ┌──────────┐ 	                                   │ ╚════════╝ │
+      │          │                                     │            │
+      │          │                                     │ ══════════ │
+      │          │                                     │ ══════════ │
+   ╔══╧══════════╧══╗                                  │ ══════════ │
+   ║                ║                                  │            │
+   ╚═══╣Client ╠════╝                                  └──┤Server├──┘
+                                                
+   ══════════════════    TCP/IP network                ══════════════════
+   Application   ↑   ＜───────                          ↑    RDMS
+   ──────────────┼───        /     ════════            ─┼────────────────
+   Oracle Net    ↓          ─────＞Listener＜────────＞ ↓    Oracle Net
+   ══════════════════              ════════            ══════════════════
+     Client or                                           Database Server
+     middle tier	 
+     
+	 ┌─────┐                                             ┌─────┐            
+     │-----│                                             │-----│
+     │	   │                                             │     │
+     └─────┘                                             └─────┘
+     Oracle Net                                          Oracle Net
+	 configuration files                                 configuration files
+
+   <補充>
+   Oracle Net可以讓client或middle tier application server透過網路連到
+   oracle server
+   Oracle Net達成
+       1. platform transparent
+       2. location transparent
+       3. proctocol transparent
+
+   
+2. Oracle Net Listener
+   -- The Oracle Net Listener ( or simply the listener ) is the gateway to the 
+      Oracle instance for all nonlocal user connections.
+   -- A single listener can service multiple database instances and thousands of 
+      client connections.
+   -- Enterprise Manager is one of the ways to access the listener.
+   -- Advanced administrators can also configure Oracle Net Services by 
+      mannually editing the configuration files.
+   -- When the Grid Infrastructure for Standalone Server is installed, the 
+      Oracle Net Listener is started from its software installation directory, 
+      known as <Grid_home>.
+                                                     ┌────────────┐
+                                                     │ ╔════════╗ │
+     ┌──────────┐ 	                                 │ ║        ║ │
+     │          │                                    │ ╚════════╝ │
+     │          │                            ┌────＞ │ ╔════════╗ │
+     │          │               ════════ ────┘       │ ║        ║ │
+  ╔══╧══════════╧══╗ ────────＞ Listener ─────────＞ │ ╚════════╝ │   
+  ║                ║            ════════ ────┐       │            │   
+  ╚════════════════╝               ↑         └────＞ │ ══════════ │
+  Enterprise Manager               │                 │ ══════════ │
+  Database Control                 │                 │ ══════════ │
+          │                     ┌─────┐              │            │
+          │                     │-----│              └──┤Server├──┘
+          │                     │	  │              Oracle database
+          └──────────────────＞ └─────┘            
+                                Oracle Net         
+                                configuration files
+								<Grid_home>/network/admin/listener.ora
+								                        ./sqlnet.ora
+
+   <補充>
+   Oracle Net Configuration Files預設放在$ORACLE_HOME/network/admin，但可以使用
+   TNS_ADMIN環境變數，覆蓋預設Oracle Net所要使用的目錄。
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │ [oracle@oracleDB ~]$ ls $ORACLE_HOME/network/admin  --server端           │
+   │ listener.ora sqlnet.ora tnsnames.ora ldap.ora                            │
+   └──────────────────────────────────────────────────────────────────────────┘
+   
+   Oracle Net Configuration Files都是文字檔
+   ═════════════════════════════════════════════════════════════════════════════
+   Configuration file    Descripton
+   ─────────────────────────────────────────────────────────────────────────────
+   listener.ora          監聽器(Listener)的設定檔,一個listener.ora可以包含多組監
+                         聽器的設定，只要監聽器的名字與所監聽的port不相同即可
+   sqlnet.ora            紀錄可使用的naming method(名稱解析)種類與順序.還包含一些
+                         Oracle Net的環境設定
+   tnsnames.ora          名稱解析的一種方法:local naming,client所需要的設定檔,用
+                         來解析connect identifier,變成conncet description
+   ldap.ora              名稱解析的一種方法directory naming時,client端用來指定
+                         ldap server的位置
+   ═════════════════════════════════════════════════════════════════════════════
+   
+   --建議
+     多個監聽器可以達到load balance(負載平衡),failover(容錯),separate(環境區隔)
+
+   --不建議使用一個監聽器同時監聽多個ports
+   
+3. Establishing Net Connections
+   -- To make a client or middle-tier connection, Oracle Net requires the client
+      to know the
+      - Host where the listener is running 
+      - Port that the listener is monitoring
+      - Protocol that the listener is using
+      - Name of the service that the listener is handling
+      - Oracle Net names resolution is the process of determining this 
+        connection information.
+
+4. User Sessions
+   
+    						┌─────────────┐       ┌───┤Instance├────┐ 
+    		User session    │  Server     │<────＞│                 │ 
+          ┌──────────────＞ │  process    │       └─────────────────┘   
+          │                 │ ╔═════════╗ │       ┌───┤Database├────┐
+    ╔════════════════╗      │ ║ PGA     ║ │<───── │                 │
+    ║User process    ║      │ ╚═════════╝ │       └─────────────────┘
+    ╚════════════════╝      └─────────────┘                       
+   

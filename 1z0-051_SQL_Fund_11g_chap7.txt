@@ -1,6 +1,5 @@
 Displaying Data from Multiple Tables Using Joins
 
-
            ┌── SELECT ───┐
 		   │             │
            │   FROM      │
@@ -188,6 +187,7 @@ Displaying Data from Multiple Tables Using Joins
               The column, manager_id, is present in both the employees and 
               departments table; if manager_id is not prefixed with a table 
               alias, it gives a "column ambiguously defined" error.
+
 6. Creating Joins with the ON Clause
    -- Use the ON clause to specify arbitrary conditions or specify columns
       to join.
@@ -240,6 +240,81 @@ Displaying Data from Multiple Tables Using Joins
               ON     (e.department_id = d.department_id)
               WHERE  e.manager_id = 149;
               
+7. Joining a Table to Itself
+   7.1. Self-Joins Using the ON Clause
+        -- The ON clause can also be used to join columns that have different 
+           names, within the same table or in a different table.
+           Examples:
+              SELECT worker.last_name emp, manager.last_name mgr
+              FROM   employees worker JOIN employee manager
+              ON     (worker.manager_id = manager.employee_id);
+             
+8. Nonequijoins
+   -- A nonequijoin is a join condition containing something other than an 
+      equality operator.
+   8.1. Retrieving Records with Nonequijoins
+        Examples:
+           SELECT e.last_name, e.salary, j.grade_level
+           FROM   employee e JOIN job_grades j
+           ON     e.salary
+                  BETWEEN j.lowest_sal AND j.highest_sal;
+
+9. OUTER JOINS
+   -- To return the row does not satisfy a join condition, you can use an OUTER 
+      join.
+   9.1. INNER Versus OUTER Joins
+        -- In SQL: 1999, the join of two tables returning only matched rows is 
+           called an INNER join.
+        -- A join between two tables that returns the results of the INNER join
+           as well as the unmatched rows from the left(or right) table is called 
+           a left(or right) OUTER join.
+        -- A join between two tables that returns the results of an INNER join 
+           as well as ther results of a left and right join is a full OUTER join.
+        -- There are three types of OUTER joins
+           - LEFT OUTER
+           - RIGHT OUTER
+           - FULL OUTER
+   9.2. LEFT OUTER JOIN
+        Examples:
+           SELECT e.last_name, e.department_id, d.department_name
+           FROM   employees e LEFT OUTER JOIN department d
+           ON     (e.department_id = d.department_id);
+           - This query retrieves all the rows in the EMPLOYEES table, which is 
+             the left table, even if there is no match in the DEPARTMENTS table.
+   9.3. RIGHT OUTER JOIN
+        Examples:
+           SELECT e.last_name, e.department_id, d.department_name
+           FROM   employees e RIGHT OUTER JOIN department d
+           ON     (e.department_id = d.department_id);
+           - This query retrieves all the rows in the DEPARTMENTS table, which 
+             is the table at the right, even if there is no match in the 
+             EMPLOYEES table.
+   9.4. FULL OUTER JOIN
+        Examples:
+           SELECT e.last_name, e.department_id, d.department_name
+           FROM   employees e FULL OUTER JOIN department d
+           ON     (e.department_id = d.department_id);
+           - This query retreives all rows in the EMPLOYEES table, even if there 
+             is no match in the DEPARTMENTS table. It alse retrieves all rows in 
+             the DEPARTMENTS table, even if there is no match in the EMPLOYEES 
+             table.
+
+10. Cartesian Products
+    -- A Cartesian product is formed when:
+       - A join condition is omitted
+       - A join condition is invalid
+       - All rows in the first table are joined to all rows in the second table
+    -- Always include a valid join condition if you want to avoid a Cartesian 
+       product.
+    10.1. Creating Cross Joins
+          -- The CROSS JOIN clause produces the cross-product of two tables.
+          -- This is also called a Cartesian product between the two tables.
+             Examples:
+                SELECT last_name, department_name
+                FROM   employees
+                CROSS JOIN departments;
+
+
 OUTER JOIN 會先把符合INNER JOIN的ROW結合出來, 再把不符合的ROW SHOW出來
 
 LEFT OUTER JOIN 會先把符合INNER JOIN的ROW 完成結合後, 再把左邊的表格中, 不符合的ROW顯示出來

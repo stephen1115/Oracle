@@ -1,6 +1,6 @@
 Using Conversion Functions and Conditional Expressions
 
-Conversion Functions
+Conversion Functions (用來變更資料型態)
 1. The data type conversion can be done implicily by the Oracle server or
                                         ^^^^^^^^^
    explicily by the user.
@@ -34,6 +34,33 @@ Conversion Functions
         Example:
             the expression grade = 2 results in the implicit conversion of the 
             number 2 to the string "2" because grade is a CHAR(2) column.
+   <補充>
+        SQL> SELECT 1||1 FROM dual; -- 因為使用||連接,所以自動(隱式implicit)將1使
+                                       用TO_CHAR轉成文字1後,才連結在一起
+                                    -- 等同SELECT TO_CHAR(1)||TO_CHAR(1) FROM dual;
+        1|   --column heading靠左邊對齊,表示此欄位值為文字或日期
+        --
+        11   --column heading靠左邊對齊,表示此欄位值為文字或日期
+
+        SQL> SELECT 1+1 FROM dual;
+        
+               1+1    -- column heading靠右邊對齊,表示此欄位值為數字
+        ----------
+                 2    -- 欄位值靠右對齊,表示此欄位值為數字
+        
+        SQL> SELECT '1'+1 FROM dual; -- 因為使用+,所以自動使用TO_NUMBER將'1'轉成
+                                        數字1後(implicit conversion),才進行相加
+        
+             '1'+1
+        ----------
+                 2
+        
+        SQL> SELECT '$1'+1 FROM dual;
+        SELECT '$1'+1 FROM dual
+               *
+         ERROR 在行 1:
+        ORA-01722: 無效的數字  -- 隱式型別轉換TO_NUMBER失敗,因為預設的format 
+                                  model無法解析$1.
 
 3. Explicit Data Type Conversion
      ┌──TO_NUMBER──┐ ┌───TO_DATE───┐
@@ -134,6 +161,352 @@ Conversion Functions
            FROM employees
            WHERE TO_DATE( hire_date, 'DD-Mon-yy' ) < '01-Jan-1990';
 
+    <補充>
+        SQL> SELECT TO_NUMBER('$1','$9')+1 FROM dual;  -- 改用顯式型別轉換
+                                                          TO_NUMBER
+
+        TO_NUMBER('$1','$9')+1
+        ----------------------
+                             2
+        
+        當文字自動轉換為日期時,所使用的format model為NLS_DATE_FORMAT,
+                                                     NLS_DATE_LANGUAGE
+        SQL> SELECT last_name,hire_date 
+          2  FROM hr.employees 
+          3  WHERE department_id=100;
+
+        LAST_NAME                 HIRE_DATE
+        ------------------------- -------------------
+        Greenberg                 2002-08-17:00:00:00
+        Faviet                    2002-08-16:00:00:00
+        Chen                      2005-09-28:00:00:00
+        Sciarra                   2005-09-30:00:00:00
+        Urman                     2006-03-07:00:00:00
+        Popp                      2007-12-07:00:00:00
+        
+        已選取 6 個資料列.
+
+        -- 顯示目前session所使用的日期相關參數值
+        SQL> SELECT parameter,value 
+		   2 FROM nls_session_parameters 
+		   3 WHERE parameter LIKE 'NLS_DATE\_%' ESCAPE '\';
+        
+        PARAMETER                      VALUE
+        ------------------------------ ----------------------------------------
+        NLS_DATE_FORMAT                YYYY-MM-DD:HH24:MI:SS
+        NLS_DATE_LANGUAGE              AMERICAN
+
+        SQL> SELECT last_name,job_id
+          2  FROM hr.employees
+          3  WHERE hire_date='2002-08-17';  -- '1994-08-17'必須符合NLS_DATE_FORMAT,
+		                                       不然將無法自動轉換
+        
+        LAST_NAME                 JOB_ID
+        ------------------------- ----------
+        Greenberg                 FI_MGR
+        
+        SQL> SELECT last_name,job_id
+          2  FROM hr.employees
+          3  WHERE hire_date='17-AUG-02';
+        WHERE hire_date='17-AUG-02'
+                        *
+         ERROR 在行 3:
+        ORA-01858: 在應為數值的位置發現非數值的字元  -- 因為IMPLICIT type 
+                                                        conversion所使用的
+                                                        data_format為'YYYY-MM-DD'
+                                                     -- TO_DATE('17-AUG-02','YYYY-MM-DD:HH24:MI:SS') 
+
+        SQL> SELECT last_name,job_id
+          2  FROM hr.employees
+          3  WHERE hire_date='17-08-02';  --隱式型別轉換將此文字變成2017-08-02(2017年8月2日)
+
+        -- 當implicit type conversion失敗,則必須使用TO_DATE進行explict type conversion(顯式)
+        SQL> SELECT last_name,job_id
+          2  FROM hr.employees
+          3  WHERE hire_date=TO_DATE('17-AUG-02','DD-MON-RR','NLS_DATE_LANGUAGE=american');  --至於要寫AUG還是8月,則需要根據NLS_DATE_LANGUAGE決定
+        
+        LAST_NAME                 JOB_ID
+        ------------------------- ----------
+        Greenberg                 FI_MGR
+
+        SQL> SELECT last_name,salary,TO_CHAR(salary)
+          2  FROM hr.employees
+          3  WHERE last_name='King';
+        文字/日期靠左邊		      數字靠右邊
+        LAST_NAME                     SALARY TO_CHAR(SALARY)
+        ------------------------- ---------- ----------------------------------------
+        King                           10000 10000
+        King                           24000 24000
+                                                    'format model'
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'L999,999')  --L表示local currency(NLS_CURRENCY)
+          2  FROM hr.employees
+          3  WHERE last_name='King';
+        
+        LAST_NAME                     SALARY TO_CHAR(SALARY,'L
+        ------------------------- ---------- -----------------
+        King                           10000         NT$10,000
+        King                           24000         NT$24,000
+        
+        SQL> select parameter,value from nls_session_parameters where parameter like 'NLS_CURRENCY%';
+        
+        PARAMETER                      VALUE
+        ------------------------------ ----------------------------------------
+        NLS_CURRENCY                   NT$
+
+        SQL> ALTER SESSION SET NLS_CURRENCY=GBP;
+        
+        已更改階段作業.
+        
+        SQL> select parameter,value from nls_session_parameters where parameter like 'NLS_CURRENCY%';
+        
+        PARAMETER                      VALUE
+        ------------------------------ ----------------------------------------
+        NLS_CURRENCY                   GBP
+        
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'L999,999')
+          2  FROM employees
+          3  WHERE last_name='King';
+        
+        LAST_NAME                     SALARY TO_CHAR(SALARY,'L9
+        ------------------------- ---------- ------------------
+        King                           10000          GBP10,000
+        King                           24000          GBP24,000
+        
+        SQL> ALTER SESSION SET NLS_CURRENCY=NT$;
+        
+        已更改階段作業.
+        
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'$000,000') --$就是顯示$
+          2  FROM hr.employees
+          3  WHERE last_name='King';
+        
+        LAST_NAME                     SALARY TO_CHAR(S
+        ------------------------- ---------- ---------
+        King                           10000  $010,000
+        King                           24000  $024,000
+
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'$000G000D00')
+          2  FROM hr.employees
+          3  WHERE last_name='King';
+        
+        LAST_NAME                     SALARY TO_CHAR(SALA
+        ------------------------- ---------- ------------
+        King                           10000  $010,000.00   --format model出現0時,若資料位數不足,則出現0
+        King                           24000  $024,000.00
+        
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'$999G999D99')
+          2  FROM hr.employees
+          3  WHERE last_name='King';
+        
+        LAST_NAME                     SALARY TO_CHAR(SALA
+        ------------------------- ---------- ------------
+        King                           10000   $10,000.00  --format model出現9時,若資料位數不足,則不會顯示任何字元
+        King                           24000   $24,000.00
+        
+        SQL> ALTER SESSION SET NLS_TERRITORY=germany;
+        
+        Session altered.
+        
+        SQL> SELECT TO_CHAR(123456,'L999,999') FROM dual;
+        
+        TO_CHAR(123456,'L9
+        ------------------
+                 €123,456
+
+        SQL> SELECT TO_CHAR(123456,'$999,999') FROM dual;
+        
+        TO_CHAR(1
+        ---------
+         $123,456
+        
+        SQL> SELECT TO_CHAR(123456,'$999G999D99') FROM dual;
+        
+        TO_CHAR(1234
+        ------------
+         $123.456,00
+        
+        SQL> SELECT TO_CHAR(123456,'$999,999.99') FROM dual;
+        
+        TO_CHAR(1234
+        ------------
+         $123,456.00
+        
+        SQL> ALTER SESSION SET NLS_TERRITORY=taiwan;
+        
+        Session altered.
+        
+        SQL> SELECT TO_CHAR(123456,'$999G999D99') FROM dual;
+        
+        TO_CHAR(1234
+        ------------
+         $123,456.00
+
+        **V後面有幾個9,就表示乘以上10的幾次方
+        SQL> SELECT 1234,TO_CHAR(1234,'999,999V9'),TO_CHAR(1234,'999,999,999V99') FROM dual;
+        
+              1234 TO_CHAR(1 TO_CHAR(1234,'
+        ---------- --------- --------------
+              1234    1,2340        1,23400
+        
+        SQL> SELECT last_name,salary,TO_CHAR(salary,'999,999.999MI')
+          2  FROM employees
+          3  WHERE employee_id=100;
+        
+        LAST_NAME                     SALARY TO_CHAR(SALA
+        ------------------------- ---------- ------------
+        King                           24000  24,000.000
+        
+        SQL> SELECT TO_CHAR(-24000,'999,999.999MI') FROM dual;
+        
+        TO_CHAR(-240
+        ------------
+         24,000.000-
+        
+         SQL> SELECT TO_CHAR(-24000,'MI999,999.999') FROM dual;
+        SELECT TO_CHAR(-24000,'MI999,999.999') FROM dual
+                              *
+         ERROR 在行 1:
+        ORA-01481: 無效的數字格式模型  --MI不能變更位置
+        
+        SQL> SELECT TO_CHAR(24000,'999,999.999PR') FROM dual;
+        
+        TO_CHAR(24000
+        -------------
+          24,000.000
+          
+        SQL> SELECT TO_CHAR(-24000,'999,999.999PR') FROM dual;
+        
+        TO_CHAR(-2400
+        -------------
+         <24,000.000>
+        
+        SQL> SELECT TO_CHAR(-24000,'PR999,999.999') FROM dual;
+        SELECT TO_CHAR(-24000,'PR999,999.999') FROM dual
+                              *
+         ERROR 在行 1:
+        ORA-01481: 無效的數字格式模型
+        
+        SQL> SELECT TO_CHAR(24000,'S999,999.999') FROM dual;
+        
+        TO_CHAR(2400
+        ------------
+         +24,000.000
+        
+        SQL> SELECT TO_CHAR(-24000,'S999,999.999') FROM dual;
+        
+        TO_CHAR(-240
+        ------------
+         -24,000.000
+        
+        SQL> SELECT TO_CHAR(-24000,'999,999.999S') FROM dual;
+        
+        TO_CHAR(-240
+        ------------
+         24,000.000-
+        
+        SQL> SELECT TO_CHAR(24000,'999,999.999S') FROM dual;
+        
+        TO_CHAR(2400
+        ------------
+         24,000.000+
+
+　　　　　　　　　　　　　　        D為星期幾使用數字顯示(1表示本週的第一天)
+        SQL> SELECT SYSDATE,TO_CHAR(SYSDATE,'D'),TO_CHAR(SYSDATE,'DD'),TO_CHAR(SYSDATE,'DDD') FROM dual;
+        
+        SYSDATE             T TO TO_
+        ------------------- - -- ---
+        2010-04-11:16:44:20 1 11 101
+        
+        SQL> SELECT SYSDATE,TO_CHAR(SYSDATE,'D'),TO_CHAR(SYSDATE,'DY'),TO_CHAR(SYSDATE,'DAY') FROM dual;
+        
+        SYSDATE             T TO_CHA TO_CHAR(SYSDA
+        ------------------- - ------ -------------
+        2010-04-11:16:45:44 1 SUN    SUNDAY
+                             W本月份的第幾週	　WW本年的第幾週
+        SQL> SELECT SYSDATE,TO_CHAR(SYSDATE,'W'),TO_CHAR(SYSDATE,'WW') FROM dual;
+        
+        SYSDATE             T TO
+        ------------------- - --
+        2010-04-11:16:46:05 2 15
+        
+        Julian Day由BC 4712 1 1起算(1),每過1天加1.一直到AD 9999 12 31
+        SQL> SELECT TO_CHAR(SYSDATE,'J'),TO_CHAR(SYSDATE+100,'J') FROM dual;
+        
+        TO_CHAR TO_CHAR
+        ------- -------
+        2456660 2456760  --相差100(100天)
+        
+        SS現在這一分鐘的第幾秒,SSSSS從午夜00:00到目前過了幾秒
+        SQL> SELECT SYSDATE,TO_CHAR(SYSDATE,'SS SSSSS') FROM dual;
+        
+        SYSDATE             TO_CHAR(
+        ------------------- --------
+        2014-01-02:20:32:21 21 73941
+        
+        SQL> SELECT TO_CHAR(SYSDATE,'"Week" w "of" month') FROM DUAL; --format model必須被包括在單引號裡
+                                                                      --如果在format model出現literal,則必須使用雙引號包括起來
+        TO_CHAR(SYSDATE,'"WEEK"
+        -----------------------
+        Week 4 of july            --month要求顯示月份全名
+        
+        SQL> SELECT TO_CHAR(SYSDATE,'"Week" w "of" Month') FROM DUAL;
+        
+        TO_CHAR(SYSDATE,'"WEEK"
+        -----------------------
+        Week 4 of July           --Month=July
+        
+        SQL> SELECT TO_CHAR(SYSDATE,'"Week" w "of" MOnth') FROM DUAL;
+        
+        TO_CHAR(SYSDATE,'"WEEK"
+        -----------------------
+        Week 4 of JULY          --MOnth=JULY
+        
+        　　　　　　　　　　DD-MON-RR
+        SQL> SELECT TO_DATE('11-APR-10') FROM dual;　　--直接使用NLS_DATE_FORMAT來轉換
+        
+        TO_DATE('11-APR-10'
+        -------------------
+        0011-04-10:00:00:00  --目前的date_format=YYYY-MM-DD:HH24:MI:SS.剛好可以implicit type conversion,但所得日期有相當大的誤差
+        
+        SQL> SELECT TO_DATE('11-APR-10','DD-MON-RR') FROM dual;
+        
+        TO_DATE('11-APR-10'
+        -------------------
+        2010-04-11:00:00:00
+        
+        SQL> SELECT TO_NUMBER('NT$100,999.00') FROM dual;
+        SELECT TO_NUMBER('NT$100,999.00') FROM dual
+                         *
+         ERROR 在行 1:
+        ORA-01722: 無效的數字
+        
+        
+        SQL> SELECT TO_NUMBER('NT$100,999.00','L999,999.99') FROM dual;
+        
+        TO_NUMBER('NT$100,999.00','L999,999.99')
+        ----------------------------------------
+                                          100999
+        
+        SQL> SELECT TO_NUMBER('$100,999.00') FROM dual;
+        SELECT TO_NUMBER('$100,999.00') FROM dual
+                         *
+         ERROR 在行 1:
+        ORA-01722: 無效的數字
+        
+        
+        SQL> SELECT TO_NUMBER('$100,999.00','$999,999.99') FROM dual;
+        
+        TO_NUMBER('$100,999.00','$999,999.99')
+        --------------------------------------
+                                        100999
+        								
+        SQL> SELECT TO_NUMBER('$100,999.00','$999G999D99') FROM dual;
+        
+        TO_NUMBER('$100,999.00','$999G999D99')
+        --------------------------------------
+                                        100999
+        		 
+		   
 4. Nesting Functions
    -- Single-row functions can be nested to any level.
    -- Nested functions are evaluated from the deepest level to the least deep 
@@ -257,6 +630,206 @@ Conversion Functions
                    COALESCE( ( salary + ( commission_pct * salary ) ), salary + 
                              2000, salary ) "New Salary"
             FROM employees;
+    <補充>
+	    General Function用來處理可能包含空值的欄位,因為空值與任何數值進行數學運算時,其結果還是空值.
+        NVL(expr1,expr2)
+        -> IF expr1 IS NOT NULL 
+            THEN expr1
+            ELSE expr2
+           END IF
+        expr2的資料型態必須與expr1相同
+        
+        SQL> SELECT salary,commission_pct,salary*commission_pct
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT SALARY*COMMISSION_PCT
+        ---------- -------------- ---------------------
+             13000
+             12000
+             24000
+             17000
+             17000
+             12000
+             11000           空值                  空值
+             14000             .4                  5600
+             13500             .3                  4050
+             12000             .3                  3600
+             11000             .3                  3300
+             10500             .2                  2100
+             10500            .25                  2625
+             11500            .25                  2875
+             11000             .3                  3300
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT salary,commission_pct,salary*NVL(commission_pct,0)
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT SALARY*NVL(COMMISSION_PCT,0)
+        ---------- -------------- ----------------------------
+             13000                                           0
+             12000                                           0
+             24000                                           0
+             17000                                           0
+             17000                                           0
+             12000                                           0
+             11000                                           0
+             14000             .4                         5600
+             13500             .3                         4050
+             12000             .3                         3600
+             11000             .3                         3300
+             10500             .2                         2100
+             10500            .25                         2625
+             11500            .25                         2875
+             11000             .3                         3300
+        
+        已選取 15 個資料列.
+        
+        NVL2(expr1,expr2,expr3)   --expr1只是用來決定回傳expr2還是expr3
+        -> IF expr1 IS NOT NULL
+            THEN expr2
+            ELSE expr3
+           END IF
+        expr2與expr3的資料型態必須相同,但是expr1與expr2可以不一樣
+        SQL> SELECT salary,commission_pct,NVL2(commission_pct,'SAL+COMM','SAL')
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT NVL2(COM
+        ---------- -------------- --------
+             13000                SAL
+             12000                SAL
+             24000                SAL
+             17000                SAL
+             17000                SAL
+             12000                SAL
+             11000                SAL
+             14000             .4 SAL+COMM
+             13500             .3 SAL+COMM
+             12000             .3 SAL+COMM
+             11000             .3 SAL+COMM
+             10500             .2 SAL+COMM
+             10500            .25 SAL+COMM
+             11500            .25 SAL+COMM
+             11000             .3 SAL+COMM
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT salary,commission_pct,NVL2(commission_pct,salary*(1+commission_pct),salary)
+          2  FROM employees
+          3  WHERE salary>10000;
+        
+            SALARY COMMISSION_PCT NVL2(COMMISSION_PCT,SALARY*(1+COMMISSION_PCT),SALARY)
+        ---------- -------------- -----------------------------------------------------
+             24000                                                                24000
+             17000                                                                17000
+             17000                                                                17000
+             12008                                                                12008
+             11000                                                                11000
+             14000             .4                                                 19600
+             13500             .3                                                 17550
+             12000             .3                                                 15600
+             11000             .3                                                 14300
+             10500             .2                                                 12600
+             10500            .25                                                 13125
+             11500            .25                                                 14375
+             11000             .3                                                 14300
+             13000                                                                13000
+             12008                                                                12008
+        
+        已選取 15 個資料列.
+        
+        NULLIF(expr1,expr2)
+        -> IF expr1=expr2  
+            THEN NULL
+            ELSE expr1
+           END IF
+        SQL> SELECT last_name,first_name,NULLIF(LENGTH(last_name),LENGTH(first_name)) "名字長度是否相同?"
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+        LAST_NAME                 FIRST_NAME           名字長度是否相同?
+        ------------------------- -------------------- -----------------
+        Hartstein                 Michael                              9
+        Higgins                   Shelley
+        King                      Steven                               4
+        Kochhar                   Neena                                7
+        De Haan                   Lex                                  7
+        Greenberg                 Nancy                                9
+        Raphaely                  Den                                  8
+        Russell                   John                                 7
+        Partners                  Karen                                8
+        Errazuriz                 Alberto                              9
+        Cambrault                 Gerald                               9
+        Zlotkey                   Eleni                                7
+        Vishney                   Clara                                7
+        Ozer                      Lisa
+        Abel                      Ellen                                4
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT last_name,first_name,NVL2(NULLIF(LENGTH(last_name),LENGTH(first_name)),'不一致','一致') "名字長度是否相同?"
+          2  FROM hr.employees
+          3  WHERE salary>10000;
+        
+        LAST_NAME                 FIRST_NAME           名字長
+        ------------------------- -------------------- ------
+        Hartstein                 Michael              不一致
+        Higgins                   Shelley              一致
+        King                      Steven               不一致
+        Kochhar                   Neena                不一致
+        De Haan                   Lex                  不一致
+        Greenberg                 Nancy                不一致
+        Raphaely                  Den                  不一致
+        Russell                   John                 不一致
+        Partners                  Karen                不一致
+        Errazuriz                 Alberto              不一致
+        Cambrault                 Gerald               不一致
+        Zlotkey                   Eleni                不一致
+        Vishney                   Clara                不一致
+        Ozer                      Lisa                 一致
+        Abel                      Ellen                不一致
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT NVL(NULLIF(NULL,NULL),'空值') FROM dual;
+        SELECT NVL(NULLIF(NULL,NULL),'空值') FROM dual
+                          *
+        ERROR at line 1:
+        ORA-00932: inconsistent datatypes: expected - got CHAR
+        
+        
+        SQL> SELECT NVL(NULLIF(TO_CHAR(NULL),TO_CHAR(NULL)),'空值') FROM dual;
+        
+        NVL(
+        ----
+        空值
+        
+        SQL> SELECT NVL(NULLIF(TO_CHAR(NULL),TO_NUMBER(NULL)),'空值') FROM dual;
+        
+        NVL(
+        ----
+        空值
+        
+        SQL> SELECT NVL(NULLIF(TO_NUMBER(NULL),TO_CHAR(NULL)),'空值') FROM dual;
+        SELECT NVL(NULLIF(TO_NUMBER(NULL),TO_CHAR(NULL)),'空值') FROM dual
+                          *
+        ERROR at line 1:
+        ORA-00932: inconsistent datatypes: expected - got NUMBER
+        
+        COALESCE(expr1,expr2,...,exprN)
+        -> 由左向右找到第一個非空值的expr,每個expr的資料型態必須相同.
+        SQL> SELECT last_name,commission_pct,manager_id,salary,COALESCE(commission_pct,manager_id,salary,0)
+          2  FROM hr.employees
+          3  WHERE department_id=90;
+        
+        LAST_NAME                 COMMISSION_PCT MANAGER_ID     SALARY COALESCE(COMMISSION_PCT,MANAGER_ID,SALARY)
+        ------------------------- -------------- ---------- ---------- ------------------------------------------
+        King                                                     24000                                      24000
+        Kochhar                                         100      17000                                        100
+        De Haan                                         100      17000                                        100
 
 6. Conditional expressions
    -- Provide the use of the IF-THEN-ELSE logic within a SQL statement.
@@ -327,3 +900,132 @@ Conversion Functions
                                   0.45 ) TAX_RATE
             FROM employees
             WHERE departmaent_id = 80;
+    
+	<補充>
+	    DECODE是Oracle專屬的函數
+        SQL> SELECT last_name,job_id,salary,
+          2   DECODE(job_id,'IT_PROG',salary*1.2,
+          3                 'ST_CLERK',salary*1.1,
+          4                 'SA_REP',salary*1.05,
+          5                  salary) revised_salary
+          6  FROM hr.employees
+          7  WHERE salary>8000;
+        
+        IF job_id='IT_PROG' THEN salary*1.2 
+         ELSIF job_id='ST_CLERK' THEN salary*1.1
+          ELSIF job_id='SA_REP' THEN salary*1.05  
+           ELSE salary
+        END IF
+        
+        --DECODE(job_id,'IT_PROG',salary*1.2,'ST_CLERK',salary*1.1,'SA_REP',salary*1.05,salary) revised_salary
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000          13000
+        Baer                      PR_REP          10000          10000
+        Higgins                   AC_MGR          12000          12000
+        Gietz                     AC_ACCOUNT       8300           8300
+        King                      AD_PRES         24000          24000
+        Kochhar                   AD_VP           17000          17000
+        De Haan                   AD_VP           17000          17000
+        Hunold                    IT_PROG          9000          10800
+        Greenberg                 FI_MGR          12000          12000
+        Faviet                    FI_ACCOUNT       9000           9000
+        Chen                      FI_ACCOUNT       8200           8200
+        Raphaely                  PU_MAN          11000          11000
+        Fripp                     ST_MAN           8200           8200
+        Russell                   SA_MAN          14000          14000
+        Partners                  SA_MAN          13500          13500
+        Errazuriz                 SA_MAN          12000          12000
+        Cambrault                 SA_MAN          11000          11000
+        Zlotkey                   SA_MAN          10500          10500
+        Tucker                    SA_REP          10000          10500
+        Bernstein                 SA_REP           9500           9975
+        Hall                      SA_REP           9000           9450
+        King                      SA_REP          10000          10500
+        Sully                     SA_REP           9500           9975
+        McEwen                    SA_REP           9000           9450
+        Vishney                   SA_REP          10500          11025
+        Greene                    SA_REP           9500           9975
+        Ozer                      SA_REP          11500          12075
+        Bloom                     SA_REP          10000          10500
+        Fox                       SA_REP           9600          10080
+        Abel                      SA_REP          11000          11550
+        Hutton                    SA_REP           8800           9240
+        Taylor                    SA_REP           8600           9030
+        Livingston                SA_REP           8400           8820
+        
+        已選取 33 個資料列.
+        
+        CASE expression為ANSI SQL的語法
+        SQL> SELECT last_name,job_id,salary,
+          2   CASE job_id WHEN 'IT_PROG' THEN salary*1.2
+          3               WHEN 'ST_CLERK' THEN salary*1.1
+          4               WHEN 'SA_REP' THEN salary*1.05
+          5               ELSE salary
+          6   END revised_salary
+          7  FROM hr.employees
+          8  WHERE salary>10000
+          9  /
+        
+          
+        IF job_id='IT_PROG' THEN salary*1.2 
+         ELSIF job_id='ST_CLERK' THEN salary*1.1
+          ELSIF job_id='SA_REP' THEN salary*1.05  
+           ELSE salary
+        END IF
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000          13000
+        Higgins                   AC_MGR          12000          12000
+        King                      AD_PRES         24000          24000
+        Kochhar                   AD_VP           17000          17000
+        De Haan                   AD_VP           17000          17000
+        Greenberg                 FI_MGR          12000          12000
+        Raphaely                  PU_MAN          11000          11000
+        Russell                   SA_MAN          14000          14000
+        Partners                  SA_MAN          13500          13500
+        Errazuriz                 SA_MAN          12000          12000
+        Cambrault                 SA_MAN          11000          11000
+        Zlotkey                   SA_MAN          10500          10500
+        Vishney                   SA_REP          10500          11025
+        Ozer                      SA_REP          11500          12075
+        Abel                      SA_REP          11000          11550
+        
+        已選取 15 個資料列.
+        
+        SQL> SELECT last_name,job_id,salary,
+          2   CASE WHEN salary>15000 THEN salary*0.8
+          3        WHEN job_id='SA_REP' THEN salary*0.7
+          4        WHEN last_name='King' THEN salary*2
+          5        ELSE salary*0.6
+          6   END revised_salary
+          7  FROM hr.employees
+          8  WHERE salary>10000;
+        
+        IF salary>15000 THEN salary*0.8
+         ELSIF job_id='SA_REP' THEN salary*0.7
+          ELSIF last_name='King' THEN salary*2
+           ELSE salary
+        END IF
+        
+        LAST_NAME                 JOB_ID         SALARY REVISED_SALARY
+        ------------------------- ---------- ---------- --------------
+        Hartstein                 MK_MAN          13000           7800
+        Higgins                   AC_MGR          12000           7200
+        King                      AD_PRES         24000          19200
+        Kochhar                   AD_VP           17000          13600
+        De Haan                   AD_VP           17000          13600
+        Greenberg                 FI_MGR          12000           7200
+        Raphaely                  PU_MAN          11000           6600
+        Russell                   SA_MAN          14000           8400
+        Partners                  SA_MAN          13500           8100
+        Errazuriz                 SA_MAN          12000           7200
+        Cambrault                 SA_MAN          11000           6600
+        Zlotkey                   SA_MAN          10500           6300
+        Vishney                   SA_REP          10500           7350
+        Ozer                      SA_REP          11500           8050
+        Abel                      SA_REP          11000           7700
+        
+        已選取 15 個資料列.
