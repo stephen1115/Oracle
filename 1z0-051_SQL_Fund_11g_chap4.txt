@@ -58,7 +58,7 @@ Character Functions
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   LOWER                             CONACT
   UPPER                             SUBSTR
-  INIICAP                           LENGTH
+  INITCAP                           LENGTH
                                     INSTR
                                     LPAD | RPAD
 									TRIM
@@ -71,7 +71,7 @@ Character Functions
   ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w
   LOWER( 'SQL Course' )      sql course
   UPPER( 'SQL Course' )      SQL COURSE
-  INIICAP( 'SQL Course' )    Sql Course
+  INITCAP( 'SQL Course' )    Sql Course
   ¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤¢¤
   Examples:
      SELECT 'The job id for '||UPPER(last_name)||' is '
