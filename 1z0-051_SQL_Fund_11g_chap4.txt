@@ -8,7 +8,7 @@ SQL Functions
      4. Format dates and numbers for display
      5. Convert column data types
   -- 可以接受參數輸入(0/1/多個),但只能/一定回傳1個結果
-     func(arg1,arg2,arg3,...)=>result
+     func(arg1,arg2,arg3,...) => result
 
 Two Types of SQL Functions
 Single-row functions --
@@ -261,9 +261,9 @@ Character Functions
      De Haan                                 0  <--因為所找尋的literal為小寫h
      					                           由左邊的第1幾個字開始向右
                                                    
-     SQL> SELECT last_name,INSTR(last_name,'h', 1, 1) FROM hr.employees
-       2  WHERE department_id = 90;                ↑
-                                                   └── 出現的第幾次
+     SQL> SELECT last_name, INSTR(last_name, 'h', 1, 1) FROM hr.employees
+       2  WHERE department_id = 90;                  ↑
+                                                     └── 'h' 出現的第幾次
      LAST_NAME            INSTR(LAST_NAME,'H',1,1)
      -------------------- ------------------------
      King                                        0
@@ -306,15 +306,15 @@ Character Functions
      Kochhar                                     0
      De Haan                                     0
      
-     SQL> SELECT INSTR('美商甲骨文','文'),INSTRB('美商甲骨文','文') FROM dual;
+     SQL> SELECT INSTR('美商甲骨文', '文'), INSTRB('美商甲骨文', '文') FROM dual;
      
      INSTR('美商甲骨文','文') INSTRB('美商甲骨文','文')
      ------------------------ -------------------------
                             5                         9
      					   
-     SQL> SELECT last_name,LPAD(last_name,10,'#'),RPAD(last_name,10,'!') 
+     SQL> SELECT last_name, LPAD(last_name,10,'#'), RPAD(last_name,10,'!') 
         2 FROM hr.employees 
-        3 WHERE department_id=90;
+        3 WHERE department_id = 90;
      
      LAST_NAME            LPAD(LAST_NAME,10,'# RPAD(LAST_NAME,10,'!
      -------------------- -------------------- --------------------
@@ -389,24 +389,33 @@ Number Functions
 	 FROM DUAL;
 
   Example: 補充
-     -- ROUND四捨五入,重點在四捨五入的位置
+     -- ROUND 四捨五入,重點在四捨五入的位置
+     -- ROUND(number，num_digits)
+        - number 需要進行四捨五人的數字
+        - num_digits 為指定的位數，按此位數進行四捨五入
+                     如果 num_digits 大於 0，則四捨五入到指定的小數位，
+                     如果 num_digits 等於 0，則四捨五入到最接近的整數，
+                     如果 num_digits 小於 0，則在小數點左側進行四捨五入，
+                          即負數會由十位數開始進行四捨五入，-1 ==> 十位數，
+                          -2 ==> 百位數。     
                                       -  + 
                  ROUND(123.45,0)     210 12
-     SQL> SELECT ROUND(123.45),ROUND(123.45,1),ROUND(123.45,2),ROUND(123.45,-1),
-        2        ROUND(123.45,-2) 
-        3 FROM dual;
-                       個位數        正數為小數點後第幾位            負數由10位數開始(-1=>十位數,-2=>百位數)
+     SQL> SELECT ROUND(123.45), ROUND(123.45, 1), ROUND(123.45, 2), 
+       2          ROUND(123.45, -1), ROUND(123.45,-2)
+       3  FROM dual;        
+
+          個位數        正數為小數點後第幾位       負數由10位數開始(-1=>十位數,-2=>百位數)
      ROUND(123.45) ROUND(123.45,1) ROUND(123.45,2) ROUND(123.45,-1) ROUND(123.45,-2)
      ------------- --------------- --------------- ---------------- ----------------
                123           123.5          123.45              120              100
      
-     SQL> SELECT ROUND(123.45,-3) FROM dual;
+     SQL> SELECT ROUND(123.45, -3) FROM dual;
      
      ROUND(123.45,-3)
      ----------------
                     0 --千位數以下進行4捨5入
      
-     SQL> SELECT ROUND(523.45,-3) FROM dual;
+     SQL> SELECT ROUND(523.45, -3) FROM dual;
      
      ROUND(523.45,-3)
      ----------------
