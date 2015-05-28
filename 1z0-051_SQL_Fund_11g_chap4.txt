@@ -58,7 +58,7 @@ Character Functions
   ────────────────────────────────────────────────────────────────────────
   LOWER                             CONACT
   UPPER                             SUBSTR
-  INIICAP                           LENGTH
+  INITCAP                           LENGTH
                                     INSTR
                                     LPAD | RPAD
 									TRIM
@@ -71,11 +71,11 @@ Character Functions
   ────────────────────────────────────────────────────────────────────────
   LOWER( 'SQL Course' )      sql course
   UPPER( 'SQL Course' )      SQL COURSE
-  INIICAP( 'SQL Course' )    Sql Course
+  INITCAP( 'SQL Course' )    Sql Course
   ════════════════════════════════════════════════════════════════════════
   Examples:
-     SELECT 'The job id for '||UPPER(last_name)||' is '
-       ||LOWER(job_id) AS "EMPLOYEE DETAILS"
+     SELECT 'The job id for ' || UPPER(last_name) ||' is '
+       || LOWER(job_id) AS "EMPLOYEE DETAILS"
      FROM employees;
 	 
 	 SELECT employee_id, last_name, department_id
@@ -91,16 +91,17 @@ Character Functions
 	 WHERE INITCAP( last_name ) = 'Higgins';
 
   Examples: 補充
-     SQL> SELECT UPPER('hello world'),LOWER('Hello WorLD'),INITCAP('HELLO world')
-        2 FROM dual;
+     SQL> SELECT UPPER('hello world'), LOWER('Hello WorLD'), 
+       2         INITCAP('HELLO world')
+       3  FROM dual;
 
      UPPER('HELL LOWER('HELL INITCAP('HE  
      ----------- ----------- -----------
      HELLO WORLD hello world Hello World
      
-     -INITCAP將第一個char變成大寫,其餘為小寫
+     - INITCAP將第一個char變成大寫,其餘為小寫
 
-     SQL> SELECT last_name,first_name,last_name||first_name lf_name,
+     SQL> SELECT last_name, first_name, last_name || first_name lf_name,
                  CONCAT(last_name,first_name) concat_name
        2  FROM   hr.employees
        3  WHERE  department_id=90;
@@ -125,38 +126,40 @@ Character Functions
   TRIM( 'H' FROM 'HelloWorld' )          elloWorld
   ═════════════════════════════════════════════════════════════════════════════
   Examples:
-     SELECT employee_id, CONACT( first_name, last_name) NAME,
-	        job_id, LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+     SELECT employee_id, CONACT(first_name, last_name) NAME,
+	        job_id, LENGTH(last_name), INSTR(last_name, 'a') "Contains 'a'?"
 	 FROM employees
 	 WHERE SUBSTR(job_id, 4) = 'REP';
 	 
-     SELECT employee_id, CONACT( first_name, last_name) NAME,
-	        LENGTH( last_name ), INSTR( last_name, 'a' ) "Contains 'a'?"
+     SELECT employee_id, CONACT(first_name, last_name) NAME,
+	        LENGTH(last_name), INSTR(last_name, 'a') "Contains 'a'?"
 	 FROM employees
-	 WHERE SUBSTR( last_name, -1, 1 ) = 'n';
+	 WHERE SUBSTR(last_name, -1, 1) = 'n';
 
   Examples: 補充
-     SQL> SELECT 'A'||'_B',CONCAT('A','_B') FROM dual;
+     SQL> SELECT 'A' || '_B', CONCAT('A', '_B') FROM dual;
 
      'A' CON
      --- ---
      A_B A_B
 
-     SQL> SELECT 'A'||'_B'||'_C',CONCAT('A','_B','_C') FROM dual;
-     SELECT 'A'||'_B'||'_C',CONCAT('A','_B','_C') FROM dual
-                       *
+     SQL> SELECT 'A' || '_B' || '_C', CONCAT('A', '_B', '_C') FROM dual;
+     SELECT 'A' || '_B' || '_C', CONCAT('A', '_B', '_C') FROM dual
+                                 *
      ERROR at line 1:
      ORA-00909: invalid number of arguments
 
-     - 函數的結果可以被當作另一個函數的輸入參數
-       --> 函數巢狀化
-     SQL> SELECT 'A'||'_B'||'_C',CONCAT(CONCAT('A','_B'),'_C') FROM dual; 
+     -- 函數的結果可以被當作另一個函數的輸入參數
+        --> 函數巢狀化
+     SQL> SELECT 'A' || '_B' || '_C', CONCAT(CONCAT('A','_B'), '_C') FROM dual;
+     或
+     SQL> SELECT 'A' || '_B' || '_C', CONCAT('A', CONCAT('_B', '_C')) FROM dual;
 
      'A'|| CONCA
      ----- -----
      A_B_C A_B_C
 
-     SQL> SELECT last_name,LENGTH(last_name) 
+     SQL> SELECT last_name, LENGTH(last_name) 
         2 FROM hr.employees 
         3 WHERE department_id=90;
 
@@ -169,61 +172,63 @@ Character Functions
      De Haan                              7  -- 空白也算
 
      SQL> SELECT LENGTH('甲骨文') 
-        2 FROM dual;
+       2  FROM dual;
 
-        ENGTH('甲骨文')
-        ----------------
-                       3  -- 幾個characters
+     LENGTH('甲骨文')
+     ----------------
+                    3  -- 幾個characters
 
      SQL> SELECT LENGTHB('甲骨文') 
-        2 FROM dual;
+       2  FROM dual;
 
-        LENGTHB('甲骨文')
-        -----------------
-                        6  -- 幾個Bytes
+     LENGTHB('甲骨文')
+     -----------------
+                     6  -- 幾個Bytes
 
      SQL> SELECT LENGTHB('ABC') FROM dual;
      
      LENGTHB('ABC')
      --------------
                   3
-     			                            ┌── 從第幾個字開始
-                                            ↓
-     SQL> SELECT last_name,SUBSTR(last_name,1,3) FROM hr.employees 
-        2 WHERE department_id=90;             ↑
-                                              └── 讀取幾個字
+     			                             ┌── 從第幾個字開始
+                                             ↓
+     SQL> SELECT last_name, SUBSTR(last_name,1,3) FROM hr.employees 
+       2  WHERE department_id = 90;            ↑
+                                               └── 讀取幾個字
      LAST_NAME            SUBSTR
      -------------------- ------
      King                 Kin
      Kochhar              Koc
      De Haan              De
      
-     SQL> SELECT last_name,SUBSTR(last_name,2,3) FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, SUBSTR(last_name,2,3) FROM hr.employees 
+       2  WHERE department_id = 90;
      
      LAST_NAME            SUBSTR
      -------------------- ------
      King                 ing
      Kochhar              och
      De Haan              e H
-                                  字串       ┌── 由哪裡開始算
-                                   ↓         ↓   (正數:由左向右,負數:由右向左)
-     SQL> SELECT last_name,SUBSTR(last_name,-3,3) FROM hr.employees
-        2 WHERE department_id=90;	           ↑
-                                               └── 向右讀幾個字 
+                                   字串       ┌── 由哪裡開始算
+                                    ↓         ↓   (正數:由左向右,負數:由右向左)
+     SQL> SELECT last_name, SUBSTR(last_name,-3,3) FROM hr.employees
+       2  WHERE department_id = 90;	            ↑
+                                                └── 向右讀幾個字 
      LAST_NAME            SUBSTR
      -------------------- ------
      King                 ing
      Kochhar              har
      De Haan              aan
      
-     SQL> SELECT SUBSTR('美商甲骨文',1,3),SUBSTRB('美商甲骨文',1,3) FROM dual;
+     SQL> SELECT SUBSTR('美商甲骨文', 1, 3), SUBSTRB('美商甲骨文', 1, 3) 
+       2  FROM dual;
      
      SUBSTR SUB
      ------ ---
      美商甲 美
      
-     SQL> SELECT SUBSTR('美商甲骨文',1,2),SUBSTRB('美商甲骨文',1,2) FROM dual;
+     SQL> SELECT SUBSTR('美商甲骨文', 1, 2), SUBSTRB('美商甲骨文', 1, 2) 
+       2  FROM dual;
      
      SUBS SU
      ---- --
@@ -236,8 +241,9 @@ Character Functions
                   尋, 若 n 為負數時, 則從右至左開始搜尋
         - m       匹配序號, 例如 m = 2, 則代表要搜尋string1中, 第2項與string2符合
                   的字串
-     SQL> SELECT last_name,INSTR(last_name,'i') FROM hr.employees 
-        2 WHERE department_id=90;
+     
+     SQL> SELECT last_name, INSTR(last_name, 'i') FROM hr.employees 
+       2  WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'I')
      -------------------- --------------------
@@ -245,8 +251,8 @@ Character Functions
      Kochhar                                 0
      De Haan                                 0
      
-     SQL> SELECT last_name,INSTR(last_name,'h') FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, INSTR(last_name, 'h') FROM hr.employees 
+       2  WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'H')  <--此處稱作column heading,會自動
      -------------------- --------------------     將select list變成大寫.      
@@ -255,17 +261,17 @@ Character Functions
      De Haan                                 0  <--因為所找尋的literal為小寫h
      					                           由左邊的第1幾個字開始向右
                                                    
-     SQL> SELECT last_name,INSTR(last_name,'h',1,1) FROM hr.employees
-        2 WHERE department_id=90;                ↑
-                                                 └── 出現的第幾次
+     SQL> SELECT last_name,INSTR(last_name,'h', 1, 1) FROM hr.employees
+       2  WHERE department_id = 90;                ↑
+                                                   └── 出現的第幾次
      LAST_NAME            INSTR(LAST_NAME,'H',1,1)
      -------------------- ------------------------
      King                                        0
      Kochhar                                     4
      De Haan                                     0
      
-     SQL> SELECT last_name,INSTR(last_name,'h',4,1) FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, INSTR(last_name, 'h', 4, 1) FROM hr.employees 
+       2  WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'H',4,1)
      -------------------- ------------------------
@@ -273,8 +279,8 @@ Character Functions
      Kochhar                                     4
      De Haan                                     0
      
-     SQL> SELECT last_name,INSTR(last_name,'h',1,2) FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, INSTR(last_name, 'h', 1, 2) FROM hr.employees 
+        2 WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'H',1,2)
      -------------------- ------------------------
@@ -282,8 +288,8 @@ Character Functions
      Kochhar                                     5
      De Haan                                     0
      
-     SQL> SELECT last_name,INSTR(last_name,'h',5,1) FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, INSTR(last_name,'h', 5, 1) FROM hr.employees 
+        2 WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'H',5,1)
      -------------------- ------------------------
@@ -291,8 +297,8 @@ Character Functions
      Kochhar                                     5
      De Haan                                     0
      
-     SQL> SELECT last_name,INSTR(last_name,'h',6,1) FROM hr.employees 
-        2 WHERE department_id=90;
+     SQL> SELECT last_name, INSTR(last_name, 'h', 6, 1) FROM hr.employees 
+        2 WHERE department_id = 90;
      
      LAST_NAME            INSTR(LAST_NAME,'H',6,1)
      -------------------- ------------------------
