@@ -1,0 +1,56 @@
+Using Subqueries to Solve Queries
+
+1. Subquery Syntax
+   SELECT select_list
+   FROM   table
+   WHERE  expr operator
+               (SELECT select_list
+                FROM   table);
+   -- The subquery (inner query) executes before the main query (outer query).
+   -- You can place the subquery in a number of SQL clauses, including the 
+      following:
+      - WHERE clause
+      - HAVING clause
+      - FROM clause
+   -- In the syntax:
+         operator includes a comparison condition such as >, =, or IN
+      - Comparison conditions fall into two classes:
+          single-row operators, >, =, >=, <, <=, <>
+          multiple-row operators ( IN ANY, ALL, EXISTS )
+
+2. Using a Subquery
+   Examples:
+      SELECT last_name, salary
+      FROM   employees
+      WHERE  salary > 
+                      (SELECT salary
+                       FROM   employees
+                       WHERE  last_name = 'Abel');
+
+3. Guidelines for Using Subqueries
+   -- A subquery must be enclosed in parentheses.
+   -- Place the subquery on the right side of the comparison condition for 
+      readability.
+   -- Use single-row operators with single-row subqueries and multiple-row 
+      operators with multiple-row subqueries.
+
+4. Types of Subqueries
+   -- Single-row subqueries
+      Queries that return only one row from the inner SELECT statement
+   -- Multiple-row subqueries
+      Queries that return more than one row from the inner SELECT statement
+   -- Multiple-column subqueries
+      Queries that return more than one column from the inner SELECT statement.
+
+5. Single-row subqueries
+   5.1. Single-row Subqueries
+        Examples:
+           Displays the employee whose job ID is the same as that of employee 
+           141.
+           SELECT last_name, job_id
+           FROM   employees
+           WHERE  job_id = 
+                           (SELECT job_id
+                            FROM   employees
+                            WHERE  employee_id = 141);
+
