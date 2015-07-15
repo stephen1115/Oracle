@@ -78,8 +78,8 @@ Connecting to Database Instance
 ║ User ║＜──＞│ SQL> SELECT ... │＜──＞User   ＜──＞Server ＜──＞│ ║ Session ║ │
     │         └─────────────────┘      process      process      │ ╚═════════╝ │
     │                                  ═══════      ═══════      │             │
-    │                                        │              │    └─────────────┘
-    │                                        └─┤Connection├─┘	           │
+    │                                     │              │       └─────────────┘
+    │                                     └─┤Connection├─┘	             │
     └─────────────────────────────┤Session├──────────────────────────────┘
 
 <補充>
